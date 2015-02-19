@@ -123,28 +123,28 @@
 	\\[1.5cm]
 	\begin{center}
 	\textbf{{\huge UNIVERSIDAD DE EXTREMADURA}\\[1.0cm]
-	{\LARGE CENTRO UNIVERSITARIO DE MÉRIDA}}\\[1.0cm]
-	{\Large INGENIERO EN INFORMÁTICA: TECNOLOGIAS DE LA INFORMACION}\\[1.0cm]
+	{\LARGE CENTRO UNIVERSITARIO DE M\'E�RIDA}}\\[1.0cm]
+	{\Large INGENIERO EN INFORM\'ATICA EN TECNOLOG\'IAS DE LA INFORMACI\'ON}\\[1.0cm]
 	{\Large PROYECTO FIN DE GRADO}\\[1cm]
-	{\Huge \textbf {INTEGRACION DE UNA}}\\[0.15cm]
-	{\Huge \textbf {HERRAMIENTA DE COMPUTO}}\\[0.15cm]
+	{\Huge \textbf {INTEGRACI\'ON DE UNA}}\\[0.15cm]
+	{\Huge \textbf {HERRAMIENTA DE C\'OMPUTO}}\\[0.15cm]
 	{\Huge \textbf {EVOLUTIVO CON UNA DE}}\\[0.15cm]
-	{\Huge \textbf {COMPUTACION MASIVA DE}}\\[0.15cm]
-	{\Huge \textbf {INFORMACION}}\\[0.15cm]
+	{\Huge \textbf {PROCESAMIENTO MASIVO DE}}\\[0.15cm]
+	{\Huge \textbf {INFORMACI\'ON}}\\[0.15cm]
 }
 
 \newcommand{\insertarinferiorportada}{
-	Mérida - \@date{}
+	M\'erida - \@date{}
 	\end{center}
 }
 
 \newcommand{\insertarautor}{
-	{\large Autor: Daniel Lanza García}\\[0.5cm]
+	{\large Autor: Daniel Lanza Garc\'ia}\\[0.5cm]
 }
 
 \newcommand{\hacerportada}{
 	\insertarsuperiorportada
-	\vspace{6cm}
+	\vspace{5,5cm}
 	\insertarautor
 	\insertarinferiorportada
 }
@@ -153,8 +153,8 @@
 	\insertarsuperiorportada
 	\vspace{3cm}
 	\insertarautor
-	{\large Director: Francisco Fernández de Vega}\\[0.3cm]
-	{\large Codirector: Francisco Chávez de la O}\\[0.3cm]
+	{\large Director: Francisco Fern\'andez de Vega}\\[0.3cm]
+	{\large Codirector: Francisco Ch\'avez de la O}\\[0.3cm]
 	\insertarinferiorportada
 }
 
