@@ -123,14 +123,14 @@
 	\\[1.5cm]
 	\begin{center}
 	\textbf{{\huge UNIVERSIDAD DE EXTREMADURA}\\[1.0cm]
-	{\LARGE CENTRO UNIVERSITARIO DE M\'E�RIDA}}\\[1.0cm]
+	{\LARGE CENTRO UNIVERSITARIO DE M\'ERIDA}}\\[1.0cm]
 	{\Large INGENIERO EN INFORM\'ATICA EN TECNOLOG\'IAS DE LA INFORMACI\'ON}\\[1.0cm]
 	{\Large PROYECTO FIN DE GRADO}\\[1cm]
-	{\Huge \textbf {INTEGRACI\'ON DE UNA}}\\[0.15cm]
-	{\Huge \textbf {HERRAMIENTA DE C\'OMPUTO}}\\[0.15cm]
-	{\Huge \textbf {EVOLUTIVO CON UNA DE}}\\[0.15cm]
-	{\Huge \textbf {PROCESAMIENTO MASIVO DE}}\\[0.15cm]
-	{\Huge \textbf {INFORMACI\'ON}}\\[0.15cm]
+	{\Huge \textbf {INTEGRACI\'ON DE UNA}}\\
+	{\Huge \textbf {HERRAMIENTA DE C\'OMPUTO}}\\[0.25cm]
+	{\Huge \textbf {EVOLUTIVO CON UNA DE}}\\[0.25cm]
+	{\Huge \textbf {PROCESAMIENTO MASIVO DE}}\\
+	{\Huge \textbf {INFORMACI\'ON}}\\
 }
 
 \newcommand{\insertarinferiorportada}{
@@ -144,7 +144,7 @@
 
 \newcommand{\hacerportada}{
 	\insertarsuperiorportada
-	\vspace{5,5cm}
+	\vspace{5cm}
 	\insertarautor
 	\insertarinferiorportada
 }
@@ -155,6 +155,7 @@
 	\insertarautor
 	{\large Director: Francisco Fern\'andez de Vega}\\[0.3cm]
 	{\large Codirector: Francisco Ch\'avez de la O}\\[0.3cm]
+	\vspace{0,5cm}
 	\insertarinferiorportada
 }
 
@@ -252,7 +253,7 @@
 % Comando que crea la página resumen
 \newcommand{\hacerprologo}{%
   \cleardoublepage
-  \subsection*{Prólogo}
+  \subsection*{Pr\'ologo}
   \@prologo
   % \subsection*{Descriptores}
   % \@descriptores
