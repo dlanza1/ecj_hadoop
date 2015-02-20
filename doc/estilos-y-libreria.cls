@@ -160,12 +160,16 @@
 }
 
 \newcommand{\insertaraclaracion}[2]{
-	\fbox{\parbox[b]{\linewidth}{
-		\begin{center}
-			\textbf{#1}
-		\end{center}
-		#2
-	}}
+	\begin{center}
+		\fbox{\parbox[b]{12cm}{
+			\begin{center}\textbf{#1}\end{center}
+			#2
+		}}
+	\end{center}
+}
+
+\newcommand{\mostrarconsola}[1]{
+	\colorbox{black}{\textcolor[rgb]{1,1,1}{\textbf{#1}}}
 }
 
 % %% 
@@ -532,7 +536,7 @@
   % \renewcommand{\bibname}{Bibliografía}
 
   % \bibliographystyle{aalphaurl}
-  \bibliographystyle{plainurl}
+  \bibliographystyle{bibliografia-style}
   \bibliography{#1}
 }
 
