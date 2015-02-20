@@ -169,7 +169,9 @@
 }
 
 \newcommand{\mostrarconsola}[1]{
-	\colorbox{black}{\textcolor[rgb]{1,1,1}{\textbf{#1}}}
+	\begin{center}
+		\colorbox{black}{\textcolor[rgb]{1,1,1}{\textbf{#1}}}
+	\end{center}
 }
 
 % %% 
