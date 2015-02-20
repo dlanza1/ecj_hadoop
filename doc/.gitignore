@@ -4,3 +4,6 @@
 *.toc
 *.aux
 *.synctex.gz
+*synctex.gz(busy)
+/analisis-evolutivos.tex
+/analisis-procesamiento-masivo.tex

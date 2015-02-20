@@ -159,6 +159,14 @@
 	\insertarinferiorportada
 }
 
+\newcommand{\insertaraclaracion}[2]{
+	\fbox{\parbox[b]{\linewidth}{
+		\begin{center}
+			\textbf{#1}
+		\end{center}
+		#2
+	}}
+}
 
 % %% 
 %% CONTRAPORTADA
