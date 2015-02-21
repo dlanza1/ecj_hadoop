@@ -478,7 +478,7 @@
 \newcommand{\ver}[1]{(ver figura~\ref{#1})}
 
 % Referencia a una sección, subsección, etc.
-\newcommand{\verapartado}[1]{ver apartado~\ref{#1}}
+\newcommand{\verapartado}[1]{(ver apartado~\ref{#1})}
 
 % Para escribir extractos de codigo
 % 

@@ -1,1 +1,48 @@
-f...
+Existen problemas computacionales que no pueden ser resueltos con metodologías tradicionales, o porque no existe una solución que pueda proporcionar un resultado aceptable o porque la solución desarrollada necesita de un tiempo y recursos que no son manejables. Para este tipo de problemas se buscan implementaciones que no proporcionan siempre la mejor soluci\'on pero que intentar acercarse lo máximo posible, a estos problemas se les conoce como problemas de optimizaron.
+
+Se han desarrollado diferentes formas de afrontar estos problemas de optimizaci\'on y una de ellas es la computación evolutiva, este modelo se basa en las teoría de la evolución que Charles Darwin postul\'o. Esta idea de aplicar la teor\'ia Darwiniana de la evolución surgió en los a\~nos 50 y desde entonces han surgidos diferentes corrientes de investigación:
+
+\begin{itemize}
+	\item Algoritmos genéticos, desarrolla programas informáticos, tradicionalmente representados en la memoria como estructuras de árboles. Los árboles pueden ser fácilmente evaluados de forma recursiva. Cada nodo del árbol tiene una función como operador y cada nodo terminal tiene un operando.
+	\item Programación evolutiva, una variación de los algoritmos genéticos, donde lo que cambia es la representación de los individuos. En el caso de la Programación evolutiva los individuos son ternas cuyos valores representan estados de un autómata finito. 
+	\item Estrategias evolutivas, se diferencia de las demás en que la representación de cada individuo de la población consta de dos tipos de variables: las variables objeto, posibles valores que hacen que la función objetivo alcance el óptimo, y las variables estratégicas, las cuales indican de qué manera las variables objeto son afectadas por la mutación.. 
+\end{itemize}
+
+Este modelo por tanto, se basa generalmente en la evolución de una población y la lucha por la supervivencia. En su teoría, Darwin dictamin\'o que durante muchas generaciones, la variación, la selección natural y la herencia dan forma a las especies con el fin de satisfacer las demandas del entorno, de la misma manera pero con el fin de satisfacer una buena solución se basa la computación evolutiva. Podemos observar entonces, algunos elementos importantes como son:
+
+\begin{itemize}
+	\item La población de individuos, donde cada una de ellos representa directa o indirectamente una solución al problema.
+	\item Aptitud de los individuos, atributo que describe cuanto de cerca esta este individuo (solución) de la solución \'optima. 
+	\item Procedimientos de sección, es la estrateg\'ia a seguir para elegir los progenitores de la siguiente genraci\'on. Esta normalmente elige a los individuos mas apto pero existen otras muchas técnicas.
+	\item Procedimiento de transformaci\'on, se lleva a cabo sobre los individuos seleccionados y puede consistir en la combinación de varios individuos o en la mutación (cambios normalmente aleatorios en el individuo).
+\end{itemize}
+
+Para llevar a cabo la implementación en computadoras, se ha dividido el problema en diferentes fases y procedimientos, los cuales se ejecutan con un orden determinado, describimos a continuación de forma general como se lleva a cabo la resolución de problemas utilizando este modelo.
+
+\begin{enumerate}
+	\item Inicializaci\'on, en esta primera fase se genera la población inicial, normalmente se genera una cantidad de individuos que es configurada y cada uno de ellos se genera de manera aleatoria, siempre respetando las restricciones que el problema imponga a la solución.
+	\item Evaluaci\'on, se calcula la aptitud de cada uno de los individuos de la población para poder determinar posteriormente cuales son m\'as aptos.
+	\item Las fases que siguen a continuación se repiten hasta que se cumpla una de las siguientes dos condiciones, o que se encuentre la solución \'optima o que se alcance un limite impuesto por el programador como un n\'umero de generaciones máximo o un tiempo máximo.
+	\begin{enumerate}
+		\item Selección, siguiendo la estrategia de selección de progenitores elegida, se eligen individuos de la población. Normalmente los que sean mas aptos.
+		\item Procreaci\'on, utilizando los individuos seleccionados, se combinan para generar nuevos individuos, y con ellos una nueva población (generación).
+		\item Mutaci\'on, se eligen normalmente de forma aleatoria individuos a los que se les aplica una modificación normalmente aleatoria, estos nuevos individuos se incluyen también en la nueva poblaci\'on.
+		\item Evaluaci\'on, todos los individuos de la nueva poblaci\'on son evaluados.
+	\end{enumerate}
+\end{enumerate}
+
+Con el fin de entender mejor este proceso, se muestra la imagen \ver{fases-evolutivo} donde se muestran cada una de las etapas descritas anteriormente.
+
+\figuraSinMarco{0.7}{imagenes/fases-evolucion}{Fases del proceso evolutivo}{fases-evolutivo}{}
+
+Varias herramientas han surgido en la comunidad para ayudar a la investigación de este modelo, en difierentes lenguajes de programación y plataformas. En nuestro caso hemos elegido ECJ que es un framework bien conocido por la comunidad, implementado en el lenguaje de programación Java y que posee una flexibilidad importante para la ejecución de problemas de muy distinta naturaliza. M\'as adelante \verapartado{desarrollo-ecj} se describe con m\'as detalle esta herramienta, explicando su funcionamiento e implementación.
+
+\subsection{Paralelizaci\'on}
+
+Como hemos comentado anteriormente \verapartado{motivaciones} este proyecto surge de la necesidad de optimizar el uso de recursos cuando se intentan resolver problemas complejos con este modelo. Con este fin, y con la posibilidad de paralizar el procesamiento de algunas de las partes del proceso, surge la viabilidad de este proyecto.
+
+Varias partes del proceso evolutivo pueden ser paralizadas, pero no todas merecen el esfuerzo ya que el coste en algunas de ellas es mínimo. 
+
+
+
+
