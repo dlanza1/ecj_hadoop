@@ -26,12 +26,12 @@ Para llevar a cabo la implementación en computadoras, se ha dividido el problem
 	\begin{enumerate}
 		\item Selección, siguiendo la estrategia de selección de progenitores elegida, se eligen individuos de la población. Normalmente los que sean mas aptos.
 		\item Procreaci\'on, utilizando los individuos seleccionados, se combinan para generar nuevos individuos, y con ellos una nueva población (generación).
-		\item Mutaci\'on, se eligen normalmente de forma aleatoria individuos a los que se les aplica una modificación normalmente aleatoria, estos nuevos individuos se incluyen también en la nueva poblaci\'on.
+		\item Mutaci\'on, se eligen normalmente de forma aleatoria individuos a los que se les aplica una modificación tambi\'en aleatoria, estos nuevos individuos se incluyen también en la nueva poblaci\'on.
 		\item Evaluaci\'on, todos los individuos de la nueva poblaci\'on son evaluados.
 	\end{enumerate}
 \end{enumerate}
 
-Con el fin de entender mejor este proceso, se muestra la imagen \ver{fases-evolutivo} donde se muestran cada una de las etapas descritas anteriormente.
+Con el fin de entender mejor este proceso, se muestra una imagen \ver{fases-evolutivo} donde se observan cada una de las etapas descritas anteriormente.
 
 \figuraSinMarco{0.7}{imagenes/fases-evolucion}{Fases del proceso evolutivo}{fases-evolutivo}{}
 
@@ -41,8 +41,6 @@ Varias herramientas han surgido en la comunidad para ayudar a la investigación 
 
 Como hemos comentado anteriormente \verapartado{motivaciones} este proyecto surge de la necesidad de optimizar el uso de recursos cuando se intentan resolver problemas complejos con este modelo. Con este fin, y con la posibilidad de paralizar el procesamiento de algunas de las partes del proceso, surge la viabilidad de este proyecto.
 
-Varias partes del proceso evolutivo pueden ser paralizadas, pero no todas merecen el esfuerzo ya que el coste en algunas de ellas es mínimo. 
+Varias partes del proceso evolutivo pueden ser paralizadas, pero no todas merecen el esfuerzo ya que el coste en algunas de ellas es mínimo. Una de las fases que suele conllevar un coste computacional alto y que su paralelizaci\'on en la mayoría de problemas es sencilla, es la fase de evaluaci\'on de individuos.
 
-
-
-
+Se han utilizado diferentes técnicas para este prop\'osito, una de ellas es la ejecución de la evaluación de individuos haciendo uso procesadores multin\'ucleo/multihilo. Esta t\'encima consigue buenos resultados pero se limita a las capacidades del procesador que contenga esa computadora. Otro intento para llevar a cabo la paralelizaci\'on del proceso ha sido la ejecución en diferentes m\'aquinas, las cuales se conectan haciendo uso de una red. Este planteamiento requiere de una implementación m\'as compleja y no suele explotar todos los recursos, adema\'as de que algunas soluciones planteadas carecen de la escalabilidad deseada. Tambo\'en han surgido implementaciones que hacen uso de ambas t\'ecnicas, esta solución suele ser la m\'as apropiada ya que hace un uso m\'as eficiente del hardware proporcionado, aunque requiere de una implementación a\'un m\'as costosa.
