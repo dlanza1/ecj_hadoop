@@ -42,7 +42,7 @@ public class Entrenamiento {
 											// métodos
 		proceso.generaMatRef(matRef); // Genera la matriz de conocimiento para
 										// cada una de las imagenes
-		proceso.norMatRef(matRef, norMat, valRef);// normaliza la matriz de
+		proceso.norMatRef(matRef, norMat, valRef,0);// normaliza la matriz de
 													// conocimiento con los
 													// valores máximos
 		proceso.generaCK_Mindex(norMat, centers, labels, MIndex);// aplica el

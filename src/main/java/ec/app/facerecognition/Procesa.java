@@ -140,7 +140,7 @@ public class Procesa {
 	}
 
 	// ++++++++++funcion que convierte una imagen RGH a HSI
-	private void rgb2hsi_improved(Mat image, Mat h, Mat s, Mat i) {
+	public void rgb2hsi_improved(Mat image, Mat h, Mat s, Mat i) {
 		double EP = 0.00000001;
 		Scalar epsilon = new Scalar(EP);
 
@@ -305,7 +305,7 @@ public class Procesa {
 	}
 
 	// carga la informacion de extraida de cada imagen en la
-	private void llenaMatRef(int index, Mat matRef, int puntos[], Mat H, Mat S, Mat I) {
+	public void llenaMatRef(int index, Mat matRef, int puntos[], Mat H, Mat S, Mat I) {
 		
 		int p = 5;
 		Mat ROI_H = new Mat(), ROI_S = new Mat(), ROI_I = new Mat(), cH = new Mat();
@@ -445,25 +445,30 @@ public class Procesa {
 	}
 
 	// normaliza la matriz de referencia
-	public void norMatRef(Mat matRef, Mat matNor, double val[]) {
-		Mat ROI = new Mat();
-		for (int i = 0; i < matRef.cols(); i++) {
-			ROI = matRef.submat(0, matRef.rows(), i, i + 1);
-			MinMaxLocResult mmr = Core.minMaxLoc(ROI);
-			val[i] = mmr.maxVal;
-			// System.out.println("valorMax:"+val[i]);
-		}
-
-		// obitnene el valor maximo de cada columna de la matriz de referencia
-		for (int i = 0; i < matRef.cols(); i++) {
-			for (int j = 0; j < matRef.rows(); j++) {
-				double[] valor = matRef.get(j, i);
-				valor[0] = valor[0] / val[0];
-				matNor.put(j, i, valor);
-
+		public void norMatRef(Mat matRef, Mat matNor, double val[], int bandera) {
+			Mat valor=Mat.zeros(1, 9,CvType.CV_64F);
+			if (bandera==0)
+			{	Mat ROI = new Mat();
+			
+				for (int i = 0; i < matRef.cols(); i++) {
+					ROI = matRef.submat(0, matRef.rows(), i, i + 1);
+					MinMaxLocResult mmr = Core.minMaxLoc(ROI);
+					val[i] = mmr.maxVal;
+					valor.put(0, i, mmr.maxVal);
+					// System.out.println("valorMax:"+val[i]);
+				}
 			}
+			// obitnene el valor maximo de cada columna de la matriz de referencia
+			for (int i = 0; i < matRef.cols(); i++) {
+				for (int j = 0; j < matRef.rows(); j++) {
+					matNor.put(j, i, matRef.get(j, i)[0] / val[0]);
+
+				}
+			}
+
+			System.out.println("valores:"+valor.get(0, 0)[0]+valor.get(0, 1)[0]+","+valor.get(0, 2)[0]+","+valor.get(0, 3)[0]+","+valor.get(0, 4)[0]+","+valor.get(0, 5)[0]+","+valor.get(0, 6)[0]+","+valor.get(0, 7)[0]+","+valor.get(0, 8)[0]);
+			System.out.println(" valref:"+val[0]+","+val[1]+","+val[2]+","+val[3]+","+val[4]+","+val[5]+","+val[6]+","+val[7]+","+val[8]);
 		}
-	}
 
 	// Aplica el clasificador K-means para obtener la matriz de indices de
 	// textura
