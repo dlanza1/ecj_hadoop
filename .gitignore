@@ -2,10 +2,9 @@
 /ec.0.gz
 /out.stat
 /docs/
-/.DS_Store
 /.classpath
 /.project
 /bin/
 /.settings/
 /Makefile
-.DS_Store
+*.DS_Store
