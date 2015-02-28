@@ -1,4 +1,4 @@
-package main;
+package ec.app.facerecognition;
 
 import org.opencv.core.Core;
 import org.opencv.core.CvType;

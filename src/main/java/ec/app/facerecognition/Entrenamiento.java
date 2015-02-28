@@ -2,7 +2,7 @@
  * Esta clase genera el entrenamiento para las imagenes dentro de la base de datos
  * 
  * **/
-package main;
+package ec.app.facerecognition;
 
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;

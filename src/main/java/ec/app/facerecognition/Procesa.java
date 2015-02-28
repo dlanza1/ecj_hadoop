@@ -7,7 +7,7 @@
  *  y 
  * */
 
-package main;
+package ec.app.facerecognition;
 
 import java.io.BufferedReader;
 import java.net.URI;
