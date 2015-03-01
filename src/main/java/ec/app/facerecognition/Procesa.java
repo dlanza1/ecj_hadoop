@@ -475,30 +475,22 @@ public class Procesa {
 	public void generaCK_Mindex(Mat matNor, Mat centers, Mat labels, Mat MIndex) {
 		Mat MNor = new Mat();
 		matNor.convertTo(MNor, CvType.CV_32F);
-		TermCriteria criteria = new TermCriteria(TermCriteria.EPS
-				+ TermCriteria.MAX_ITER, 10000, 0.0001);
-		Core.kmeans(MNor, 10, labels, criteria, 1, Core.KMEANS_RANDOM_CENTERS,
-				centers);
-		mIndexada(labels, 1, 10, MIndex);
+		TermCriteria criteria = new TermCriteria(TermCriteria.EPS+ TermCriteria.MAX_ITER, 10000, 0.0001);
+		Core.kmeans(MNor, 10, labels, criteria, 1, Core.KMEANS_RANDOM_CENTERS,centers);
+		mIndexada(labels, 10, 10, MIndex);//poner el numero de imagenes
 	}
 
 	// genera la matriz de indices de textura para la base de datos
 	private void mIndexada(Mat labels, int nImag, int k, Mat mIdx) {
-
-		// Mat mIdx=Mat.zeros(nImag, k, CvType.CV_32F);
-
 		int pos;
 		for (int i = 0; i < nImag; i++) {
 			pos = 60 * i;
 			for (int j = pos; j < pos + 60; j++) {
-				double[] col = labels.get(j, 0);
-				double[] valor = mIdx.get(i, (int) col[0]);
+				double[] valor = mIdx.get(i, (int) labels.get(j, 0)[0]);
 				valor[0] = valor[0] + 1;
-				mIdx.put(i, (int) col[0], valor);
-
+				mIdx.put(i, (int)labels.get(j,0)[0], valor);
 			}
 		}
-
 	}
 
 }
