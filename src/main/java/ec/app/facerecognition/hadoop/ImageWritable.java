@@ -4,31 +4,45 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+import javax.imageio.ImageIO;
+
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.WritableComparable;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfByte;
+import org.opencv.highgui.Highgui;
+
+import ec.app.facerecognition.MatE;
 
 public class ImageWritable implements WritableComparable<ImageWritable> {
 	
-	private String file_name;
-	private Mat image;
-	private int number;
+	private MatE value;
+	
+	public ImageWritable() {
+	}
 
-	@Override
-	public void readFields(DataInput arg0) throws IOException {
-		// TODO Auto-generated method stub
-		
+	public ImageWritable(MatE value) {
+		this.value = value;
 	}
 
 	@Override
-	public void write(DataOutput arg0) throws IOException {
-		// TODO Auto-generated method stub
-		
+	public void readFields(DataInput in) throws IOException {
+		this.value = MatE.read(in);
+	}
+
+	@Override
+	public void write(DataOutput out) throws IOException {
+		this.value.write(out);
 	}
 
 	@Override
 	public int compareTo(ImageWritable o) {
-		// TODO Auto-generated method stub
 		return 0;
+	}
+	
+	public MatE getValue(){
+		return value;
 	}
 
 }

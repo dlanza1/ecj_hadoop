@@ -12,9 +12,18 @@ import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl;
 import org.apache.hadoop.util.ReflectionUtils;
+import org.junit.Before;
 import org.junit.Test;
+import org.opencv.core.Core;
+
+import ec.app.facerecognition.hadoop.input.ImageInputFormat;
 
 public class ImageInputFormatTests {
+	
+	@Before
+	public void setU() {
+		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+	}
 
 	@Test
 	public void readFiles() throws IOException, InterruptedException{
@@ -30,8 +39,10 @@ public class ImageInputFormatTests {
 		RecordReader reader = inputFormat.createRecordReader(split, context);
 
 		reader.initialize(split, context);
-		
 		reader.nextKeyValue();
+		
+		ImageWritable image = (ImageWritable) reader.getCurrentValue();
+		image.getValue().show();
 	}
 	
 	
