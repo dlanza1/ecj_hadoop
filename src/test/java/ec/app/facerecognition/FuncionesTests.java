@@ -1,5 +1,7 @@
 package ec.app.facerecognition;
 
+import static org.junit.Assert.*;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,27 +18,147 @@ import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
 public class FuncionesTests {
-	
+
 	public FuncionesTests() {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 	}
 
 	@Test
+	public void acos() {
+		for (int i = 0; i < 10000; i++) {
+			double ang = Math.random() * 2 - 1;
+
+			Mat m = Mat.zeros(1, 1, CvType.CV_64F);
+			m.put(0, 0, ang);
+
+			double exacto = Math.acos(m.get(0, 0)[0]);
+			double aprox1 = acos_aprox1(m).get(0, 0)[0];
+			double aprox2 = Procesa.acos(m).get(0, 0)[0];
+
+			// Comprobar aproximaciones
+			assertEquals(exacto, aprox1, 0.18);
+			assertEquals(exacto, aprox2, 0.000068);
+
+			// Comprobar mismos rsultados con y sin Mat
+			assertEquals(aprox1, acos_aprox1(m.get(0, 0)[0]), 0.000000000000001);
+			assertEquals(aprox2, acos_aprox2(m.get(0, 0)[0]), 0.000000000000001);
+		}
+	}
+	
+	@Test
+	public void getAnguloLoop(){
+		double loops = 100000;
+	
+		double count = 0;
+		for (int i = 0; i < loops; i++) {
+			count += getAngulo();
+		}
+		System.out.println("Errors " + (count/loops*100) + "%");
+		
+		assertFalse( (count/loops*100) > 2);
+	}
+	
+	public int getAngulo(){
+		double rad1 = Math.random() * 2 - 1;
+		double rad2 = Math.random() * 2 - 1;
+		double rad3 = Math.random() * 2 - 1;
+
+		Mat m1 = Mat.zeros(1, 1, CvType.CV_64F);
+		m1.put(0, 0, rad1);
+		Mat m2 = Mat.zeros(1, 1, CvType.CV_64F);
+		m2.put(0, 0, rad2);
+		Mat m3 = Mat.zeros(1, 1, CvType.CV_64F);
+		m3.put(0, 0, rad3);
+		
+		try{																									   
+			assertEquals(Procesa.getAngulo(m1, m2, m3).get(0, 0)[0], Procesa.getAngulo_old(m1, m2, m3).get(0, 0)[0], 0.000068);
+		}catch(AssertionError e){
+			return 1;
+		}
+		return 0;
+	}
+	
+	@Test
+	public void acos_times(){
+		int loops = 100000;
+		
+		long time = System.currentTimeMillis();
+		
+		for (int i = 0; i < loops; i++) {
+			double ang = Math.random() * 2 - 1;
+
+			Mat m = Mat.zeros(1, 1, CvType.CV_64F);
+			m.put(0, 0, ang);
+
+			double aprox1 = acos_aprox1(m).get(0, 0)[0];
+		}
+		
+		System.out.println((System.currentTimeMillis() - time)/(double)loops + " ms (acos_aprox1)");
+		time = System.currentTimeMillis();
+		
+		for (int i = 0; i < loops; i++) {
+			double ang = Math.random() * 2 - 1;
+
+			Mat m = Mat.zeros(1, 1, CvType.CV_64F);
+			m.put(0, 0, ang);
+
+			double aprox1 = Procesa.acos(m).get(0, 0)[0];
+		}
+		
+		System.out.println((System.currentTimeMillis() - time)/(double)loops + " ms (acos_aprox2)");
+	}
+
+	private double acos_aprox2(double x) {
+		// http://http.developer.nvidia.com/Cg/acos.html
+		// Handbook of Mathematical Functions
+		// M. Abramowitz and I.A. Stegun, Ed.
+		// Absolute error <=  6.7e-5 (mis pruebas dan 6.8e-5)
+		// float acos(float x) {
+		// 		float negate = float(x < 0);
+		// 		x = abs(x);
+		// 		float ret = -0.0187293;
+		// 		ret = ret * x;
+		// 		ret = ret + 0.0742610;
+		// 		ret = ret * x;
+		// 		ret = ret - 0.2121144;
+		// 		ret = ret * x;
+		// 		ret = ret + 1.5707288;
+		// 		ret = ret * sqrt(1.0-x);
+		// 		ret = ret - 2 * negate * ret;
+		// 		return negate * 3.14159265358979 + ret;
+		// }
+
+		double negate = x <= 0 ? 1 : 0;
+		x = Math.abs(x);
+		double ret = -0.0187293;
+		ret = ret * x;
+		ret = ret + 0.0742610;
+		ret = ret * x;
+		ret = ret - 0.2121144;
+		ret = ret * x;
+		ret = ret + 1.5707288;
+		ret = ret * Math.sqrt(1.0 - x);
+		ret = ret - 2 * negate * ret;
+		return negate * 3.14159265358979 + ret;
+	}
+
+	//@Test
 	public void rgb2hsi() {
 		Mat image = Highgui.imread("src/main/java/ec/app/facerecognition/img/i000qa-fn.jpg");
 
 		image.convertTo(image, CvType.CV_64FC(3), 1.0 / 255.0);
-		
+
 		Mat H = new Mat();
 		Mat S = new Mat();
 		Mat I = new Mat();
 		rgb2hsi(image, H, S, I);
 	}
 
-	@Test
+	//@Test
 	public void homogeneidad() throws IOException {
-		Mat image = Highgui.imread("src/main/java/ec/app/facerecognition/img/i000qa-fn.jpg");
-		
+		Mat image = Highgui
+				.imread("src/main/java/ec/app/facerecognition/img/i000qa-fn.jpg");
+
 		int numTokens = 0;
 		String lineaPuntos;
 		String palabraPuntos;
@@ -51,15 +173,17 @@ public class FuncionesTests {
 			if (numTokens >= 32) {
 				palabraPuntos = st.nextToken();
 
-				puntos[numTokens - 32] = (int) Float
-						.parseFloat(palabraPuntos);// se almacenan las
-													// coordenadas (x,y)
+				puntos[numTokens - 32] = (int) Float.parseFloat(palabraPuntos);// se
+																				// almacenan
+																				// las
+																				// coordenadas
+																				// (x,y)
 			} else
 				palabraPuntos = st.nextToken();
 			numTokens++;
 		}
-		
-		//Pasar a Double
+
+		// Pasar a Double
 		image.convertTo(image, CvType.CV_64FC(3), 1.0 / 255.0);
 
 		Mat H = new Mat();
@@ -67,18 +191,18 @@ public class FuncionesTests {
 		Mat I = new Mat();
 		rgb2hsi(image, H, S, I);
 
-		
 		Mat ROI_H = new Mat(), ROI_S = new Mat(), ROI_I = new Mat(), cH = new Mat();
 		MatOfDouble meanH = new MatOfDouble(), meanS = new MatOfDouble(), meanI = new MatOfDouble();
 		MatOfDouble stdevH = new MatOfDouble(), stdevS = new MatOfDouble(), stdevI = new MatOfDouble();
 		double homH, homS, homI;
 		int posicion, y, x;
-		
-		int i = 1;//numero del punto
+
+		int i = 1;// numero del punto
 		y = puntos[(i * 2) + 1];// renglon
 		x = puntos[i * 2];// columna
 
-		// extraccion de la vecindad al rededor del PI para cada una de las capas HSI
+		// extraccion de la vecindad al rededor del PI para cada una de las
+		// capas HSI
 		int p = 5;
 		cH = H;
 		ROI_H = cH.submat(y - p, y + (p + 1), x - p, x + (p + 1));
@@ -249,25 +373,52 @@ public class FuncionesTests {
 		s.convertTo(s, CvType.CV_64F, 1.0 / 255.0);
 
 	}
-	
-	
+
 	/**
 	 * Check if two Mat have the same size and content
-	 * @param mat1 One Mat
-	 * @param mat2 Other Mat
+	 * 
+	 * @param mat1
+	 *            One Mat
+	 * @param mat2
+	 *            Other Mat
 	 * @return True = same, False - not same
 	 */
 	private boolean compare(Mat mat1, Mat mat2) {
-		if(mat1.rows() != mat2.rows() || mat1.cols() != mat2.cols())
+		if (mat1.rows() != mat2.rows() || mat1.cols() != mat2.cols())
 			return false;
-		
+
 		for (int k = 0; k < mat1.rows(); k++) {
 			for (int j = 0; j < mat1.cols(); j++) {
-				if(mat1.get(k, j)[0] != mat2.get(k, j)[0])
+				if (mat1.get(k, j)[0] != mat2.get(k, j)[0])
 					return false;
 			}
 		}
-		
+
 		return true;
+	}
+
+	public double acos_aprox1(double in) {
+		return (-0.69813170079773212 * in * in - 0.87266462599716477) * in + 1.5707963267948966;
+	}
+
+	public static Mat acos_aprox1(Mat in) {
+		// http://stackoverflow.com/questions/3380628/fast-arc-cos-algorithm
+		// A simple cubic approximation, the Lagrange polynomial for x ∈ {-1,
+		// -½, 0, ½, 1}, is:
+		// double acos(x) {
+		// return (-0.69813170079773212 * in * in - 0.87266462599716477) * in +
+		// 1.5707963267948966;
+		// }
+		// It has a maximum error of about 0.18 rad.
+
+		Mat out = new Mat();
+
+		Core.multiply(in, in, out);
+		Core.multiply(out, new Scalar(-0.69813170079773212), out);
+		Core.add(out, new Scalar(-0.87266462599716477d), out);
+		Core.multiply(out, in, out);
+		Core.add(out, new Scalar(1.5707963267948966d), out);
+
+		return out;
 	}
 }
