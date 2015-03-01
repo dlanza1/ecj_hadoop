@@ -25,6 +25,14 @@
 			<artifactId>hbase-client</artifactId>
 			<version>0.98.6-hadoop2</version>
 		</dependency>
+		
+		<!-- Testing -->
+		<dependency>
+			<groupId>org.apache.mrunit</groupId>
+			<artifactId>mrunit</artifactId>
+			<version>1.1.0</version>
+			<classifier>hadoop2</classifier>
+		</dependency>		
 	</dependencies>
 
 	<build>
