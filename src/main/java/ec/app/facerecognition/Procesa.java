@@ -54,7 +54,7 @@ public class Procesa {
 			nombreImagen = archivo.abrir(rutaNombres);
 			puntosImagen = archivo.abrir(rutaPuntos);
 
-			for (int j = 0; j < 10; j++) {
+			for (int j = 0; j < 1368; j++) {
 				long image_time = System.currentTimeMillis();
 				
 				lineaNombre = nombreImagen.readLine();// lee la imagen que se
@@ -93,14 +93,14 @@ public class Procesa {
 				Mat i = new Mat();
 				rgb2hsi(image, h, s, i);
 				
-				System.out.println(System.currentTimeMillis() - time + " ms (rgb2hsi) ");
+//				System.out.println(System.currentTimeMillis() - time + " ms (rgb2hsi) ");
 				time = System.currentTimeMillis();
 				
 				llenaMatRef(j, matRef, puntos, h, s, i);
 				
-				System.out.println(System.currentTimeMillis() - time + " ms (llenaMatRef) ");
+//				System.out.println(System.currentTimeMillis() - time + " ms (llenaMatRef) ");
 				
-				System.out.println(System.currentTimeMillis() - image_time + " ms (total imagen) ");
+				System.out.println(System.currentTimeMillis() - image_time + " ms (total imagen) " + j);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -155,12 +155,12 @@ public class Procesa {
 		Core.add(den, EP, den);
 		Core.divide(num, den, teta);
 		
-		System.out.println(System.currentTimeMillis() - time + " ms (rgb2hsi-1) ");
+//		System.out.println(System.currentTimeMillis() - time + " ms (rgb2hsi-1) ");
 		time = System.currentTimeMillis();
 		
 		Mat angulo = getAngulo(teta, mB, mG);
 		
-		System.out.println(System.currentTimeMillis() - time + " ms (rgb2hsi-2) ");
+//		System.out.println(System.currentTimeMillis() - time + " ms (rgb2hsi-2) ");
 		time = System.currentTimeMillis();
 			
 		angulo.convertTo(angulo, CvType.CV_8U, 255, 0);
@@ -179,7 +179,7 @@ public class Procesa {
 		Core.multiply(s, valorS, s);
 		Core.subtract(s, valorS1, s);
 		
-		System.out.println(System.currentTimeMillis() - time + " ms (rgb2hsi-3) ");
+//		System.out.println(System.currentTimeMillis() - time + " ms (rgb2hsi-3) ");
 		time = System.currentTimeMillis();
 
 		Mat pI = new Mat();
@@ -194,7 +194,7 @@ public class Procesa {
 		Imgproc.equalizeHist(s, s);
 		s.convertTo(s, CvType.CV_64F, 1.0 / 255.0);
 		
-		System.out.println(System.currentTimeMillis() - time + " ms (rgb2hsi-4) ");
+//		System.out.println(System.currentTimeMillis() - time + " ms (rgb2hsi-4) ");
 		time = System.currentTimeMillis();
 		
 	}
@@ -406,7 +406,7 @@ public class Procesa {
 		matNor.convertTo(MNor, CvType.CV_32F);
 		TermCriteria criteria = new TermCriteria(TermCriteria.EPS+ TermCriteria.MAX_ITER, 10000, 0.0001);
 		Core.kmeans(MNor, 10, labels, criteria, 1, Core.KMEANS_RANDOM_CENTERS,centers);
-		mIndexada(labels, 10, 10, MIndex);//poner el numero de imagenes
+		mIndexada(labels, 1368, 10, MIndex);//poner el numero de imagenes
 	}
 
 	/**

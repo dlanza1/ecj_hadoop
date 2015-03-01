@@ -9,3 +9,5 @@
 /Makefile
 *.DS_Store
 *.log
+/entre.txt
+/recup.txt

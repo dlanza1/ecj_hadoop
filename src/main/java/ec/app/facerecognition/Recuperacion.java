@@ -1,6 +1,7 @@
 package ec.app.facerecognition;
 
 import java.io.BufferedReader;
+import java.io.PrintWriter;
 import java.util.StringTokenizer;
 
 import org.opencv.core.Core;
@@ -42,20 +43,20 @@ public class Recuperacion {
 		    	String palabraPuntos;
 		    	Ficheros archivo=new Ficheros();
 		    	// Lectura del fichero
-		    	String rutaNombres="/home/cesar/Escritorio/nombres.csv";//ruta al archivo de nombres
-		    	String rutaPuntos="/home/cesar/Escritorio/datos.csv"; //ruta al archivo de coordenadas (x,y) de cada PI
+		    	String rutaNombres="src/main/java/ec/app/facerecognition/res/nombres.csv";//ruta al archivo de nombres
+		    	String rutaPuntos="src/main/java/ec/app/facerecognition/res/datos.csv"; //ruta al archivo de coordenadas (x,y) de cada PI
 		    	nombreImagen=archivo.abrir(rutaNombres);
 		    	puntosImagen=archivo.abrir(rutaPuntos);       	
 		    	nombreImagen = archivo.abrir(rutaNombres);
 		    	puntosImagen = archivo.abrir(rutaPuntos);
 
-		    	for (int j = 0; j < 10; j++) {
+		    	for (int j = 0; j < 1368; j++) {
 		    		long image_time = System.currentTimeMillis();
 			
 		    		lineaNombre = nombreImagen.readLine();// lee la imagen que se procesara
 		    		//System.out.println("\nimagen: " + lineaNombre);
 
-		    		image = Highgui.imread(Aplicacion.class.getResource("files/images/" + lineaNombre).getPath());
+		    		image = Highgui.imread("src/main/java/ec/app/facerecognition/img/" + lineaNombre);
 
 		    		lineaPuntos = puntosImagen.readLine();// lee la linea de puntos de la imagen
 
@@ -102,12 +103,18 @@ public class Recuperacion {
 		    	}
 		    		System.out.print("valor:"+vectorConsulta.get(j,0)[0]+","+vectorConsulta.get(j,1)[0]+","+vectorConsulta.get(j,2)[0]+","+vectorConsulta.get(j,3)[0]+","+vectorConsulta.get(j,4)[0]+","+vectorConsulta.get(j,5)[0]);
 		    		System.out.println(","+vectorConsulta.get(j,6)[0]+","+vectorConsulta.get(j,7)[0]+","+vectorConsulta.get(j,8)[0]+","+vectorConsulta.get(j,9)[0]);
-		    	//System.out.println(System.currentTimeMillis() - image_time + " ms (total imagen) ");
+		    	System.out.println(System.currentTimeMillis() - image_time + " ms (total imagen) r "+j);
 		    	image_time = System.currentTimeMillis();
 		    }
 		    	algoKnnMI(MIndex,vecinosIdMindex,vecinosDistMIndex,vectorConsulta,5);
-		    	for (int k=0;k<10;k++)
-		    	System.out.println("Resultado:"+vecinosIdMindex.get(k,0)[0]+","+vecinosIdMindex.get(k,1)[0]+","+vecinosIdMindex.get(k,2)[0]+","+vecinosIdMindex.get(k,3)[0]+","+vecinosIdMindex.get(k,4)[0]);
+		    	
+		    	PrintWriter out = new PrintWriter("recup.txt");
+		    	for (int k=0;k<1368;k++){
+//		    		System.out.println("Resultado:"+vecinosIdMindex.get(k,0)[0]+","+vecinosIdMindex.get(k,1)[0]+","+vecinosIdMindex.get(k,2)[0]+","+vecinosIdMindex.get(k,3)[0]+","+vecinosIdMindex.get(k,4)[0]);
+		    		out.println("Resultado:"+vecinosIdMindex.get(k,0)[0]+","+vecinosIdMindex.get(k,1)[0]+","+vecinosIdMindex.get(k,2)[0]+","+vecinosIdMindex.get(k,3)[0]+","+vecinosIdMindex.get(k,4)[0]);
+		    	}
+				
+				out.close();
 		} 
 		catch (Exception e) 
 		{
@@ -149,7 +156,7 @@ public class Recuperacion {
 		 }
 	 }
 	 
-private void algoKnnMI(Mat MIndex, Mat vecinosIdMindex,Mat vecinosDistMindex,Mat vectorConsulta,int k){
+	 private void algoKnnMI(Mat MIndex, Mat vecinosIdMindex,Mat vecinosDistMindex,Mat vectorConsulta,int k){
 		 
 		 Mat A=new Mat(),C=new Mat();
 		 int datos;

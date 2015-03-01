@@ -1,12 +1,14 @@
 package ec.app.facerecognition;
 
+import java.io.IOException;
+
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 
 public class Aplicacion {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
 		double[] valRef = new double[9];
@@ -27,7 +29,8 @@ public class Aplicacion {
 				+ valRef[8]);
 
 		// LLamando a la recuperación
-		// Recuperacion Recupera=new Recuperacion(valRef,centers,MIndex);
+		 Recuperacion Recupera=new Recuperacion(valRef,centers,MIndex);
+		 Recupera.Consulta();
 
 	}
 }
