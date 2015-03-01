@@ -32,7 +32,7 @@ public class FuncionesTests {
 			m.put(0, 0, ang);
 
 			double exacto = Math.acos(m.get(0, 0)[0]);
-			double aprox1 = acos_aprox1(m).get(0, 0)[0];
+			double aprox1 = acos_aprox(m).get(0, 0)[0];
 			double aprox2 = Procesa.acos(m).get(0, 0)[0];
 
 			// Comprobar aproximaciones
@@ -40,8 +40,8 @@ public class FuncionesTests {
 			assertEquals(exacto, aprox2, 0.000068);
 
 			// Comprobar mismos rsultados con y sin Mat
-			assertEquals(aprox1, acos_aprox1(m.get(0, 0)[0]), 0.000000000000001);
-			assertEquals(aprox2, acos_aprox2(m.get(0, 0)[0]), 0.000000000000001);
+			assertEquals(aprox1, acos_aprox(m.get(0, 0)[0]), 0.000000000000001);
+			assertEquals(aprox2, acos(m.get(0, 0)[0]), 0.000000000000001);
 		}
 	}
 	
@@ -71,7 +71,7 @@ public class FuncionesTests {
 		m3.put(0, 0, rad3);
 		
 		try{																									   
-			assertEquals(Procesa.getAngulo(m1, m2, m3).get(0, 0)[0], Procesa.getAngulo_old(m1, m2, m3).get(0, 0)[0], 0.000068);
+			assertEquals(Procesa.getAngulo(m1, m2, m3).get(0, 0)[0], getAngulo_original(m1, m2, m3).get(0, 0)[0], 0.000068);
 		}catch(AssertionError e){
 			return 1;
 		}
@@ -90,7 +90,7 @@ public class FuncionesTests {
 			Mat m = Mat.zeros(1, 1, CvType.CV_64F);
 			m.put(0, 0, ang);
 
-			double aprox1 = acos_aprox1(m).get(0, 0)[0];
+			double aprox1 = acos_aprox(m).get(0, 0)[0];
 		}
 		
 		System.out.println((System.currentTimeMillis() - time)/(double)loops + " ms (acos_aprox1)");
@@ -108,26 +108,18 @@ public class FuncionesTests {
 		System.out.println((System.currentTimeMillis() - time)/(double)loops + " ms (acos_aprox2)");
 	}
 
-	private double acos_aprox2(double x) {
-		// http://http.developer.nvidia.com/Cg/acos.html
-		// Handbook of Mathematical Functions
-		// M. Abramowitz and I.A. Stegun, Ed.
-		// Absolute error <=  6.7e-5 (mis pruebas dan 6.8e-5)
-		// float acos(float x) {
-		// 		float negate = float(x < 0);
-		// 		x = abs(x);
-		// 		float ret = -0.0187293;
-		// 		ret = ret * x;
-		// 		ret = ret + 0.0742610;
-		// 		ret = ret * x;
-		// 		ret = ret - 0.2121144;
-		// 		ret = ret * x;
-		// 		ret = ret + 1.5707288;
-		// 		ret = ret * sqrt(1.0-x);
-		// 		ret = ret - 2 * negate * ret;
-		// 		return negate * 3.14159265358979 + ret;
-		// }
-
+	/**
+	 * Funcion que calcula el acos
+	 * 
+	 * Muy rapida, con error absoluto de 6.8e-5
+	 * 
+	 * Extraida de su version en Nvidia CUDA: http://http.developer.nvidia.com/Cg/acos.html
+	 * Autors: M. Abramowitz and I.A. Stegun, Ed.
+	 * 
+	 * @param x
+	 * @return
+	 */
+	private double acos(double x) {
 		double negate = x <= 0 ? 1 : 0;
 		x = Math.abs(x);
 		double ret = -0.0187293;
@@ -142,110 +134,35 @@ public class FuncionesTests {
 		return negate * 3.14159265358979 + ret;
 	}
 
-	//@Test
-	public void rgb2hsi() {
-		Mat image = Highgui.imread("src/main/java/ec/app/facerecognition/img/i000qa-fn.jpg");
-
-		image.convertTo(image, CvType.CV_64FC(3), 1.0 / 255.0);
-
-		Mat H = new Mat();
-		Mat S = new Mat();
-		Mat I = new Mat();
-		rgb2hsi(image, H, S, I);
-	}
-
-	//@Test
-	public void homogeneidad() throws IOException {
-		Mat image = Highgui
-				.imread("src/main/java/ec/app/facerecognition/img/i000qa-fn.jpg");
-
-		int numTokens = 0;
-		String lineaPuntos;
-		String palabraPuntos;
-		int[] puntos = new int[120];
-		Ficheros archivo = new Ficheros();
-		String rutaPuntos = "src/main/java/ec/app/facerecognition/res/datos.csv";
-		BufferedReader puntosImagen = null;
-		puntosImagen = archivo.abrir(rutaPuntos);
-		lineaPuntos = puntosImagen.readLine();
-		StringTokenizer st = new StringTokenizer(lineaPuntos);
-		while (st.hasMoreTokens()) {
-			if (numTokens >= 32) {
-				palabraPuntos = st.nextToken();
-
-				puntos[numTokens - 32] = (int) Float.parseFloat(palabraPuntos);// se
-																				// almacenan
-																				// las
-																				// coordenadas
-																				// (x,y)
-			} else
-				palabraPuntos = st.nextToken();
-			numTokens++;
-		}
-
-		// Pasar a Double
-		image.convertTo(image, CvType.CV_64FC(3), 1.0 / 255.0);
-
-		Mat H = new Mat();
-		Mat S = new Mat();
-		Mat I = new Mat();
-		rgb2hsi(image, H, S, I);
-
-		Mat ROI_H = new Mat(), ROI_S = new Mat(), ROI_I = new Mat(), cH = new Mat();
-		MatOfDouble meanH = new MatOfDouble(), meanS = new MatOfDouble(), meanI = new MatOfDouble();
-		MatOfDouble stdevH = new MatOfDouble(), stdevS = new MatOfDouble(), stdevI = new MatOfDouble();
-		double homH, homS, homI;
-		int posicion, y, x;
-
-		int i = 1;// numero del punto
-		y = puntos[(i * 2) + 1];// renglon
-		x = puntos[i * 2];// columna
-
-		// extraccion de la vecindad al rededor del PI para cada una de las
-		// capas HSI
-		int p = 5;
-		cH = H;
-		ROI_H = cH.submat(y - p, y + (p + 1), x - p, x + (p + 1));
-		ROI_S = S.submat(y - p, y + (p + 1), x - p, x + (p + 1));
-		ROI_I = I.submat(y - p, y + (p + 1), x - p, x + (p + 1));
-
-		// extraccion de la media y desviacion estandar de cada ventana
-		Core.meanStdDev(ROI_H, meanH, stdevH);
-		Core.meanStdDev(ROI_S, meanS, stdevS);
-		Core.meanStdDev(ROI_I, meanI, stdevI);
-
-		// extraccion de la Homogeneidad de la ventana
-		// ROI_H.convertTo(ROI_H, CvType.CV_8U, 255, 0);
-		homH = homogeinity(ROI_H);
-		// System.err.println(homogeinity_improved(ROI_H) + " -- " +
-		// homogeinity(ROI_H));
-		// ROI_S.convertTo(ROI_S, CvType.CV_8U, 255, 0);
-		homS = homogeinity(ROI_S); // if(homS != homogeinity_improved(ROI_S))
-									// System.err.println("error");
-		// ROI_I.convertTo(ROI_I, CvType.CV_8U, 255, 0);
-		homI = homogeinity(ROI_I); // if(homI != homogeinity_improved(ROI_I))
-									// System.err.println("error");
-		// System.out.println("punto"+i+"	promH:"+mH[0]+"	promS:"+mS[0]+"	promI:"+mI[0]+"	desvH:"+stdH[0]+"	desvS:"+stdS[0]+"	desvI:"+stdI[0]+"	hH:"+homH+"	hS:"+homS+"	hI:"+homI);
-
+	@Test
+	public void homogeinity() throws IOException {
+		Mat rand = Mat.zeros(11, 11, CvType.CV_64F);
+		Core.randu(rand, 0, 1);
+		
+		double ori = homogeinity(rand);
+		double improved = Procesa.homogeinity(rand);
+		
+		assertEquals(ori, improved, 0.001);
 	}
 
 	/**
-	 * Funcion ORIGINAL que calcula la homogeneidad de una ventana
+	 * Funcion original que calcula la homogeneidad de una ventana
 	 * 
 	 * @param ROI
 	 * @return homogeneidad
 	 */
-	@Deprecated
 	private double homogeinity(Mat ROI) {
-
+		Mat ROI_conv = new Mat();
+		ROI.convertTo(ROI_conv, CvType.CV_8U, 255, 0);
+		
 		Mat mC = Mat.zeros(256, 256, CvType.CV_64F);
 		Mat mCP = Mat.zeros(256, 256, CvType.CV_64F);
 		int cont = 0;
 		// System.out.println("tamaño ROI:"+ROI.rows()+"x"+ROI.cols());
-		for (int i = 0; i < ROI.rows(); i++) {
-			for (int j = 0; j < ROI.cols() - 1; j++) {
-				double[] dato1 = ROI.get(i, j);
-				double[] dato2 = ROI.get(i, j + 1);
+		for (int i = 0; i < ROI_conv.rows(); i++) {
+			for (int j = 0; j < ROI_conv.cols() - 1; j++) {
+				double[] dato1 = ROI_conv.get(i, j);
+				double[] dato2 = ROI_conv.get(i, j + 1);
 				double[] valor = mC.get((int) dato1[0], (int) dato2[0]);
 				valor[0] = valor[0] + 1;
 				double[] valor1 = mC.get((int) dato2[0], (int) dato1[0]);
@@ -285,7 +202,7 @@ public class FuncionesTests {
 	}
 
 	/**
-	 * Funcion ORIGINAL que convierte una imagen RGH a HSI
+	 * Funcion original que convierte una imagen RGB a HSI
 	 * 
 	 * @param image
 	 * @param h
@@ -371,48 +288,35 @@ public class FuncionesTests {
 		s.convertTo(s, CvType.CV_8U, 255, 0);
 		Imgproc.equalizeHist(s, s);
 		s.convertTo(s, CvType.CV_64F, 1.0 / 255.0);
-
 	}
 
 	/**
-	 * Check if two Mat have the same size and content
+	 * Calculo aproximado de acos
 	 * 
-	 * @param mat1
-	 *            One Mat
-	 * @param mat2
-	 *            Other Mat
-	 * @return True = same, False - not same
+	 * A simple cubic approximation, the Lagrange polynomial for x ∈ {-1,-½, 0, ½, 1}
+	 * 
+	 * Muy rapida pero con un error de 0.18 rad.
+	 * 
+	 * @param in Angulo de entrada
+	 * @return Radianes de aplicar acos a la entrada
 	 */
-	private boolean compare(Mat mat1, Mat mat2) {
-		if (mat1.rows() != mat2.rows() || mat1.cols() != mat2.cols())
-			return false;
-
-		for (int k = 0; k < mat1.rows(); k++) {
-			for (int j = 0; j < mat1.cols(); j++) {
-				if (mat1.get(k, j)[0] != mat2.get(k, j)[0])
-					return false;
-			}
-		}
-
-		return true;
-	}
-
-	public double acos_aprox1(double in) {
+	public double acos_aprox(double in) {
 		return (-0.69813170079773212 * in * in - 0.87266462599716477) * in + 1.5707963267948966;
 	}
 
-	public static Mat acos_aprox1(Mat in) {
-		// http://stackoverflow.com/questions/3380628/fast-arc-cos-algorithm
-		// A simple cubic approximation, the Lagrange polynomial for x ∈ {-1,
-		// -½, 0, ½, 1}, is:
-		// double acos(x) {
-		// return (-0.69813170079773212 * in * in - 0.87266462599716477) * in +
-		// 1.5707963267948966;
-		// }
-		// It has a maximum error of about 0.18 rad.
-
+	/**
+	 * Version para OpenCV de calculo aproximado de acos
+	 * 
+	 * A simple cubic approximation, the Lagrange polynomial for x ∈ {-1,-½, 0, ½, 1}
+	 * 
+	 * Muy rapida pero con un error de 0.18 rad.
+	 * 
+	 * @param in Matriz de entrada
+	 * @return Matriz de salida donde a cada elemento se le ha aplicado el acos
+	 */
+	public static Mat acos_aprox(Mat in) {
 		Mat out = new Mat();
-
+		
 		Core.multiply(in, in, out);
 		Core.multiply(out, new Scalar(-0.69813170079773212), out);
 		Core.add(out, new Scalar(-0.87266462599716477d), out);
@@ -420,5 +324,34 @@ public class FuncionesTests {
 		Core.add(out, new Scalar(1.5707963267948966d), out);
 
 		return out;
+	}
+	
+	/**
+	 * Funcion origianl de obtencion de angulo de la imagen
+	 * 
+	 * @param teta
+	 * @param mB Canal azul de la imagen
+	 * @param mG Canal verde de la imagen
+	 * @return
+	 */
+	private Mat getAngulo_original(Mat teta, Mat mB, Mat mG) {
+		
+		Mat angulo = Mat.zeros(mB.rows(), mB.cols(), CvType.CV_64F);
+			
+		for (int k = 0; k < teta.rows(); k++) {
+			double[] angulo_row = new double[angulo.cols()];
+			
+			for (int j = 0; j < teta.cols(); j++) {
+				if (mB.get(k, j)[0] > mG.get(k, j)[0]) {
+					angulo_row[j] = 2d * Math.PI - Math.acos(teta.get(k, j)[0]);
+				}else{
+					angulo_row[j] = Math.acos(teta.get(k, j)[0]);
+				}
+			}
+			
+			angulo.put(k, 0, angulo_row);
+		}
+		
+		return angulo;
 	}
 }

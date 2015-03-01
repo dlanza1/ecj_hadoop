@@ -10,6 +10,7 @@
 package ec.app.facerecognition;
 
 import java.io.BufferedReader;
+import java.math.BigDecimal;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +32,11 @@ public class Procesa {
 	 */
 	public static Scalar EP = new Scalar(Double.MIN_VALUE);
 
-	/* Funcion que genera la matriz de referencia para la imagen analizada */
+	/**
+	 * Genera la matriz de referencia
+	 * 
+	 * @param matRef
+	 */
 	public void generaMatRef(Mat matRef) {
 		BufferedReader nombreImagen = null;
 		BufferedReader puntosImagen = null;
@@ -195,7 +200,6 @@ public class Procesa {
 	}
 	
 	public static Mat getAngulo(Mat teta, Mat mB, Mat mG) {
-		
 		Mat mat_two_times_pi = new Mat();
 		Mat comp = Mat.zeros(mB.rows(), mB.cols(), CvType.CV_64F);
 		Core.subtract(mB, mG, comp);	
@@ -213,6 +217,17 @@ public class Procesa {
 		return angulo;
 	}
 
+	/**
+	 * Funcion adapatada a OpenCV que calcula el acos de forma aproximada.
+	 * 
+	 * Muy rapida pero con error absoluto de 6.8e-5
+	 * 
+	 * Extraida de su version en Nvidia CUDA: http://http.developer.nvidia.com/Cg/acos.html
+	 * Autors: M. Abramowitz and I.A. Stegun, Ed.
+	 * 
+	 * @param x
+	 * @return
+	 */
 	public static Mat acos(Mat in) {
 //		double negate = x <= 0 ? 1 : 0;
 		Mat negate = new Mat();
@@ -255,102 +270,15 @@ public class Procesa {
 	}
 
 	/**
-	 * funcion que convierte una imagen RGH a HSI
+	 * Carga la informacion de extraida de cada imagen en la matriz de referencia
 	 * 
-	 * @param image
-	 * @param h
-	 * @param s
-	 * @param i
-	 * @param h2 
+	 * @param index
+	 * @param matRef
+	 * @param puntos
+	 * @param H
+	 * @param S
+	 * @param I
 	 */
-	public void rgb2hsi_old(Mat image, Mat h, Mat s, Mat i, Mat pass) {
-		List<Mat> mRgb = new ArrayList<Mat>(3);
-		Core.split(image, mRgb);// separa la imagen por canales
-		Mat mR = mRgb.get(2);// obtiene el canalR
-		Mat mG = mRgb.get(1);// obtiene el canalG
-		Mat mB = mRgb.get(0);// obtiene el canalB
-		// double [] valor;
-
-		Mat parcial = new Mat(), parcial1 = new Mat(), parcial2 = new Mat(), parcial3 = new Mat(), num = new Mat(), rg = new Mat();
-		Mat mulRGB = new Mat(), teta = new Mat(), den = new Mat(), minimo = new Mat(), suma = new Mat();
-		Mat angulo = Mat.zeros(mR.rows(), mR.cols(), CvType.CV_64F);
-		Core.subtract(mR, mG, parcial);
-		Core.subtract(mR, mB, parcial1);
-
-		Core.add(parcial, parcial1, h);
-		Scalar multiplo = new Scalar(0.5);
-		Scalar tres = new Scalar(3.0);
-		Core.multiply(h, multiplo, num);
-		Core.pow(parcial, 2, rg);
-		Core.subtract(mG, mB, parcial2);
-		Core.multiply(parcial1, parcial2, mulRGB);
-		Core.add(rg, mulRGB, parcial3);
-		Core.sqrt(parcial3, den);
-		Core.add(den, EP, den);
-		Core.divide(num, den, teta);
-		
-//		System.out.println("oldcame:"+pass.get(598,286)[0]);
-		angulo = getAngulo_old(teta, mB, mG);
-
-//		System.out.println("old:"+angulo.get(598,286)[0]);
-//		compare(angulo, pass, "dentro", image);
-			
-		angulo.convertTo(angulo, CvType.CV_8U, 255, 0);
-		Imgproc.equalizeHist(angulo, h);
-		h.convertTo(h, CvType.CV_64F, 1.0 / 255.0);
-		Scalar valorPi = new Scalar(2 * Math.PI);
-		Core.divide(h, valorPi, h);
-		
-		Core.min(mR, mG, minimo);
-		Core.min(minimo, mB, minimo);
-		Core.add(mR, mG, suma);
-		Core.add(suma, mB, suma);
-		Core.add(suma, EP, suma);
-		Core.divide(minimo, suma, s);
-		Scalar valorS = new Scalar(-3.0);
-		Scalar valorS1 = new Scalar(-1.0);
-		Core.multiply(s, valorS, s);
-		Core.subtract(s, valorS1, s);
-
-		Mat pI = new Mat();
-		Core.add(mR, mG, pI);
-		Core.add(mB, pI, pI);
-		Core.divide(pI, tres, i);
-		i.convertTo(i, CvType.CV_8U, 255, 0);
-		Imgproc.equalizeHist(i, i);
-		i.convertTo(i, CvType.CV_64F, 1.0 / 255.0);
-		s.convertTo(s, CvType.CV_8U, 255, 0);
-		Imgproc.equalizeHist(s, s);
-		s.convertTo(s, CvType.CV_64F, 1.0 / 255.0);
-		
-	}
-
-	public static Mat getAngulo_old(Mat teta, Mat mB, Mat mG) {
-		
-		Mat angulo = Mat.zeros(mB.rows(), mB.cols(), CvType.CV_64F);
-		
-		double two_times_pi = 2d * Math.PI;
-		Mat comp = Mat.zeros(mB.rows(), mB.cols(), CvType.CV_64F);
-		Core.subtract(mB, mG, comp);
-		
-		for (int k = 0; k < teta.rows(); k++) {
-			double[] angulo_row = new double[angulo.cols()];
-			
-			for (int j = 0; j < teta.cols(); j++) {
-				if (comp.get(k, j)[0] > 0) {
-					angulo_row[j] = two_times_pi - Math.acos(teta.get(k, j)[0]);
-				}else{
-					angulo_row[j] = Math.acos(teta.get(k, j)[0]);
-				}
-			}
-			
-			angulo.put(k, 0, angulo_row);
-		}
-		
-		return angulo;
-	}
-
-	// carga la informacion de extraida de cada imagen en la
 	public void llenaMatRef(int index, Mat matRef, int puntos[], Mat H, Mat S, Mat I) {
 		
 		int p = 5;
@@ -392,15 +320,9 @@ public class Procesa {
 			matRef.put(posicion, 4, stdS[0]);
 			matRef.put(posicion, 5, stdI[0]);
 
-			// extraccion de la Homogeneidad de la ventana
-//			ROI_H.convertTo(ROI_H, CvType.CV_8U, 255, 0);
 			homH = homogeinity(ROI_H); 
-//			System.err.println(homogeinity_improved(ROI_H) + " -- " + homogeinity(ROI_H));
-//			ROI_S.convertTo(ROI_S, CvType.CV_8U, 255, 0);
-			homS = homogeinity(ROI_S); //if(homS != homogeinity_improved(ROI_S)) System.err.println("error");
-//			ROI_I.convertTo(ROI_I, CvType.CV_8U, 255, 0);
-			homI = homogeinity(ROI_I); //if(homI != homogeinity_improved(ROI_I)) System.err.println("error");
-			// System.out.println("punto"+i+"	promH:"+mH[0]+"	promS:"+mS[0]+"	promI:"+mI[0]+"	desvH:"+stdH[0]+"	desvS:"+stdS[0]+"	desvI:"+stdI[0]+"	hH:"+homH+"	hS:"+homS+"	hI:"+homI);
+			homS = homogeinity(ROI_S);
+			homI = homogeinity(ROI_I);
 
 			double[] valhH = matRef.get(posicion, 6);
 			double[] valhS = matRef.get(posicion, 7);
@@ -420,17 +342,17 @@ public class Procesa {
 	 * @param ROI
 	 * @return Homogeneidad
 	 */
-	private double homogeinity(Mat ROI) {
+	public static double homogeinity(Mat ROI) {
+		Mat ROI_conv = new Mat();
+		ROI.convertTo(ROI_conv, CvType.CV_8U, 255, 0);
 		
-		ROI.convertTo(ROI, CvType.CV_8U, 255, 0);
-		
-		int cont = ROI.rows() * (ROI.cols() - 1) * 2;
+		int cont = ROI_conv.rows() * (ROI_conv.cols() - 1) * 2;
 		double hom = 0;
 		
-		for (int i = 0; i < ROI.rows(); i++) {
-			for (int j = 0; j < ROI.cols() - 1; j++) {
-				int x = (int) ROI.get(i, j)[0];
-				int y = (int) ROI.get(i, j + 1)[0];
+		for (int i = 0; i < ROI_conv.rows(); i++) {
+			for (int j = 0; j < ROI_conv.cols() - 1; j++) {
+				int x = (int) ROI_conv.get(i, j)[0];
+				int y = (int) ROI_conv.get(i, j + 1)[0];
 				
 				if(x >= 254 && y >= 254)
 					continue;
@@ -452,30 +374,30 @@ public class Procesa {
 	 * @param matNor
 	 * @param val
 	 */
-		public void norMatRef(Mat matRef, Mat matNor, double val[], int bandera) {
-			Mat valor=Mat.zeros(1, 9,CvType.CV_64F);
-			if (bandera==0)
-			{	Mat ROI = new Mat();
-			
-				for (int i = 0; i < matRef.cols(); i++) {
-					ROI = matRef.submat(0, matRef.rows(), i, i + 1);
-					MinMaxLocResult mmr = Core.minMaxLoc(ROI);
-					val[i] = mmr.maxVal;
-					valor.put(0, i, mmr.maxVal);
-					// System.out.println("valorMax:"+val[i]);
-				}
-			}
-			// obitnene el valor maximo de cada columna de la matriz de referencia
+	public void norMatRef(Mat matRef, Mat matNor, double val[], int bandera) {
+		Mat valor=Mat.zeros(1, 9,CvType.CV_64F);
+		if (bandera==0)
+		{	Mat ROI = new Mat();
+		
 			for (int i = 0; i < matRef.cols(); i++) {
-				for (int j = 0; j < matRef.rows(); j++) {
-					matNor.put(j, i, matRef.get(j, i)[0] / val[0]);
-
-				}
+				ROI = matRef.submat(0, matRef.rows(), i, i + 1);
+				MinMaxLocResult mmr = Core.minMaxLoc(ROI);
+				val[i] = mmr.maxVal;
+				valor.put(0, i, mmr.maxVal);
+				// System.out.println("valorMax:"+val[i]);
 			}
-
-			System.out.println("valores:"+valor.get(0, 0)[0]+valor.get(0, 1)[0]+","+valor.get(0, 2)[0]+","+valor.get(0, 3)[0]+","+valor.get(0, 4)[0]+","+valor.get(0, 5)[0]+","+valor.get(0, 6)[0]+","+valor.get(0, 7)[0]+","+valor.get(0, 8)[0]);
-			System.out.println(" valref:"+val[0]+","+val[1]+","+val[2]+","+val[3]+","+val[4]+","+val[5]+","+val[6]+","+val[7]+","+val[8]);
 		}
+		// obitnene el valor maximo de cada columna de la matriz de referencia
+		for (int i = 0; i < matRef.cols(); i++) {
+			for (int j = 0; j < matRef.rows(); j++) {
+				matNor.put(j, i, matRef.get(j, i)[0] / val[0]);
+
+			}
+		}
+
+		System.out.println("valores:"+valor.get(0, 0)[0]+valor.get(0, 1)[0]+","+valor.get(0, 2)[0]+","+valor.get(0, 3)[0]+","+valor.get(0, 4)[0]+","+valor.get(0, 5)[0]+","+valor.get(0, 6)[0]+","+valor.get(0, 7)[0]+","+valor.get(0, 8)[0]);
+		System.out.println(" valref:"+val[0]+","+val[1]+","+val[2]+","+val[3]+","+val[4]+","+val[5]+","+val[6]+","+val[7]+","+val[8]);
+	}
 
 	// Aplica el clasificador K-means para obtener la matriz de indices de
 	// textura
@@ -489,7 +411,14 @@ public class Procesa {
 		mIndexada(labels, 1, 10, MIndex);
 	}
 
-	// genera la matriz de indices de textura para la base de datos
+	/**
+	 * Genera la matriz de indices de textura para la base de datos
+	 * 
+	 * @param labels
+	 * @param nImag
+	 * @param k
+	 * @param mIdx
+	 */
 	private void mIndexada(Mat labels, int nImag, int k, Mat mIdx) {
 
 		// Mat mIdx=Mat.zeros(nImag, k, CvType.CV_32F);
