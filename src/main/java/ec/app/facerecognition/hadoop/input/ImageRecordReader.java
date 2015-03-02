@@ -7,6 +7,7 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.apache.hadoop.mapreduce.lib.input.CombineFileSplit;
 import org.opencv.highgui.Highgui;
 
 import ec.app.facerecognition.MatE;
@@ -49,8 +50,21 @@ public class ImageRecordReader extends RecordReader<IntWritable, ImageWritable> 
 	@Override
 	public void initialize(InputSplit inputSplit, TaskAttemptContext context)
 			throws IOException, InterruptedException {
-		this.paths = ((MultiFileSplit) inputSplit).getPaths();
+		this.paths = ((CombineFileSplit) inputSplit).getPaths();
 		this.index_path = -1;
+		
+		loadNamesFile(context);
+		loadPOIFile(context);
+	}
+
+	private void loadPOIFile(TaskAttemptContext context) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void loadNamesFile(TaskAttemptContext context) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override

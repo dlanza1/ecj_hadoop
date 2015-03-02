@@ -33,6 +33,7 @@ import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.JobContext;
+import org.apache.hadoop.mapreduce.lib.input.CombineFileSplit;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 
 /**
@@ -87,7 +88,7 @@ public abstract class MultiFileInputFormat<K, V> extends FileInputFormat<K, V> {
 							splitSize);
 					System.arraycopy(lengths, startIndex, splitLengths, 0,
 							splitSize);
-					splits.add(new MultiFileSplit(jobContext, splitPaths, splitLengths));
+					splits.add(new CombineFileSplit(splitPaths, splitLengths));
 					startIndex += splitSize;
 					for (long l : splitLengths) {
 						cumulativeLength += l;
