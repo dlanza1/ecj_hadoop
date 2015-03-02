@@ -1,15 +1,18 @@
 package ec.app.facerecognition.hadoop;
 
-import java.io.File;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.InputFormat;
+import org.apache.hadoop.mapreduce.InputSplit;
+import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.TaskAttemptID;
-import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl;
 import org.apache.hadoop.util.ReflectionUtils;
 import org.junit.Before;
@@ -29,20 +32,31 @@ public class ImageInputFormatTests {
 	public void readFiles() throws IOException, InterruptedException{
 		Configuration conf = new Configuration(false);
 		conf.set("fs.default.name", "file:///");
-
-		File testFile = new File("/Users/daniellanzagarcia/git/ecj/src/main/java/ec/app/facerecognition/img/i000qa-fn.jpg");
-		Path path = new Path(testFile.getAbsoluteFile().toURI());
-		FileSplit split = new FileSplit(path, 0, testFile.length(), null);
+		conf.setInt("mapreduce.input.multifileinputformat.splits", 10);
+		Job job = Job.getInstance(conf);
 		
-		InputFormat inputFormat = ReflectionUtils.newInstance(ImageInputFormat.class, conf);
-		TaskAttemptContext context = new TaskAttemptContextImpl(conf, new TaskAttemptID());
-		RecordReader reader = inputFormat.createRecordReader(split, context);
-
-		reader.initialize(split, context);
-		reader.nextKeyValue();
+		ImageInputFormat.setInputPaths(job, "src/main/java/ec/app/facerecognition/img/");
+		InputFormat<IntWritable, ImageWritable> inputFormat = ReflectionUtils.newInstance(ImageInputFormat.class, conf);
+		List<InputSplit> splits = inputFormat.getSplits(job);
 		
-		ImageWritable image = (ImageWritable) reader.getCurrentValue();
-		image.getValue().show();
+		int counter = 0;
+		
+		for (InputSplit split : splits) {
+			TaskAttemptContext context = new TaskAttemptContextImpl(conf, new TaskAttemptID());
+			RecordReader<IntWritable, ImageWritable> reader = inputFormat.createRecordReader(split, context);
+
+			reader.initialize(split, context);
+			while(reader.nextKeyValue()){
+				ImageWritable image = (ImageWritable) reader.getCurrentValue();
+				
+				assertTrue(image.getValue().hasContent());
+				counter++;
+			}
+		}
+		
+		//Number of files in the folder is 3755
+		System.out.println("The number of images readed was " + counter 
+				+ " divided in " + splits.size() + " splits.");
 	}
 	
 	

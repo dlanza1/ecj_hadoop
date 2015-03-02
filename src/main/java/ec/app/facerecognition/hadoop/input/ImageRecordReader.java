@@ -14,9 +14,8 @@ import ec.app.facerecognition.hadoop.ImageWritable;
 
 public class ImageRecordReader extends RecordReader<IntWritable, ImageWritable> {
 
-	private ImageWritable value;
-	private boolean next;
-	private Path path;
+	private Path[] paths;
+	private int index_path;
 
 	@Override
 	public void close() throws IOException {
@@ -24,39 +23,39 @@ public class ImageRecordReader extends RecordReader<IntWritable, ImageWritable> 
 
 	@Override
 	public IntWritable getCurrentKey() throws IOException, InterruptedException {
-		return new IntWritable();
+		return new IntWritable(index_path);
 	}
 
 	@Override
 	public ImageWritable getCurrentValue() throws IOException,
 			InterruptedException {
-		return value;
+//		FileSystem fs = path.getFileSystem(context.getConfiguration());
+//		value = new ImageWritable(MatE.fromFile(fs.open(path)));
+		
+		ImageWritable image = new ImageWritable(new MatE(
+				Highgui.imread(Path.getPathWithoutSchemeAndAuthority(paths[index_path]).toString())));
+		
+		if(image.getValue() == null || !image.getValue().hasContent())
+			throw new IOException("the image " + this.paths +" couldn't be loaded");
+		
+		return image;
 	}
 
 	@Override
 	public float getProgress() throws IOException, InterruptedException {
-		return 0;
+		return (float) index_path / (float) paths.length;
 	}
 
 	@Override
 	public void initialize(InputSplit inputSplit, TaskAttemptContext context)
 			throws IOException, InterruptedException {
-//		FileSplit fileSplit = (FileSplit) inputSplit;
-//		this.path = fileSplit.getPath();
-//		this.next = false;
-//
-//		FileSystem fs = path.getFileSystem(context.getConfiguration());
-//		value = new ImageWritable(MatE.fromFile(fs.open(path)));
-		
-		value = new ImageWritable(new MatE(
-				Highgui.imread(Path.getPathWithoutSchemeAndAuthority(path).toString())));
+		this.paths = ((MultiFileSplit) inputSplit).getPaths();
+		this.index_path = -1;
 	}
 
 	@Override
-	public boolean nextKeyValue() throws IOException, InterruptedException {		
-		next = false;
-		if(!next) return false;
-		return true;
+	public boolean nextKeyValue() throws IOException, InterruptedException {
+		return ++index_path < paths.length;
 	}
 
 }
