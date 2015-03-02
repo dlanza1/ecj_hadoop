@@ -17,8 +17,8 @@ public class ImageParameters {
 		params = parameters.params;
 	}
 
-	public void put(int poi_index, int param_index, double value) {
-		params.put(poi_index, param_index, value);
+	public void put(POI poi, int param_index, double value) {
+		params.put(poi.getNum(), param_index, value);
 	}
 
 }

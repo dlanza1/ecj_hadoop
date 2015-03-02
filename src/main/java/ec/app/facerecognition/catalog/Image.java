@@ -1,5 +1,7 @@
 package ec.app.facerecognition.catalog;
 
+import java.util.LinkedList;
+
 import org.opencv.core.Core;
 import org.opencv.core.MatOfDouble;
 
@@ -9,8 +11,11 @@ import ec.app.facerecognition.MatE;
 public class Image {
 	
 	protected MatE value;
-	private int[] poi_y;
-	private int[] poi_x;
+	
+	/**
+	 * Points of interest
+	 */
+	private LinkedList<POI> poi;
 	
 	public Image() {
 		this.value = new MatE();
@@ -44,10 +49,7 @@ public class Image {
 		
 		ImageParameters params = new ImageParameters();
 
-		//For thought every point of interest
-		for (int poi_index = 0; poi_index < 60; poi_index++) {
-			POI poi = getPOI(poi_index);
-
+		for (POI poi : poi) {
 			//Extract region of interest
 			ROI_H = H.getWindows(poi.getX(), poi.getY(), radius);
 			ROI_S = S.getWindows(poi.getX(), poi.getY(), radius);
@@ -59,24 +61,20 @@ public class Image {
 			Core.meanStdDev(ROI_I, meanI, stdevI);
 
 			//Set params
-			params.put(poi_index, 0, meanH.get(0, 0)[0]);
-			params.put(poi_index, 1, meanS.get(0, 0)[0]);
-			params.put(poi_index, 2, meanI.get(0, 0)[0]);
+			params.put(poi, 0, meanH.get(0, 0)[0]);
+			params.put(poi, 1, meanS.get(0, 0)[0]);
+			params.put(poi, 2, meanI.get(0, 0)[0]);
 
-			params.put(poi_index, 3, stdevH.get(0, 0)[0]);
-			params.put(poi_index, 4, stdevH.get(0, 0)[0]);
-			params.put(poi_index, 5, stdevH.get(0, 0)[0]);
+			params.put(poi, 3, stdevH.get(0, 0)[0]);
+			params.put(poi, 4, stdevH.get(0, 0)[0]);
+			params.put(poi, 5, stdevH.get(0, 0)[0]);
 
-			params.put(poi_index, 6, ROI_H.homogeinity());
-			params.put(poi_index, 7, ROI_S.homogeinity());
-			params.put(poi_index, 8, ROI_I.homogeinity());
+			params.put(poi, 6, ROI_H.homogeinity());
+			params.put(poi, 7, ROI_S.homogeinity());
+			params.put(poi, 8, ROI_I.homogeinity());
 		}
 		
 		return params;
-	}
-
-	private POI getPOI(int poi_index) {
-		return new POI(poi_x[poi_index], poi_y[poi_index]);
 	}
 
 }

@@ -6,8 +6,10 @@ package ec.app.facerecognition.catalog;
 public class POI {
 	
 	int x, y;
+	
+	int num;
 
-	public POI(int x, int y) {
+	public POI(int num, int x, int y) {
 		this.x = x;
 		this.y = y;
 	}
@@ -18,6 +20,10 @@ public class POI {
 	
 	public int getY() {
 		return y;
+	}
+
+	public int getNum() {
+		return num;
 	}
 
 }
