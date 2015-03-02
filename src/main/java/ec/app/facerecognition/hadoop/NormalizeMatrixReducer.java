@@ -5,7 +5,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 
 import ec.app.facerecognition.hadoop.writables.ParametersWritable;
 
-public class ReferenceMatrixReducer extends
+public class NormalizeMatrixReducer extends
 		Reducer<IntWritable, ParametersWritable, IntWritable, ParametersWritable> {
 
 }

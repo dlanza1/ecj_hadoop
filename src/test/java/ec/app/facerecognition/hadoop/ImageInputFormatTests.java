@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.opencv.core.Core;
 
 import ec.app.facerecognition.hadoop.input.ImageInputFormat;
+import ec.app.facerecognition.hadoop.writables.ImageWritable;
 
 public class ImageInputFormatTests {
 	

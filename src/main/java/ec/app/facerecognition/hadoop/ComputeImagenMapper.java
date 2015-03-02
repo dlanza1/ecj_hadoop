@@ -4,14 +4,26 @@ import java.io.IOException;
 
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.opencv.core.Core;
 
+import ec.app.facerecognition.hadoop.writables.ImageWritable;
 import ec.app.facerecognition.hadoop.writables.ParametersWritable;
 
 public class ComputeImagenMapper extends Mapper<IntWritable, ImageWritable, IntWritable, ParametersWritable> {
 
+	private int roi_radius;
+	
 	@Override
-	protected void map(IntWritable key, ImageWritable value, Context context)
-			throws IOException, InterruptedException {
-
+	protected void setup(Context context) throws IOException, InterruptedException {
+		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+		
+		roi_radius = context.getConfiguration().getInt("ec.app.facerecognition.roi.radius", 5);
 	}
+	
+	@Override
+	protected void map(IntWritable key, ImageWritable image, Context context)
+			throws IOException, InterruptedException {
+		context.write(key, new ParametersWritable(image.getParameters(roi_radius)));
+	}
+
 }

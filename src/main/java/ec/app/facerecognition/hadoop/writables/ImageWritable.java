@@ -1,23 +1,15 @@
-package ec.app.facerecognition.hadoop;
+package ec.app.facerecognition.hadoop.writables;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import javax.imageio.ImageIO;
-
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.WritableComparable;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
-import org.opencv.highgui.Highgui;
 
 import ec.app.facerecognition.MatE;
+import ec.app.facerecognition.catalog.Image;
 
-public class ImageWritable implements WritableComparable<ImageWritable> {
-	
-	private MatE value;
+public class ImageWritable extends Image implements WritableComparable<ImageWritable> {
 	
 	public ImageWritable() {
 	}
@@ -28,21 +20,17 @@ public class ImageWritable implements WritableComparable<ImageWritable> {
 
 	@Override
 	public void readFields(DataInput in) throws IOException {
-		this.value = MatE.read(in);
+		value = MatE.read(in);
 	}
 
 	@Override
 	public void write(DataOutput out) throws IOException {
-		this.value.write(out);
+		value.write(out);
 	}
 
 	@Override
 	public int compareTo(ImageWritable o) {
 		return 0;
-	}
-	
-	public MatE getValue(){
-		return value;
 	}
 
 }

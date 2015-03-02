@@ -7,7 +7,7 @@ import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
-import ec.app.facerecognition.hadoop.ImageWritable;
+import ec.app.facerecognition.hadoop.writables.ImageWritable;
 
 public class ImageInputFormat extends MultiFileInputFormat<IntWritable, ImageWritable> {
 

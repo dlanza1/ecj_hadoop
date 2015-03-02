@@ -6,7 +6,13 @@ import java.io.IOException;
 
 import org.apache.hadoop.io.WritableComparable;
 
-public class ParametersWritable implements WritableComparable<ParametersWritable> {
+import ec.app.facerecognition.catalog.ImageParameters;
+
+public class ParametersWritable extends ImageParameters implements WritableComparable<ParametersWritable> {
+
+	public ParametersWritable(ImageParameters parameters) {
+		super(parameters);
+	}
 
 	@Override
 	public void readFields(DataInput arg0) throws IOException {

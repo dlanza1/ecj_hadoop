@@ -7,19 +7,32 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
 import org.apache.hadoop.fs.FSDataInputStream;
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
+import org.opencv.core.Scalar;
 import org.opencv.highgui.Highgui;
 
 public class MatE extends Mat {
+	
+	/**
+	 * Epsilon
+	 */
+	public static Scalar EP = new Scalar(Double.MIN_VALUE);
 
+	public MatE() {
+		super();
+	}
+	
 	/**
 	 * Copy of input matrix 
 	 * 
@@ -131,5 +144,115 @@ public class MatE extends Mat {
 	public boolean hasContent() {
 		return rows() > 0 || cols() > 0;
 	}
+	
 
+	/**
+	 * Calculate de acos of each element
+	 * 
+	 * Absolute error: 6.8e-5
+	 * 
+	 * From Nvidia CUDA implementation: http://http.developer.nvidia.com/Cg/acos.html
+	 * Autors: M. Abramowitz and I.A. Stegun, Ed.
+	 * 
+	 * @return MatE
+	 */
+	public MatE acos() {
+//		double negate = x <= 0 ? 1 : 0;
+		Mat negate = new Mat();
+		Core.inRange(this, new Scalar(-1), new Scalar(0), negate);
+		Core.divide(negate, new Scalar(255), negate);
+		negate.convertTo(negate, CvType.CV_64F);
+//		x = Math.abs(x);
+		Mat in_abs = new Mat();
+		Core.absdiff(this, new Scalar(0), in_abs);
+//		double ret = -0.0187293;
+//		ret = ret * x;
+		MatE ret = new MatE();
+		Core.multiply(in_abs, new Scalar(-0.0187293), ret);
+//		ret = ret + 0.0742610;
+		Core.add(ret, new Scalar(0.0742610), ret);
+//		ret = ret * x;
+		Core.multiply(ret, in_abs, ret);
+//		ret = ret - 0.2121144;
+		Core.add(ret, new Scalar(-0.2121144), ret);
+//		ret = ret * x;
+		Core.multiply(ret, in_abs, ret);
+//		ret = ret + 1.5707288;
+		Core.add(ret, new Scalar(1.5707288), ret);
+//		ret = ret * Math.sqrt(1.0 - x);
+//		Nota: 1 - x = - x + 1 = -1 * x + 1;
+		Mat sqrt = new Mat();
+		Core.multiply(in_abs, new Scalar(-1), sqrt);
+		Core.add(sqrt, new Scalar(1), sqrt);
+		Core.sqrt(sqrt, sqrt);
+		Core.multiply(ret, sqrt, ret);
+//		ret = ret - 2 * negate * ret;
+		Mat tmp = new Mat();
+		Core.multiply(ret, negate, tmp);
+		Core.multiply(tmp, new Scalar(-2), tmp);
+		Core.add(ret, tmp, ret);
+//		return negate * 3.14159265358979 + ret;
+		Core.multiply(negate, new Scalar(3.14159265358979), negate);
+		Core.add(ret, negate, ret);
+		return ret;
+	}
+
+	public MatE getAngle(Mat mB, Mat mG) {
+		Mat mat_two_times_pi = new Mat();
+		Mat comp = Mat.zeros(mB.rows(), mB.cols(), CvType.CV_64F);
+		Core.subtract(mB, mG, comp);	
+		Core.inRange(comp, EP, new Scalar(Double.MAX_VALUE), mat_two_times_pi);
+		mat_two_times_pi.convertTo(mat_two_times_pi, CvType.CV_64F);
+		Core.divide(mat_two_times_pi, new Scalar(255), mat_two_times_pi);
+		Mat sig_change = new Mat();
+		Core.multiply(mat_two_times_pi, new Scalar(-2), sig_change);
+		Core.add(sig_change, new Scalar(1), sig_change);
+		Core.multiply(mat_two_times_pi, new Scalar(2 * Math.PI), mat_two_times_pi);
+
+		MatE angle = acos();
+		Core.multiply(angle, sig_change, angle);
+		Core.add(mat_two_times_pi, angle, angle);
+		
+		return angle;
+	}
+
+	public List<Mat> split() {
+		List<Mat> splits = new ArrayList<Mat>(3);
+		Core.split(this, splits);
+		return splits;
+	}
+	
+	/**
+	 * Calculate the homogeinity
+	 * 
+	 * @return Homogeinity
+	 */
+	public double homogeinity() {
+		Mat out = new Mat();
+		convertTo(out, CvType.CV_8U, 255, 0);
+		
+		int cont = out.rows() * (out.cols() - 1) * 2;
+		double hom = 0;
+		
+		for (int i = 0; i < out.rows(); i++) {
+			for (int j = 0; j < out.cols() - 1; j++) {
+				int x = (int) out.get(i, j)[0];
+				int y = (int) out.get(i, j + 1)[0];
+				
+				if(x >= 254 && y >= 254)
+					continue;
+				
+				if(x != y)
+					hom += 2d / (cont * (1 + Math.abs(x - y)));
+				else
+					hom += 1d / (cont * (1 + Math.abs(x - y)));
+			}
+		}
+
+		return hom;
+	}
+
+	public MatE getWindows(int x, int y, int radius) {
+		return new MatE(submat(y - radius, y + (radius + 1), x - radius, x + (radius + 1)));
+	}
 }

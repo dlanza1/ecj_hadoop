@@ -10,7 +10,7 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.opencv.highgui.Highgui;
 
 import ec.app.facerecognition.MatE;
-import ec.app.facerecognition.hadoop.ImageWritable;
+import ec.app.facerecognition.hadoop.writables.ImageWritable;
 
 public class ImageRecordReader extends RecordReader<IntWritable, ImageWritable> {
 
