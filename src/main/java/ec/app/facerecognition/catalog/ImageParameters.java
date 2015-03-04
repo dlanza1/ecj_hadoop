@@ -10,7 +10,7 @@ public class ImageParameters {
 	MatE params;
 
 	public ImageParameters() {
-		params = new MatE(Mat.zeros(60, 9,CvType.CV_64F));
+		params = new MatE(Mat.zeros(60, 9, CvType.CV_64F));
 	}
 
 	public ImageParameters(ImageParameters parameters) {

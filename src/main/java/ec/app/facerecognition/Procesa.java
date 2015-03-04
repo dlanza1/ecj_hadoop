@@ -10,8 +10,6 @@
 package ec.app.facerecognition;
 
 import java.io.BufferedReader;
-import java.math.BigDecimal;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -55,8 +53,6 @@ public class Procesa {
 			puntosImagen = archivo.abrir(rutaPuntos);
 
 			for (int j = 0; j < 1368; j++) {
-				long image_time = System.currentTimeMillis();
-				
 				lineaNombre = nombreImagen.readLine();// lee la imagen que se
 														// procesara
 				System.out.println("\nimagen: " + lineaNombre);
@@ -86,39 +82,17 @@ public class Procesa {
 				//To RGB tipo Double
 				image.convertTo(image, CvType.CV_64FC(3), 1.0 / 255.0);
 				
-				long time = System.currentTimeMillis();
-				
 				Mat h = new Mat();
 				Mat s = new Mat();
 				Mat i = new Mat();
 				rgb2hsi(image, h, s, i);
 				
-//				System.out.println(System.currentTimeMillis() - time + " ms (rgb2hsi) ");
-				time = System.currentTimeMillis();
-				
 				llenaMatRef(j, matRef, puntos, h, s, i);
-				
-//				System.out.println(System.currentTimeMillis() - time + " ms (llenaMatRef) ");
-				
-				System.out.println(System.currentTimeMillis() - image_time + " ms (total imagen) " + j);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-	}
-
-	private boolean compare(Mat m1, Mat m2, String mes, Mat image) {
-		for (int k = 0; k < m1.rows(); k++) {
-			for (int j = 0; j < m2.cols(); j++) {
-				if(Math.abs(m1.get(k, j)[0] - m2.get(k, j)[0]) > 0.001){
-					System.out.println(k + "-" + j + "-" + mes + "-" + image.get(k, j)[0]  
-							+ "    " + m1.get(k, j)[0] + ",,,, " + m2.get(k, j)[0]);
-				}
-			}
-		}
-		
-		return true;
 	}
 
 	/**
@@ -131,8 +105,6 @@ public class Procesa {
 	 * @param pass 
 	 */
 	public void rgb2hsi(Mat image, Mat h, Mat s, Mat i) {
-		
-		long time = System.currentTimeMillis();
 		
 		List<Mat> mRgb = new ArrayList<Mat>(3);
 		Core.split(image, mRgb);// separa la imagen por canales
@@ -155,13 +127,7 @@ public class Procesa {
 		Core.add(den, EP, den);
 		Core.divide(num, den, teta);
 		
-//		System.out.println(System.currentTimeMillis() - time + " ms (rgb2hsi-1) ");
-		time = System.currentTimeMillis();
-		
 		Mat angulo = getAngulo(teta, mB, mG);
-		
-//		System.out.println(System.currentTimeMillis() - time + " ms (rgb2hsi-2) ");
-		time = System.currentTimeMillis();
 			
 		angulo.convertTo(angulo, CvType.CV_8U, 255, 0);
 		Imgproc.equalizeHist(angulo, h);
@@ -178,9 +144,6 @@ public class Procesa {
 		Scalar valorS1 = new Scalar(-1.0);
 		Core.multiply(s, valorS, s);
 		Core.subtract(s, valorS1, s);
-		
-//		System.out.println(System.currentTimeMillis() - time + " ms (rgb2hsi-3) ");
-		time = System.currentTimeMillis();
 
 		Mat pI = new Mat();
 		Core.add(mR, mG, pI);
@@ -193,10 +156,6 @@ public class Procesa {
 		s.convertTo(s, CvType.CV_8U, 255, 0);
 		Imgproc.equalizeHist(s, s);
 		s.convertTo(s, CvType.CV_64F, 1.0 / 255.0);
-		
-//		System.out.println(System.currentTimeMillis() - time + " ms (rgb2hsi-4) ");
-		time = System.currentTimeMillis();
-		
 	}
 	
 	public static Mat getAngulo(Mat teta, Mat mB, Mat mG) {

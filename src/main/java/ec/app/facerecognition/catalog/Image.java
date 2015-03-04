@@ -10,23 +10,31 @@ import ec.app.facerecognition.MatE;
 
 public class Image {
 	
+	protected String file_name;
+	
 	protected MatE value;
 	
 	/**
 	 * Points of interest
 	 */
-	private LinkedList<POI> poi;
+	protected LinkedList<POI> poi;
 	
 	public Image() {
 		this.value = new MatE();
 	}
 	
-	public Image(MatE value) {
+	public Image(String file_name, MatE value, LinkedList<POI> poi) {
+		this.file_name = file_name;
 		this.value = value;
+		this.poi = poi;
 	}
-	
+
 	public MatE getValue(){
 		return value;
+	}
+	
+	public LinkedList<POI> getPOI(){
+		return poi;
 	}
 	
 	public RGB getRGB(){
