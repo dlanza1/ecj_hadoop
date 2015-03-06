@@ -28,7 +28,11 @@ public class RGB {
 	MatE b;
 	
 	public RGB(MatE value) {
-		List<Mat> channels = value.split();
+		//To RGB type Double
+		MatE target = new MatE();
+		value.convertTo(target, CvType.CV_64FC(3), 1.0 / 255.0);
+		
+		List<Mat> channels = target.split();
 		
 		r = new MatE(channels.get(2));
 		g = new MatE(channels.get(1));

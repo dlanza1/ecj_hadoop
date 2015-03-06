@@ -9,8 +9,8 @@ public class ImageParameters {
 	
 	MatE params;
 
-	public ImageParameters() {
-		params = new MatE(Mat.zeros(60, 9, CvType.CV_64F));
+	public ImageParameters(int size) {
+		params = new MatE(Mat.zeros(size, 9, CvType.CV_64F));
 	}
 
 	public ImageParameters(ImageParameters parameters) {
@@ -19,6 +19,11 @@ public class ImageParameters {
 
 	public void put(POI poi, int param_index, double value) {
 		params.put(poi.getNum(), param_index, value);
+	}
+	
+	@Override
+	public String toString() {
+		return params.toString();
 	}
 
 }

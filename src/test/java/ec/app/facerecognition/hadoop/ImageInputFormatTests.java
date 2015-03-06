@@ -22,6 +22,7 @@ import org.opencv.core.Core;
 import ec.app.facerecognition.hadoop.input.ImageInputFormat;
 import ec.app.facerecognition.hadoop.input.ImageRecordReader;
 import ec.app.facerecognition.hadoop.writables.ImageWritable;
+import ec.app.facerecognition.hadoop.writables.ParametersWritable;
 
 public class ImageInputFormatTests {
 	
@@ -42,11 +43,11 @@ public class ImageInputFormatTests {
 				+ "11111111" + "11111111" //16 - 31
 				+ "11111111" + "11111111" //32 - 47
 				+ "11111111" + "11111111" //48 - 63
-				+ "11111111" + "1111"     //64 - 75  
+				+ "11111111" + "0011"     //64 - 75  
 				);
 		Job job = Job.getInstance(conf);
 		
-		ImageInputFormat.setInputPaths(job, "src/main/java/ec/app/facerecognition/img/");
+		ImageInputFormat.setInputPaths(job, "src/main/java/ec/app/facerecognition/img/test/");
 		InputFormat<IntWritable, ImageWritable> inputFormat = ReflectionUtils.newInstance(ImageInputFormat.class, conf);
 		List<InputSplit> splits = inputFormat.getSplits(job);
 		
@@ -58,15 +59,28 @@ public class ImageInputFormatTests {
 
 			reader.initialize(split, context);
 			while(reader.nextKeyValue()){
+				IntWritable key = reader.getCurrentKey();
 				ImageWritable image = (ImageWritable) reader.getCurrentValue();
 				
+				//Mapper
+				long time = System.currentTimeMillis();
+				int roi_radius = 5;
+				ParametersWritable params = new ParametersWritable(image.getParameters(roi_radius));
+				
+				System.out.println("Analized: key=" + key + " Image=" + image.getFileName());
+//				System.out.println("Params: " + params);
+				System.out.println("Time: " + (System.currentTimeMillis() - time) + " ms");
+				System.out.println();
+				//End mapper
+				
 				assertTrue(image.getValue().hasContent());
-				assertEquals(image.getPOI().size(), 60);
+				assertEquals(image.getPOI().size(), 58);
 				counter++;
 			}
 		}
 		
-		//The number of files in the folder is 3755 (filtered is 1368)
+		//The number of files in the normal folder is 3755 (filtered is 1368)
+		//The number of files in the test folder is 7 (filtered is 3)
 		System.out.println("The number of images read was " + counter 
 				+ " divided in " + splits.size() + " splits.");
 	}

@@ -55,7 +55,7 @@ public class Image {
 		MatOfDouble meanH = new MatOfDouble(), meanS = new MatOfDouble(), meanI = new MatOfDouble();
 		MatOfDouble stdevH = new MatOfDouble(), stdevS = new MatOfDouble(), stdevI = new MatOfDouble();
 		
-		ImageParameters params = new ImageParameters();
+		ImageParameters params = new ImageParameters(poi.size());
 
 		for (POI poi : poi) {
 			//Extract region of interest
@@ -83,6 +83,10 @@ public class Image {
 		}
 		
 		return params;
+	}
+	
+	public String getFileName(){
+		return file_name;
 	}
 
 }
