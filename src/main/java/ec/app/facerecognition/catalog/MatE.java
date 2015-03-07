@@ -24,6 +24,10 @@ import org.opencv.highgui.Highgui;
 
 public class MatE extends Mat {
 	
+	static{
+		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+	}
+	
 	/**
 	 * Epsilon
 	 */

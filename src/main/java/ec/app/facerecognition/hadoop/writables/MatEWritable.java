@@ -11,6 +11,7 @@ import ec.app.facerecognition.catalog.MatE;
 public class MatEWritable extends MatE implements WritableComparable<MatEWritable> {
 
 	public MatEWritable() {
+		super();
 	}
 	
 	public MatEWritable(MatE parameters) {
@@ -19,7 +20,7 @@ public class MatEWritable extends MatE implements WritableComparable<MatEWritabl
 
 	@Override
 	public void readFields(DataInput in) throws IOException {
-		super.read(in);
+		super.read(in).copyTo(this);
 	}
 
 	@Override

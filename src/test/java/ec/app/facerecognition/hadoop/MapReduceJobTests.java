@@ -8,9 +8,9 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
-import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.server.MiniYARNCluster;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ResourceScheduler;
@@ -39,7 +39,7 @@ public class MapReduceJobTests {
 		MiniDFSCluster.Builder builder = new MiniDFSCluster.Builder(conf);
 		hdfsCluster = builder.build();
 		hdfsURI = "hdfs://localhost:" + hdfsCluster.getNameNodePort() + "/";
-		FileSystem hdfs=hdfsCluster.getFileSystem();
+		FileSystem hdfs = hdfsCluster.getFileSystem();
 		hdfs.copyFromLocalFile(new Path("src/main/java/ec/app/facerecognition/img/test/"), new Path(hdfsURI + "img/in"));
 		
 		YarnConfiguration clusterConf = new YarnConfiguration();
@@ -58,18 +58,23 @@ public class MapReduceJobTests {
 	    
 	    job.setInputFormatClass(ImageInputFormat.class);
 	    job.setMapperClass(ComputeImagenMapper.class);
+	    job.setMapOutputKeyClass(NullWritable.class);
+	    job.setMapOutputValueClass(MatEWritable.class);
 	    
 	    job.setReducerClass(NormalizeMatrixReducer.class);
-	    job.setOutputKeyClass(IntWritable.class);
+	    job.setOutputKeyClass(MatEWritable.class);
 	    job.setOutputValueClass(MatEWritable.class);
 	    
+	    job.setOutputFormatClass(SequenceFileOutputFormat.class);
+	    
 	    ImageInputFormat.setInputPaths(job, hdfsURI + "img/in");
-	    FileOutputFormat.setOutputPath(job, new Path(hdfsURI + "img/out/"));
+	    SequenceFileOutputFormat.setOutputPath(job, new Path(hdfsURI + "img/out/"));
 	    
 	    Configuration conf = job.getConfiguration();
-		conf.setInt("mapreduce.input.multifileinputformat.splits", 10);
-		conf.set(ImageRecordReader.NAMES_FILE_PARAM, "src/main/java/ec/app/facerecognition/res/nombres.csv");
-		conf.set(ImageRecordReader.POI_FILE_PARAM, "src/main/java/ec/app/facerecognition/res/datos.csv");
+		conf.setInt(ImageRecordReader.NUM_OF_SPLITS_PARAM, 10);
+		conf.setInt(ImageRecordReader.NUMBER_OF_IMAGES_PARAM, 3);
+		conf.set(ImageRecordReader.IMAGES_FILE_PARAM, "src/main/java/ec/app/facerecognition/res/test/nombres.csv");
+		conf.set(ImageRecordReader.POI_FILE_PARAM, "src/main/java/ec/app/facerecognition/res/test/datos.csv");
 		conf.set(ImageRecordReader.FILTER_POI_PARAM,
 				  "00000000" + "00000000" // 0 - 15
 				+ "11111111" + "11111111" //16 - 31
@@ -78,7 +83,16 @@ public class MapReduceJobTests {
 				+ "11111111" + "1111"     //64 - 75  
 				);
 	    
-	    Assert.assertTrue(job.waitForCompletion(true));
+		job.waitForCompletion(true);
+//		job.submit();
+//		while(!job.isComplete())
+//			System.out.println("waiting for job");
+		
+		Assert.assertTrue(job.isSuccessful());
+	    
+		FileSystem hdfs = hdfsCluster.getFileSystem();
+	    FileUtil.fullyDelete(new File("./target/job/out"));
+	    hdfs.copyToLocalFile(new Path(hdfsURI + "img/out"), new Path("./target/job"));
 	}
 	
 	@After

@@ -10,6 +10,8 @@ import org.opencv.core.MatOfDouble;
 
 public class Image {
 	
+	public static final int NUMBER_OF_PARAMS = 9;
+
 	protected String file_name;
 	
 	protected MatE value;
@@ -55,7 +57,7 @@ public class Image {
 		MatOfDouble meanH = new MatOfDouble(), meanS = new MatOfDouble(), meanI = new MatOfDouble();
 		MatOfDouble stdevH = new MatOfDouble(), stdevS = new MatOfDouble(), stdevI = new MatOfDouble();
 		
-		MatE params = new MatE(Mat.zeros(poi.size(), 9, CvType.CV_64F));
+		MatE params = new MatE(Mat.zeros(poi.size(), NUMBER_OF_PARAMS, CvType.CV_64F));
 
 		for (POI poi : poi) {
 			int num_poi = poi.getNum();

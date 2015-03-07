@@ -46,13 +46,13 @@ public class Procesa {
 			String palabraPuntos;
 			Ficheros archivo = new Ficheros();
 			// Lectura del fichero
-			String rutaNombres = "src/main/java/ec/app/facerecognition/res/nombres.csv";// ruta al archivo de nombres
-			String rutaPuntos = "src/main/java/ec/app/facerecognition/res/datos.csv"; // ruta al archivo de coordenadas
+			String rutaNombres = "src/main/java/ec/app/facerecognition/res/test/nombres.csv";// ruta al archivo de nombres
+			String rutaPuntos = "src/main/java/ec/app/facerecognition/res/test/datos.csv"; // ruta al archivo de coordenadas
 												// (x,y) de cada PI
 			nombreImagen = archivo.abrir(rutaNombres);
 			puntosImagen = archivo.abrir(rutaPuntos);
 
-			for (int j = 0; j < 1368; j++) {
+			for (int j = 0; j < 2; j++) {
 				lineaNombre = nombreImagen.readLine();// lee la imagen que se
 														// procesara
 				System.out.println("\nimagen: " + lineaNombre);
@@ -349,8 +349,7 @@ public class Procesa {
 		// obitnene el valor maximo de cada columna de la matriz de referencia
 		for (int i = 0; i < matRef.cols(); i++) {
 			for (int j = 0; j < matRef.rows(); j++) {
-				matNor.put(j, i, matRef.get(j, i)[0] / val[0]);
-
+				matNor.put(j, i, matRef.get(j, i)[0] / val[i]);
 			}
 		}
 

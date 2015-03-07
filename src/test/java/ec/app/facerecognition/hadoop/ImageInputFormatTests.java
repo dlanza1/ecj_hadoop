@@ -1,12 +1,14 @@
 package ec.app.facerecognition.hadoop;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.Job;
@@ -36,7 +38,7 @@ public class ImageInputFormatTests {
 		Configuration conf = new Configuration(false);
 		conf.set("fs.default.name", "file:///");
 		conf.setInt("mapreduce.input.multifileinputformat.splits", 10);
-		conf.set(ImageRecordReader.NAMES_FILE_PARAM, "src/main/java/ec/app/facerecognition/res/nombres.csv");
+		conf.set(ImageRecordReader.IMAGES_FILE_PARAM, "src/main/java/ec/app/facerecognition/res/nombres.csv");
 		conf.set(ImageRecordReader.POI_FILE_PARAM, "src/main/java/ec/app/facerecognition/res/datos.csv");
 		conf.set(ImageRecordReader.FILTER_POI_PARAM,
 				  "00000000" + "00000000" // 0 - 15
@@ -48,18 +50,17 @@ public class ImageInputFormatTests {
 		Job job = Job.getInstance(conf);
 		
 		ImageInputFormat.setInputPaths(job, "src/main/java/ec/app/facerecognition/img/test/");
-		InputFormat<IntWritable, ImageWritable> inputFormat = ReflectionUtils.newInstance(ImageInputFormat.class, conf);
+		InputFormat<NullWritable, ImageWritable> inputFormat = ReflectionUtils.newInstance(ImageInputFormat.class, conf);
 		List<InputSplit> splits = inputFormat.getSplits(job);
 		
 		int counter = 0;
 		
 		for (InputSplit split : splits) {
 			TaskAttemptContext context = new TaskAttemptContextImpl(conf, new TaskAttemptID());
-			RecordReader<IntWritable, ImageWritable> reader = inputFormat.createRecordReader(split, context);
+			RecordReader<NullWritable, ImageWritable> reader = inputFormat.createRecordReader(split, context);
 
 			reader.initialize(split, context);
 			while(reader.nextKeyValue()){
-				IntWritable key = reader.getCurrentKey();
 				ImageWritable image = (ImageWritable) reader.getCurrentValue();
 				
 				//Mapper
@@ -67,7 +68,7 @@ public class ImageInputFormatTests {
 				int roi_radius = 5;
 				MatEWritable params = new MatEWritable(image.getParameters(roi_radius));
 				
-				System.out.println("Analized: key=" + key + " Image=" + image.getFileName());
+				System.out.println("Image=" + image.getFileName());
 //				System.out.println("Params: " + params);
 				System.out.println("Time: " + (System.currentTimeMillis() - time) + " ms");
 				System.out.println();
