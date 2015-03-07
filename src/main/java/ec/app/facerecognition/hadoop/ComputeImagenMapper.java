@@ -7,9 +7,9 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.opencv.core.Core;
 
 import ec.app.facerecognition.hadoop.writables.ImageWritable;
-import ec.app.facerecognition.hadoop.writables.ParametersWritable;
+import ec.app.facerecognition.hadoop.writables.MatEWritable;
 
-public class ComputeImagenMapper extends Mapper<IntWritable, ImageWritable, IntWritable, ParametersWritable> {
+public class ComputeImagenMapper extends Mapper<IntWritable, ImageWritable, IntWritable, MatEWritable> {
 
 	private int roi_radius;
 	
@@ -23,7 +23,7 @@ public class ComputeImagenMapper extends Mapper<IntWritable, ImageWritable, IntW
 	@Override
 	protected void map(IntWritable key, ImageWritable image, Context context)
 			throws IOException, InterruptedException {
-		context.write(key, new ParametersWritable(image.getParameters(roi_radius)));
+		context.write(key, new MatEWritable(image.getParameters(roi_radius)));
 	}
 
 }

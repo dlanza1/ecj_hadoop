@@ -22,7 +22,7 @@ import org.opencv.core.Core;
 import ec.app.facerecognition.hadoop.input.ImageInputFormat;
 import ec.app.facerecognition.hadoop.input.ImageRecordReader;
 import ec.app.facerecognition.hadoop.writables.ImageWritable;
-import ec.app.facerecognition.hadoop.writables.ParametersWritable;
+import ec.app.facerecognition.hadoop.writables.MatEWritable;
 
 public class ImageInputFormatTests {
 	
@@ -43,7 +43,7 @@ public class ImageInputFormatTests {
 				+ "11111111" + "11111111" //16 - 31
 				+ "11111111" + "11111111" //32 - 47
 				+ "11111111" + "11111111" //48 - 63
-				+ "11111111" + "0011"     //64 - 75  
+				+ "11111111" + "1111"     //64 - 75  
 				);
 		Job job = Job.getInstance(conf);
 		
@@ -65,7 +65,7 @@ public class ImageInputFormatTests {
 				//Mapper
 				long time = System.currentTimeMillis();
 				int roi_radius = 5;
-				ParametersWritable params = new ParametersWritable(image.getParameters(roi_radius));
+				MatEWritable params = new MatEWritable(image.getParameters(roi_radius));
 				
 				System.out.println("Analized: key=" + key + " Image=" + image.getFileName());
 //				System.out.println("Params: " + params);
@@ -74,7 +74,7 @@ public class ImageInputFormatTests {
 				//End mapper
 				
 				assertTrue(image.getValue().hasContent());
-				assertEquals(image.getPOI().size(), 58);
+				assertEquals(image.getPOI().size(), 60);
 				counter++;
 			}
 		}

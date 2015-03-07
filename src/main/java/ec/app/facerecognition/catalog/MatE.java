@@ -1,4 +1,4 @@
-package ec.app.facerecognition;
+package ec.app.facerecognition.catalog;
 
 import java.awt.FlowLayout;
 import java.awt.image.BufferedImage;
@@ -73,23 +73,28 @@ public class MatE extends Mat {
 	public static MatE read(DataInput in) throws IOException {
 		int rows = in.readInt();
 		int cols = in.readInt();
+		int channels = in.readInt();
 		
-		byte[] buff = new byte[rows * cols];
-		in.readFully(buff);
+		double[] buff = new double[rows * cols * channels];
+		for (int i = 0; i < buff.length; i++)
+			buff[i] = in.readDouble();
 		
-		MatE loaded = new MatE(rows, cols, CvType.CV_8U);
+		MatE loaded = new MatE(rows, cols, CvType.CV_64F);
 		loaded.put(0, 0, buff);
 		
 		return loaded;
 	}
 
 	public void write(DataOutput out) throws IOException {
-		byte[] buff = new byte[(int) (total() * channels())];
-		get(0, 0, buff);
-		
 		out.writeInt(rows());
 		out.writeInt(cols());
-		out.write(buff);
+		out.writeInt(channels());
+		
+		double[] buff = new double[rows() * cols() * channels()];
+		get(0, 0, buff);
+		
+		for (double d : buff)
+			out.writeDouble(d);
 	}
 
 	/**

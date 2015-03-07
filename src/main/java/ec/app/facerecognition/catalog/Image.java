@@ -3,9 +3,9 @@ package ec.app.facerecognition.catalog;
 import java.util.LinkedList;
 
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
 import org.opencv.core.MatOfDouble;
-
-import ec.app.facerecognition.MatE;
 
 
 public class Image {
@@ -45,7 +45,7 @@ public class Image {
 		return getRGB().toHSI();
 	}
 	
-	public ImageParameters getParameters(int radius){
+	public MatE getParameters(int radius){
 		HSI cs_hsi = getHSI();
 		MatE H = cs_hsi.getH();
 		MatE S = cs_hsi.getS();
@@ -55,9 +55,11 @@ public class Image {
 		MatOfDouble meanH = new MatOfDouble(), meanS = new MatOfDouble(), meanI = new MatOfDouble();
 		MatOfDouble stdevH = new MatOfDouble(), stdevS = new MatOfDouble(), stdevI = new MatOfDouble();
 		
-		ImageParameters params = new ImageParameters(poi.size());
+		MatE params = new MatE(Mat.zeros(poi.size(), 9, CvType.CV_64F));
 
 		for (POI poi : poi) {
+			int num_poi = poi.getNum();
+			
 			//Extract region of interest
 			ROI_H = H.getWindows(poi.getX(), poi.getY(), radius);
 			ROI_S = S.getWindows(poi.getX(), poi.getY(), radius);
@@ -69,17 +71,17 @@ public class Image {
 			Core.meanStdDev(ROI_I, meanI, stdevI);
 
 			//Set params
-			params.put(poi, 0, meanH.get(0, 0)[0]);
-			params.put(poi, 1, meanS.get(0, 0)[0]);
-			params.put(poi, 2, meanI.get(0, 0)[0]);
+			params.put(num_poi, 0, meanH.get(0, 0)[0]);
+			params.put(num_poi, 1, meanS.get(0, 0)[0]);
+			params.put(num_poi, 2, meanI.get(0, 0)[0]);
 
-			params.put(poi, 3, stdevH.get(0, 0)[0]);
-			params.put(poi, 4, stdevH.get(0, 0)[0]);
-			params.put(poi, 5, stdevH.get(0, 0)[0]);
+			params.put(num_poi, 3, stdevH.get(0, 0)[0]);
+			params.put(num_poi, 4, stdevH.get(0, 0)[0]);
+			params.put(num_poi, 5, stdevH.get(0, 0)[0]);
 
-			params.put(poi, 6, ROI_H.homogeinity());
-			params.put(poi, 7, ROI_S.homogeinity());
-			params.put(poi, 8, ROI_I.homogeinity());
+			params.put(num_poi, 6, ROI_H.homogeinity());
+			params.put(num_poi, 7, ROI_S.homogeinity());
+			params.put(num_poi, 8, ROI_I.homogeinity());
 		}
 		
 		return params;

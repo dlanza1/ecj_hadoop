@@ -1,6 +1,5 @@
 package ec.app.facerecognition.catalog;
 
-import ec.app.facerecognition.MatE;
 
 public class HSI {
 	

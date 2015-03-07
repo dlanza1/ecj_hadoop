@@ -1,63 +1,90 @@
 package ec.app.facerecognition.hadoop;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.FileUtil;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hdfs.MiniDFSCluster;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
+import org.apache.hadoop.yarn.server.MiniYARNCluster;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ResourceScheduler;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fifo.FifoScheduler;
+import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.mrunit.mapreduce.MapDriver;
-import org.apache.hadoop.mrunit.mapreduce.MapReduceDriver;
-import org.apache.hadoop.mrunit.mapreduce.ReduceDriver;
 
-import ec.app.facerecognition.hadoop.writables.ImageWritable;
-import ec.app.facerecognition.hadoop.writables.ParametersWritable;
+import ec.app.facerecognition.hadoop.input.ImageInputFormat;
+import ec.app.facerecognition.hadoop.input.ImageRecordReader;
+import ec.app.facerecognition.hadoop.writables.MatEWritable;
 
 public class MapReduceJobTests {
 
-	MapDriver<IntWritable, ImageWritable, IntWritable, ParametersWritable> mapDriver;
-	ReduceDriver<IntWritable, ParametersWritable, IntWritable, ParametersWritable> reduceDriver;
-	MapReduceDriver<IntWritable, ImageWritable, IntWritable, ParametersWritable, IntWritable, ParametersWritable> mapReduceDriver;
+	private MiniYARNCluster miniCluster;
+	private MiniDFSCluster hdfsCluster;
+	private String hdfsURI;
 
 	@Before
-	public void setUp() {
-		ComputeImagenMapper mapper = new ComputeImagenMapper();
-		NormalizeMatrixReducer reducer = new NormalizeMatrixReducer();
-		mapDriver = MapDriver.newMapDriver(mapper);
-		reduceDriver = ReduceDriver.newReduceDriver(reducer);
-		mapReduceDriver = MapReduceDriver.newMapReduceDriver(mapper, reducer);
+	public void setUp() throws IOException {
+		File baseDir = new File("./target/hdfs/").getAbsoluteFile();
+		FileUtil.fullyDelete(baseDir);
+		Configuration conf = new Configuration();
+		conf.set(MiniDFSCluster.HDFS_MINIDFS_BASEDIR, baseDir.getAbsolutePath());
+		MiniDFSCluster.Builder builder = new MiniDFSCluster.Builder(conf);
+		hdfsCluster = builder.build();
+		hdfsURI = "hdfs://localhost:" + hdfsCluster.getNameNodePort() + "/";
+		FileSystem hdfs=hdfsCluster.getFileSystem();
+		hdfs.copyFromLocalFile(new Path("src/main/java/ec/app/facerecognition/img/test/"), new Path(hdfsURI + "img/in"));
+		
+		YarnConfiguration clusterConf = new YarnConfiguration();
+		clusterConf.setInt(YarnConfiguration.RM_SCHEDULER_MINIMUM_ALLOCATION_MB, 64);
+		clusterConf.setClass(YarnConfiguration.RM_SCHEDULER, FifoScheduler.class, ResourceScheduler.class);
+		miniCluster = new MiniYARNCluster("miniYarnCLuster", 2, 1, 1);
+		miniCluster.init(clusterConf);
+		miniCluster.start();
 	}
 
 	@Test
-	public void testMapper() {
-//		mapDriver.withInput(new LongWritable(), new Text(
-//				"655209;1;796764372490213;804422938115889;6"));
-//		mapDriver.withOutput(new Text("6"), new IntWritable(1));
-//		mapDriver.runTest();
-	}
+	public void testMapReduce() throws Exception {
 
-	@Test
-	public void testReducer() throws IOException {
-		List<IntWritable> values = new ArrayList<IntWritable>();
-		values.add(new IntWritable(1));
-		values.add(new IntWritable(1));
-//		reduceDriver.withInput(new Text("6"), values);
-//		reduceDriver.withOutput(new Text("6"), new IntWritable(2));
-		reduceDriver.runTest();
+		Job job = Job.getInstance(miniCluster.getConfig(), "Face Recognition");
+	    job.setJarByClass(ComputeImagenMapper.class);
+	    
+	    job.setInputFormatClass(ImageInputFormat.class);
+	    job.setMapperClass(ComputeImagenMapper.class);
+	    
+	    job.setReducerClass(NormalizeMatrixReducer.class);
+	    job.setOutputKeyClass(IntWritable.class);
+	    job.setOutputValueClass(MatEWritable.class);
+	    
+	    ImageInputFormat.setInputPaths(job, hdfsURI + "img/in");
+	    FileOutputFormat.setOutputPath(job, new Path(hdfsURI + "img/out/"));
+	    
+	    Configuration conf = job.getConfiguration();
+		conf.setInt("mapreduce.input.multifileinputformat.splits", 10);
+		conf.set(ImageRecordReader.NAMES_FILE_PARAM, "src/main/java/ec/app/facerecognition/res/nombres.csv");
+		conf.set(ImageRecordReader.POI_FILE_PARAM, "src/main/java/ec/app/facerecognition/res/datos.csv");
+		conf.set(ImageRecordReader.FILTER_POI_PARAM,
+				  "00000000" + "00000000" // 0 - 15
+				+ "11111111" + "11111111" //16 - 31
+				+ "11111111" + "11111111" //32 - 47
+				+ "11111111" + "11111111" //48 - 63
+				+ "11111111" + "1111"     //64 - 75  
+				);
+	    
+	    Assert.assertTrue(job.waitForCompletion(true));
 	}
-
-	@Test
-	public void testMapReduce() throws IOException {
-//		mapReduceDriver.withInput(new LongWritable(), new Text(
-//				"655209;1;796764372490213;804422938115889;6"));
-		List<IntWritable> values = new ArrayList<IntWritable>();
-		values.add(new IntWritable(1));
-		values.add(new IntWritable(1));
-//		mapReduceDriver.withOutput(new Text("6"), new IntWritable(2));
-		mapReduceDriver.runTest();
+	
+	@After
+	public void destroy(){
+		miniCluster.stop();
+		hdfsCluster.shutdown();
 	}
 
 }

@@ -14,9 +14,8 @@ import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.lib.input.CombineFileSplit;
 import org.mortbay.log.Log;
-import org.opencv.highgui.Highgui;
 
-import ec.app.facerecognition.MatE;
+import ec.app.facerecognition.catalog.MatE;
 import ec.app.facerecognition.catalog.POI;
 import ec.app.facerecognition.hadoop.writables.ImageWritable;
 
@@ -28,10 +27,12 @@ public class ImageRecordReader extends RecordReader<IntWritable, ImageWritable> 
 	
 	private static final int NUMBER_OF_POI = 76;
 	
+	//TODO Do not use paths, iterate over the HashMap
 	private Path[] paths;
 	private HashMap<String, LinkedList<POI>> filesAndPoi;
 	
 	private int index_path;
+	private TaskAttemptContext context;
 
 	@Override
 	public void close() throws IOException {
@@ -48,16 +49,14 @@ public class ImageRecordReader extends RecordReader<IntWritable, ImageWritable> 
 		
 		Path path = paths[index_path];
 		
-//		FileSystem fs = path.getFileSystem(context.getConfiguration());
-//		value = new ImageWritable(MatE.fromFile(fs.open(path)));
-
-		ImageWritable image = new ImageWritable(
-				path.getName(), 
-				new MatE(Highgui.imread(Path.getPathWithoutSchemeAndAuthority(path).toString())), 
-				filesAndPoi.get(path.getName()));
+		FileSystem fs = path.getFileSystem(context.getConfiguration());
 		
+		ImageWritable image = new ImageWritable(path.getName(), 
+												MatE.fromFile(fs.open(path)), 
+												filesAndPoi.get(path.getName()));
+
 		if(image.getValue() == null || !image.getValue().hasContent())
-			throw new IOException("the image " + this.paths +" couldn't be loaded");
+			throw new IOException("the image " + path.getName() +" couldn't be loaded");
 		
 		return image;
 	}
@@ -72,11 +71,12 @@ public class ImageRecordReader extends RecordReader<IntWritable, ImageWritable> 
 			throws IOException, InterruptedException {
 		this.paths = ((CombineFileSplit) inputSplit).getPaths();
 		this.index_path = -1;
+		this.context = context;
 		
-		loadConfigFiles(context);
+		loadConfigFiles();
 	}
 
-	private void loadConfigFiles(TaskAttemptContext context) {
+	private void loadConfigFiles() {
 		String filterPath_s = context.getConfiguration().get(NAMES_FILE_PARAM);
 		String poiPath_s = context.getConfiguration().get(POI_FILE_PARAM);
 		if(filterPath_s == null || poiPath_s == null)

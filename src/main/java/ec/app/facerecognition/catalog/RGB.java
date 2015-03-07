@@ -8,8 +8,6 @@ import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
-import ec.app.facerecognition.MatE;
-
 public class RGB {
 
 	/**

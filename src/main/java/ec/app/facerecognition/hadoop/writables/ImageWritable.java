@@ -7,8 +7,8 @@ import java.util.LinkedList;
 
 import org.apache.hadoop.io.WritableComparable;
 
-import ec.app.facerecognition.MatE;
 import ec.app.facerecognition.catalog.Image;
+import ec.app.facerecognition.catalog.MatE;
 import ec.app.facerecognition.catalog.POI;
 
 public class ImageWritable extends Image implements WritableComparable<ImageWritable> {
