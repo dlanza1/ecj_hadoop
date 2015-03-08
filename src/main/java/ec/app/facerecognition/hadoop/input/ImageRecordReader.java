@@ -149,9 +149,6 @@ public class ImageRecordReader extends RecordReader<NullWritable, ImageWritable>
     	
     	number_of_images = filesAndPoi.size();
     	
-    	if(number_of_images != context.getConfiguration().getInt(NUMBER_OF_IMAGES_PARAM, -1))
-    		throw new IOException("the number of lines of the config files must be equal that " + NUMBER_OF_IMAGES_PARAM);
-        	
 		br_filter.close();
 		br_poi.close();
 	}

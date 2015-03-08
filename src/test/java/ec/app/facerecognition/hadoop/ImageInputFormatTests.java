@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.InputSplit;
@@ -24,7 +23,6 @@ import org.opencv.core.Core;
 import ec.app.facerecognition.hadoop.input.ImageInputFormat;
 import ec.app.facerecognition.hadoop.input.ImageRecordReader;
 import ec.app.facerecognition.hadoop.writables.ImageWritable;
-import ec.app.facerecognition.hadoop.writables.MatEWritable;
 
 public class ImageInputFormatTests {
 	
@@ -65,11 +63,8 @@ public class ImageInputFormatTests {
 				
 				//Mapper
 				long time = System.currentTimeMillis();
-				int roi_radius = 5;
-				MatEWritable params = new MatEWritable(image.getParameters(roi_radius));
 				
 				System.out.println("Image=" + image.getFileName());
-//				System.out.println("Params: " + params);
 				System.out.println("Time: " + (System.currentTimeMillis() - time) + " ms");
 				System.out.println();
 				//End mapper

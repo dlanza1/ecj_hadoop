@@ -44,6 +44,7 @@ public class MatE extends Mat {
 	 */
 	public MatE(Mat in) {
 		in.copyTo(this);
+		in.release();
 	}
 
 	public MatE(int rows, int cols, int type) {
@@ -203,16 +204,24 @@ public class MatE extends Mat {
 //		return negate * 3.14159265358979 + ret;
 		Core.multiply(negate, new Scalar(3.14159265358979), negate);
 		Core.add(ret, negate, ret);
+		
+		negate.release();
+		in_abs.release();
+		sqrt.release();
+		tmp.release();
+		
 		return ret;
 	}
 
 	public MatE getAngle(Mat mB, Mat mG) {
 		Mat mat_two_times_pi = new Mat();
+		
 		Mat comp = Mat.zeros(mB.rows(), mB.cols(), CvType.CV_64F);
 		Core.subtract(mB, mG, comp);	
 		Core.inRange(comp, EP, new Scalar(Double.MAX_VALUE), mat_two_times_pi);
 		mat_two_times_pi.convertTo(mat_two_times_pi, CvType.CV_64F);
 		Core.divide(mat_two_times_pi, new Scalar(255), mat_two_times_pi);
+		
 		Mat sig_change = new Mat();
 		Core.multiply(mat_two_times_pi, new Scalar(-2), sig_change);
 		Core.add(sig_change, new Scalar(1), sig_change);
@@ -221,6 +230,10 @@ public class MatE extends Mat {
 		MatE angle = acos();
 		Core.multiply(angle, sig_change, angle);
 		Core.add(mat_two_times_pi, angle, angle);
+		
+		mat_two_times_pi.release();
+		comp.release();
+		sig_change.release();
 		
 		return angle;
 	}
@@ -257,6 +270,8 @@ public class MatE extends Mat {
 					hom += 1d / (cont * (1 + Math.abs(x - y)));
 			}
 		}
+		
+		out.release();
 
 		return hom;
 	}
@@ -264,4 +279,21 @@ public class MatE extends Mat {
 	public MatE getWindows(int x, int y, int radius) {
 		return new MatE(submat(y - radius, y + (radius + 1), x - radius, x + (radius + 1)));
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == this) 
+			return true;
+		
+		if((obj == null) || obj.getClass() != this.getClass())
+			return false;
+
+		MatE other = (MatE) obj; 
+
+		MatE dst = new MatE(rows(), cols(), type());
+		Core.subtract(this, other, dst);
+		
+		return Core.countNonZero(dst) == 0;
+	}
+
 }

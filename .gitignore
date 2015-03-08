@@ -11,3 +11,5 @@
 *.log
 /entre.txt
 /recup.txt
+/ecj-hadoop-0.0.1-SNAPSHOT.jar
+/res/

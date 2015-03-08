@@ -44,11 +44,67 @@ public class Image {
 	}
 	
 	public HSI getHSI() {
-		return getRGB().toHSI();
+		return new HSI(getRGB());
+	}
+	
+	public HSI getHSI_old() {
+		RGB rgb = getRGB();
+		
+		HSI hsi = new HSI(rgb, true);
+		rgb.release();
+		
+		return hsi;
 	}
 	
 	public MatE getParameters(int radius){
 		HSI cs_hsi = getHSI();
+		MatE H = cs_hsi.getH();
+		MatE S = cs_hsi.getS();
+		MatE I = cs_hsi.getI();
+
+		MatE ROI = new MatE();
+		MatOfDouble mean = new MatOfDouble();
+		MatOfDouble stdev = new MatOfDouble();
+		
+		MatE params = new MatE(Mat.zeros(poi.size(), NUMBER_OF_PARAMS, CvType.CV_64F));
+
+		for (POI poi : poi) {
+			int num_poi = poi.getNum();
+			
+			ROI = H.getWindows(poi.getX(), poi.getY(), radius);
+			Core.meanStdDev(ROI, mean, stdev);
+			params.put(num_poi, 0, mean.get(0, 0)[0]);
+			params.put(num_poi, 3, stdev.get(0, 0)[0]);
+			params.put(num_poi, 6, ROI.homogeinity());
+			
+			ROI = S.getWindows(poi.getX(), poi.getY(), radius);
+			Core.meanStdDev(ROI, mean, stdev);
+			params.put(num_poi, 1, mean.get(0, 0)[0]);
+			params.put(num_poi, 4, stdev.get(0, 0)[0]);
+			params.put(num_poi, 7, ROI.homogeinity());
+			
+			ROI = I.getWindows(poi.getX(), poi.getY(), radius);
+			Core.meanStdDev(ROI, mean, stdev);
+			params.put(num_poi, 2, mean.get(0, 0)[0]);
+			params.put(num_poi, 5, stdev.get(0, 0)[0]);
+			params.put(num_poi, 8, ROI.homogeinity());
+		}
+		
+		cs_hsi.release();
+		ROI.release();
+		mean.release();
+		stdev.release();
+		
+		return params;
+	}
+	
+	public String getFileName(){
+		return file_name;
+	}
+
+	
+	public MatE getParameters_old(int radius) {
+		HSI cs_hsi = getHSI_old();
 		MatE H = cs_hsi.getH();
 		MatE S = cs_hsi.getS();
 		MatE I = cs_hsi.getI();
@@ -78,8 +134,8 @@ public class Image {
 			params.put(num_poi, 2, meanI.get(0, 0)[0]);
 
 			params.put(num_poi, 3, stdevH.get(0, 0)[0]);
-			params.put(num_poi, 4, stdevH.get(0, 0)[0]);
-			params.put(num_poi, 5, stdevH.get(0, 0)[0]);
+			params.put(num_poi, 4, stdevS.get(0, 0)[0]);
+			params.put(num_poi, 5, stdevI.get(0, 0)[0]);
 
 			params.put(num_poi, 6, ROI_H.homogeinity());
 			params.put(num_poi, 7, ROI_S.homogeinity());
@@ -87,10 +143,6 @@ public class Image {
 		}
 		
 		return params;
-	}
-	
-	public String getFileName(){
-		return file_name;
 	}
 
 }

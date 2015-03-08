@@ -38,6 +38,7 @@ public class ImageWritable extends Image implements WritableComparable<ImageWrit
 	public void write(DataOutput out) throws IOException {
 		out.writeUTF(file_name);
 		value.write(out);
+		value.release();
 		
 		out.writeInt(poi.size());
 		for (POI poi_ : poi)

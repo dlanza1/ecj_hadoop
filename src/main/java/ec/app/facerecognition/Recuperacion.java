@@ -56,7 +56,7 @@ public class Recuperacion {
 		    		lineaNombre = nombreImagen.readLine();// lee la imagen que se procesara
 		    		//System.out.println("\nimagen: " + lineaNombre);
 
-		    		image = Highgui.imread("src/main/java/ec/app/facerecognition/img/" + lineaNombre);
+		    		image = Highgui.imread("res/img/" + lineaNombre);
 
 		    		lineaPuntos = puntosImagen.readLine();// lee la linea de puntos de la imagen
 

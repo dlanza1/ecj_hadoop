@@ -46,18 +46,18 @@ public class Procesa {
 			String palabraPuntos;
 			Ficheros archivo = new Ficheros();
 			// Lectura del fichero
-			String rutaNombres = "src/main/java/ec/app/facerecognition/res/test/nombres.csv";// ruta al archivo de nombres
-			String rutaPuntos = "src/main/java/ec/app/facerecognition/res/test/datos.csv"; // ruta al archivo de coordenadas
+			String rutaNombres = "src/main/java/ec/app/facerecognition/res/nombres.csv";// ruta al archivo de nombres
+			String rutaPuntos = "src/main/java/ec/app/facerecognition/res/datos.csv"; // ruta al archivo de coordenadas
 												// (x,y) de cada PI
 			nombreImagen = archivo.abrir(rutaNombres);
 			puntosImagen = archivo.abrir(rutaPuntos);
 
-			for (int j = 0; j < 2; j++) {
+			for (int j = 0; j < 1368; j++) {
 				lineaNombre = nombreImagen.readLine();// lee la imagen que se
 														// procesara
 				System.out.println("\nimagen: " + lineaNombre);
 				
-				image = Highgui.imread("src/main/java/ec/app/facerecognition/img/" + lineaNombre);
+				image = Highgui.imread("res/img/" + lineaNombre);
 
 				lineaPuntos = puntosImagen.readLine();// lee la linea de puntos
 														// de la imagen
