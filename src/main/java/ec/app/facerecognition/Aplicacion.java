@@ -1,5 +1,8 @@
 package ec.app.facerecognition;
 
+import main.Recuperacion;
+import main.Resultados;
+
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -28,6 +31,14 @@ public class Aplicacion {
 
 		// LLamando a la recuperación
 		// Recuperacion Recupera=new Recuperacion(valRef,centers,MIndex);
-
+		
+		/*		//LLamando a la recuperación
+		Recuperacion Recupera=new Recuperacion(valRef,centers,MIndex,vecinosDistMIndex,vecinosIdMIndex);
+		Recupera.Consulta();
+		vecinosDistMIndex=Recupera.getVecinosDistMIndex();
+		vecinosIdMIndex=Recupera.getVecinosIdMIndex();
+		Resultados Resul=new Resultados(vecinosIdMIndex);
+		Resul.porcentaje();
+		 */
 	}
 }
