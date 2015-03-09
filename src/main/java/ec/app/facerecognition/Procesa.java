@@ -45,7 +45,7 @@ public class Procesa {
 			nombreImagen = archivo.abrir(rutaNombres);
 			puntosImagen = archivo.abrir(rutaPuntos);
 
-			for (int j = 0; j < 10; j++) {
+			for (int j = 0; j < 1368; j++) {
 				long image_time = System.currentTimeMillis();
 				
 				lineaNombre = nombreImagen.readLine();// lee la imagen que se
@@ -53,7 +53,7 @@ public class Procesa {
 				System.out.println("\nimagen: " + lineaNombre);
 
 //				image = Highgui.imread(Aplicacion.class.getResource("imagenes/" + lineaNombre).getPath());
-				image = Highgui.imread("src/main/java/ec/app/facerecognition/img/" + lineaNombre);
+				image = Highgui.imread("res/img/" + lineaNombre);
 
 				lineaPuntos = puntosImagen.readLine();// lee la linea de puntos
 														// de la imagen
@@ -461,7 +461,7 @@ public class Procesa {
 			// obitnene el valor maximo de cada columna de la matriz de referencia
 			for (int i = 0; i < matRef.cols(); i++) {
 				for (int j = 0; j < matRef.rows(); j++) {
-					matNor.put(j, i, matRef.get(j, i)[0] / val[0]);
+					matNor.put(j, i, matRef.get(j, i)[0] / val[i]);
 
 				}
 			}
@@ -477,7 +477,7 @@ public class Procesa {
 		matNor.convertTo(MNor, CvType.CV_32F);
 		TermCriteria criteria = new TermCriteria(TermCriteria.EPS+ TermCriteria.MAX_ITER, 10000, 0.0001);
 		Core.kmeans(MNor, 10, labels, criteria, 1, Core.KMEANS_RANDOM_CENTERS,centers);
-		mIndexada(labels, 10, 10, MIndex);//poner el numero de imagenes
+		mIndexada(labels, 1368, 10, MIndex);//poner el numero de imagenes
 	}
 
 	// genera la matriz de indices de textura para la base de datos
@@ -491,6 +491,8 @@ public class Procesa {
 				mIdx.put(i, (int)labels.get(j,0)[0], valor);
 			}
 		}
+		
+		System.out.println(mIdx.dump());
 	}
 
 }

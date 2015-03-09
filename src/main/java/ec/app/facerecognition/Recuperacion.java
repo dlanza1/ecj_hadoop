@@ -49,7 +49,7 @@ public class Recuperacion {
 		    	nombreImagen = archivo.abrir(rutaNombres);
 		    	puntosImagen = archivo.abrir(rutaPuntos);
 
-		    	for (int j = 0; j < 10; j++) {
+		    	for (int j = 0; j < 1368; j++) {
 		    		long image_time = System.currentTimeMillis();
 			
 		    		lineaNombre = nombreImagen.readLine();// lee la imagen que se procesara
