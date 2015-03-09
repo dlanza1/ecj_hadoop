@@ -1,6 +1,8 @@
-package ec.app.facerecognition;
+package main;
 
 import java.io.BufferedReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.opencv.core.Core;
@@ -13,15 +15,24 @@ public class Recuperacion {
 	Mat centers;
 	double[] valRef;
 	Mat MIndex;
-	
-	 public Recuperacion(double[] valRef, Mat centers, Mat MIndex) {
+	Mat vecinosDistMIndex,vecinosIdMIndex;
+	 public Recuperacion(double[] valRef, Mat centers, Mat MIndex,Mat vecinosDistMIndex,Mat vecinosIdMindex) {
 	
 		 this.centers = centers;
 		 this.valRef=valRef;
 		 this.MIndex=MIndex;
+		 this.vecinosDistMIndex=vecinosDistMIndex;
+		 this.vecinosIdMIndex=vecinosDistMIndex;
 		 
 	}
 	
+	 public Mat getVecinosIdMIndex(){
+		 return vecinosIdMIndex;
+	 }
+
+	 public Mat getVecinosDistMIndex(){
+		 return vecinosDistMIndex;
+	 }
 	 public void Consulta(){
 		 
 		BufferedReader nombreImagen = null;
@@ -33,8 +44,6 @@ public class Recuperacion {
 		Mat vecinosIdCenters=Mat.zeros(60,1,CvType.CV_32F);
 		Mat vecinosDistCenters=Mat.zeros(60, 1,CvType.CV_64F);
 		
-		Mat vecinosIdMindex=Mat.zeros(1368,5,CvType.CV_32F); 
-		Mat vecinosDistMIndex=Mat.zeros(1368,5,CvType.CV_64F);
 		int [] puntos= new int[120];// arreglo que guarda los 60 Pi
 		try {
 				String lineaNombre;
@@ -42,8 +51,8 @@ public class Recuperacion {
 		    	String palabraPuntos;
 		    	Ficheros archivo=new Ficheros();
 		    	// Lectura del fichero
-		    	String rutaNombres="/home/cesar/Escritorio/nombres.csv";//ruta al archivo de nombres
-		    	String rutaPuntos="/home/cesar/Escritorio/datos.csv"; //ruta al archivo de coordenadas (x,y) de cada PI
+		    	String rutaNombres="/Users/ernesto/Documents/openCV_workspace/Imagen01/src/main/files/nombres.csv";//ruta al archivo de nombres
+		    	String rutaPuntos="/Users/ernesto/Documents/openCV_workspace/Imagen01/src/main/files/datos.csv"; //ruta al archivo de coordenadas (x,y) de cada PI
 		    	nombreImagen=archivo.abrir(rutaNombres);
 		    	puntosImagen=archivo.abrir(rutaPuntos);       	
 		    	nombreImagen = archivo.abrir(rutaNombres);
@@ -105,9 +114,9 @@ public class Recuperacion {
 		    	//System.out.println(System.currentTimeMillis() - image_time + " ms (total imagen) ");
 		    	image_time = System.currentTimeMillis();
 		    }
-		    	algoKnnMI(MIndex,vecinosIdMindex,vecinosDistMIndex,vectorConsulta,5);
+		    	algoKnnMI(MIndex,vecinosIdMIndex,vecinosDistMIndex,vectorConsulta,5);
 		    	for (int k=0;k<10;k++)
-		    	System.out.println("Resultado:"+vecinosIdMindex.get(k,0)[0]+","+vecinosIdMindex.get(k,1)[0]+","+vecinosIdMindex.get(k,2)[0]+","+vecinosIdMindex.get(k,3)[0]+","+vecinosIdMindex.get(k,4)[0]);
+		    	System.out.println("Resultado:"+vecinosIdMIndex.get(k,0)[0]+","+vecinosIdMIndex.get(k,1)[0]+","+vecinosIdMIndex.get(k,2)[0]+","+vecinosIdMIndex.get(k,3)[0]+","+vecinosIdMIndex.get(k,4)[0]);
 		} 
 		catch (Exception e) 
 		{
@@ -184,6 +193,7 @@ private void algoKnnMI(Mat MIndex, Mat vecinosIdMindex,Mat vecinosDistMindex,Mat
 		 }
 	 }
 
+	
 	 private Mat repMat(Mat matNor, int datos, int indice) {
 		
 		double valor;
@@ -196,4 +206,6 @@ private void algoKnnMI(Mat MIndex, Mat vecinosIdMindex,Mat vecinosDistMindex,Mat
 		return copia;
 	}
 	
+	 
+	 
 }
