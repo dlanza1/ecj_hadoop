@@ -50,10 +50,12 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 @InterfaceStability.Stable
 public abstract class MultiFileInputFormat<K, V> extends FileInputFormat<K, V> {
 
+	public static String NUM_SPLITS_PARAM = "mapreduce.input.multifileinputformat.splits";
+	
 	@Override
 	public List<InputSplit> getSplits(JobContext jobContext) throws IOException {
 
-		int numSplits = jobContext.getConfiguration().getInt("mapreduce.input.multifileinputformat.splits", 1);
+		int numSplits = jobContext.getConfiguration().getInt(NUM_SPLITS_PARAM, 1);
 
 		List<FileStatus> fileStatus = listStatus(jobContext);
 		FileStatus[] fileStatus_ = new FileStatus[fileStatus.size()]; 

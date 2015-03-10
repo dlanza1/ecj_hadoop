@@ -26,6 +26,7 @@ public class MatEWritable extends MatE implements WritableComparable<MatEWritabl
 	@Override
 	public void write(DataOutput out) throws IOException {
 		super.write(out);
+		release();
 	}
 
 	@Override

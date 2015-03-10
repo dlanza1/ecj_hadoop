@@ -57,10 +57,10 @@ public class Image {
 	}
 	
 	public MatE getParameters(int radius){
-		HSI cs_hsi = getHSI();
-		MatE H = cs_hsi.getH();
-		MatE S = cs_hsi.getS();
-		MatE I = cs_hsi.getI();
+		HSI hsi = getHSI();
+		MatE H = hsi.getH();
+		MatE S = hsi.getS();
+		MatE I = hsi.getI();
 
 		MatE ROI = new MatE();
 		MatOfDouble mean = new MatOfDouble();
@@ -90,7 +90,7 @@ public class Image {
 			params.put(num_poi, 8, ROI.homogeinity());
 		}
 		
-		cs_hsi.release();
+		hsi.release();
 		ROI.release();
 		mean.release();
 		stdev.release();

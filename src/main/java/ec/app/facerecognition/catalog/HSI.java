@@ -31,16 +31,16 @@ public class HSI {
 		
 		MatE parcial = new MatE();
 		MatE parcial1 = new MatE();   
-		MatE parcial3 = new MatE();
+		MatE parcial2 = new MatE();
 		
 		Core.subtract(rgb.r, rgb.g, parcial);
 		Core.subtract(rgb.r, rgb.b, parcial1);
 		Core.add(parcial, parcial1, h);
 		
-		Core.pow(parcial, 2, parcial3); 
+		Core.pow(parcial, 2, parcial2); 
 		Core.subtract(rgb.g, rgb.b, parcial);
 		Core.multiply(parcial1, parcial, parcial);
-		Core.add(parcial3, parcial, parcial);
+		Core.add(parcial2, parcial, parcial);
 		Core.sqrt(parcial, parcial1);
 		Core.add(parcial1, MatE.EP, parcial1);
 		Core.multiply(h, new Scalar(0.5), parcial);
@@ -77,6 +77,7 @@ public class HSI {
 		rgb.release();
 		parcial.release();
 		parcial1.release();
+		parcial2.release();
 	}
 	
 	public HSI(RGB rgb, boolean old) {

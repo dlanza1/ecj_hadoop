@@ -22,6 +22,7 @@ import org.opencv.core.Core;
 
 import ec.app.facerecognition.hadoop.input.ImageInputFormat;
 import ec.app.facerecognition.hadoop.input.ImageRecordReader;
+import ec.app.facerecognition.hadoop.input.MultiFileInputFormat;
 import ec.app.facerecognition.hadoop.writables.ImageWritable;
 
 public class ImageInputFormatTests {
@@ -35,7 +36,7 @@ public class ImageInputFormatTests {
 	public void readFiles() throws IOException, InterruptedException{
 		Configuration conf = new Configuration(false);
 		conf.set("fs.default.name", "file:///");
-		conf.setInt("mapreduce.input.multifileinputformat.splits", 10);
+		conf.setInt(MultiFileInputFormat.NUM_SPLITS_PARAM, 10);
 		conf.set(ImageRecordReader.IMAGES_FILE_PARAM, "src/main/java/ec/app/facerecognition/res/nombres.csv");
 		conf.set(ImageRecordReader.POI_FILE_PARAM, "src/main/java/ec/app/facerecognition/res/datos.csv");
 		conf.set(ImageRecordReader.FILTER_POI_PARAM,
@@ -47,7 +48,7 @@ public class ImageInputFormatTests {
 				);
 		Job job = Job.getInstance(conf);
 		
-		ImageInputFormat.setInputPaths(job, "src/main/java/ec/app/facerecognition/img/test/");
+		ImageInputFormat.setInputPaths(job, "res/img");
 		InputFormat<NullWritable, ImageWritable> inputFormat = ReflectionUtils.newInstance(ImageInputFormat.class, conf);
 		List<InputSplit> splits = inputFormat.getSplits(job);
 		
@@ -64,6 +65,8 @@ public class ImageInputFormatTests {
 				//Mapper
 				long time = System.currentTimeMillis();
 				
+				image.getParameters(5);
+				
 				System.out.println("Image=" + image.getFileName());
 				System.out.println("Time: " + (System.currentTimeMillis() - time) + " ms");
 				System.out.println();
@@ -71,6 +74,7 @@ public class ImageInputFormatTests {
 				
 				assertTrue(image.getValue().hasContent());
 				assertEquals(image.getPOI().size(), 60);
+				
 				counter++;
 			}
 		}
