@@ -1,6 +1,7 @@
-package main;
+package ec.app.facerecognition;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -33,7 +34,7 @@ public class Recuperacion {
 	 public Mat getVecinosDistMIndex(){
 		 return vecinosDistMIndex;
 	 }
-	 public void Consulta(){
+	 public void Consulta() throws IOException{
 		 
 		BufferedReader nombreImagen = null;
 		BufferedReader puntosImagen = null;
@@ -45,18 +46,16 @@ public class Recuperacion {
 		Mat vecinosDistCenters=Mat.zeros(60, 1,CvType.CV_64F);
 		
 		int [] puntos= new int[120];// arreglo que guarda los 60 Pi
-		try {
+
 				String lineaNombre;
 		    	String lineaPuntos;
 		    	String palabraPuntos;
 		    	Ficheros archivo=new Ficheros();
 		    	// Lectura del fichero
-		    	String rutaNombres="/Users/ernesto/Documents/openCV_workspace/Imagen01/src/main/files/nombres.csv";//ruta al archivo de nombres
-		    	String rutaPuntos="/Users/ernesto/Documents/openCV_workspace/Imagen01/src/main/files/datos.csv"; //ruta al archivo de coordenadas (x,y) de cada PI
+		    	String rutaNombres="src/main/java/ec/app/facerecognition/res/nombres.csv";//ruta al archivo de nombres
+		    	String rutaPuntos="src/main/java/ec/app/facerecognition/res/datos.csv"; //ruta al archivo de coordenadas (x,y) de cada PI
 		    	nombreImagen=archivo.abrir(rutaNombres);
-		    	puntosImagen=archivo.abrir(rutaPuntos);       	
-		    	nombreImagen = archivo.abrir(rutaNombres);
-		    	puntosImagen = archivo.abrir(rutaPuntos);
+		    	puntosImagen=archivo.abrir(rutaPuntos);       
 
 		    	for (int j = 0; j < 1368; j++) {
 		    		long image_time = System.currentTimeMillis();
@@ -64,8 +63,8 @@ public class Recuperacion {
 		    		lineaNombre = nombreImagen.readLine();// lee la imagen que se procesara
 		    		//System.out.println("\nimagen: " + lineaNombre);
 
-		    		image = Highgui.imread(Aplicacion.class.getResource("files/images/" + lineaNombre).getPath());
-
+		    		image = Highgui.imread("res/img/" + lineaNombre);
+		    		System.out.println("\nImagen rec "+j+ ": " + "res/img/" + lineaNombre);
 		    		lineaPuntos = puntosImagen.readLine();// lee la linea de puntos de la imagen
 
 		    		int numTokens = 0; // toquen para guardar los 60 puntos
@@ -89,7 +88,7 @@ public class Recuperacion {
 		    	Mat h = new Mat();
 		    	Mat s = new Mat();
 		    	Mat i = new Mat();
-		    	proc.rgb2hsi_improved(image, h, s, i);
+		    	proc.rgb2hsi(image, h, s, i);
 		    			
 		    	//System.out.println(System.currentTimeMillis() - time + " ms (rgb2hsi) ");
 							
@@ -109,19 +108,15 @@ public class Recuperacion {
 		    		//vectorConsulta.at<uchar>(j,(int)vecinosIdsCenters.at<uchar>(i,0))=vectorConsulta.at<uchar>(j,(int)vecinosIdsCenters.at<uchar>(i,0))+1;
 		    		vectorConsulta.put(j,(int)vecinosIdCenters.get(l,0)[0],vectorConsulta.get(j,(int)vecinosIdCenters.get(l,0)[0])[0]+1);	
 		    	}
-		    		System.out.print("valor:"+vectorConsulta.get(j,0)[0]+","+vectorConsulta.get(j,1)[0]+","+vectorConsulta.get(j,2)[0]+","+vectorConsulta.get(j,3)[0]+","+vectorConsulta.get(j,4)[0]+","+vectorConsulta.get(j,5)[0]);
-		    		System.out.println(","+vectorConsulta.get(j,6)[0]+","+vectorConsulta.get(j,7)[0]+","+vectorConsulta.get(j,8)[0]+","+vectorConsulta.get(j,9)[0]);
+//		    		System.out.print("valor:"+vectorConsulta.get(j,0)[0]+","+vectorConsulta.get(j,1)[0]+","+vectorConsulta.get(j,2)[0]+","+vectorConsulta.get(j,3)[0]+","+vectorConsulta.get(j,4)[0]+","+vectorConsulta.get(j,5)[0]);
+//		    		System.out.println(","+vectorConsulta.get(j,6)[0]+","+vectorConsulta.get(j,7)[0]+","+vectorConsulta.get(j,8)[0]+","+vectorConsulta.get(j,9)[0]);
 		    	//System.out.println(System.currentTimeMillis() - image_time + " ms (total imagen) ");
 		    	image_time = System.currentTimeMillis();
 		    }
 		    	algoKnnMI(MIndex,vecinosIdMIndex,vecinosDistMIndex,vectorConsulta,5);
-		    	for (int k=0;k<10;k++)
-		    	System.out.println("Resultado:"+vecinosIdMIndex.get(k,0)[0]+","+vecinosIdMIndex.get(k,1)[0]+","+vecinosIdMIndex.get(k,2)[0]+","+vecinosIdMIndex.get(k,3)[0]+","+vecinosIdMIndex.get(k,4)[0]);
-		} 
-		catch (Exception e) 
-		{
-			e.printStackTrace();
-		 }
+//		    	for (int k=0;k<10;k++)
+//		    	System.out.println("Resultado:"+vecinosIdMIndex.get(k,0)[0]+","+vecinosIdMIndex.get(k,1)[0]+","+vecinosIdMIndex.get(k,2)[0]+","+vecinosIdMIndex.get(k,3)[0]+","+vecinosIdMIndex.get(k,4)[0]);
+		
 	 }
 	 
 	 private void algoKNN(Mat centers, Mat vecinosIdCenters,Mat vecinosDistCenters,Mat matNor,int k){
@@ -183,9 +178,9 @@ private void algoKnnMI(Mat MIndex, Mat vecinosIdMindex,Mat vecinosDistMindex,Mat
 					 suma=suma+C.get(i, j)[0];
 				 D.put(i,0,suma);
 			 }
-		 
-			 Core.sortIdx(D, F,1 );
-			 Core.sort(D, E, 1);
+			 
+			 Core.sortIdx(D, F, Core.SORT_EVERY_COLUMN + Core.SORT_ASCENDING);
+			 Core.sort(D, E, Core.SORT_EVERY_COLUMN + Core.SORT_ASCENDING);
 			 for(int j=0;j<k;j++){//guardando los 5 mas parecidos
 				 vecinosDistMindex.put(l,j, E.get(j, 0)[0]);
 				 vecinosIdMindex.put(l,j,(int) F.get(j, 0)[0]);

@@ -1,4 +1,6 @@
-package main;
+package ec.app.facerecognition;
+
+import java.io.IOException;
 
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -7,7 +9,7 @@ import org.opencv.core.Mat;
 
 public class Aplicacion {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stu
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		double [] valRef=new double[9];
@@ -31,6 +33,10 @@ public class Aplicacion {
 		Recupera.Consulta();
 		vecinosDistMIndex=Recupera.getVecinosDistMIndex();
 		vecinosIdMIndex=Recupera.getVecinosIdMIndex();
+		System.out.println(vecinosIdMIndex.dump());
+//		boolean q = true;
+//		if(q)
+//			System.exit(0);
 		Resultados Resul=new Resultados(vecinosIdMIndex);
 		Resul.porcentaje();
 	    }

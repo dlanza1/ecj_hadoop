@@ -26,6 +26,9 @@ import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
 public class Procesa {
+	
+	double EP = 0.00000001;
+	Scalar epsilon = new Scalar(EP);
 
 	/* Funcion que genera la matriz de referencia para la imagen analizada */
 	public void generaMatRef(Mat matRef) {
@@ -50,7 +53,7 @@ public class Procesa {
 				
 				lineaNombre = nombreImagen.readLine();// lee la imagen que se
 														// procesara
-				System.out.println("\nimagen: " + lineaNombre);
+				System.out.println("\nimagen "+j+ ": " + lineaNombre);
 
 //				image = Highgui.imread(Aplicacion.class.getResource("imagenes/" + lineaNombre).getPath());
 				image = Highgui.imread("res/img/" + lineaNombre);
@@ -90,7 +93,7 @@ public class Procesa {
 				Mat h = new Mat();
 				Mat s = new Mat();
 				Mat i = new Mat();
-				rgb2hsi_improved(image, h, s, i); // convierte la imagen RGB a HSI
+				rgb2hsi(image, h, s, i); // convierte la imagen RGB a HSI
 				
 				System.out.println(System.currentTimeMillis() - time + " ms (rgb2hsi) ");
 				
@@ -107,10 +110,10 @@ public class Procesa {
 				llenaMatRef(j, matRef, puntos, h, s, i);// Llena la matriz de
 														// referencia
 				
-				System.out.println(System.currentTimeMillis() - time + " ms (llenaMatRef) ");
+//				System.out.println(System.currentTimeMillis() - time + " ms (llenaMatRef) ");
 				time = System.currentTimeMillis();
 				
-				System.out.println(System.currentTimeMillis() - image_time + " ms (total imagen) ");
+//				System.out.println(System.currentTimeMillis() - image_time + " ms (total imagen) ");
 				image_time = System.currentTimeMillis();
 			}
 		} catch (Exception e) {
@@ -220,9 +223,8 @@ public class Procesa {
 	}
 
 	// ++++++++++funcion que convierte una imagen RGH a HSI
-	private void rgb2hsi(Mat image, Mat h, Mat s, Mat i) {
-		double EP = 0.00000001;
-		Scalar epsilon = new Scalar(EP);
+	void rgb2hsi(Mat image, Mat h, Mat s, Mat i) {
+		
 
 		List<Mat> mRgb = new ArrayList<Mat>(3);
 		Core.split(image, mRgb);// separa la la imagen por canales
@@ -230,77 +232,53 @@ public class Procesa {
 		Mat mG = mRgb.get(1);// obtiene el canalG
 		Mat mB = mRgb.get(0);// obtiene el canalB
 		
-		// double [] valor;
-
-		Mat parcial = new Mat(), parcial1 = new Mat(), parcial2 = new Mat(), parcial3 = new Mat(), num = new Mat(), rg = new Mat();
-		Mat mulRGB = new Mat(), teta = new Mat(), den = new Mat(), minimo = new Mat(), suma = new Mat();
-		Mat angulo = Mat.zeros(mR.rows(), mR.cols(), CvType.CV_64F);
-		Mat comparacion = Mat.zeros(mR.rows(), mR.cols(), CvType.CV_64F);
-		Core.subtract(mR, mG, parcial);
+		Mat parcial = new Mat();
+		Mat parcial1 = new Mat();   
+		Mat parcial3 = new Mat();
+		
+		Core.subtract(mR,mG, parcial);
 		Core.subtract(mR, mB, parcial1);
-
 		Core.add(parcial, parcial1, h);
-		Scalar multiplo = new Scalar(0.5);
-		Scalar tres = new Scalar(3.0);
-		Core.multiply(h, multiplo, num);
-		Core.pow(parcial, 2, rg);
-		Core.subtract(mG, mB, parcial2);
-		Core.multiply(parcial1, parcial2, mulRGB);
-		Core.add(rg, mulRGB, parcial3);
-		Core.sqrt(parcial3, den);
-		Core.add(den, epsilon, den);
-		Core.divide(num, den, teta);
 		
-		for (int k = 0; k < teta.rows(); k++) {
-			for (int j = 0; j < teta.cols(); j++) {
-				double[] pixel = teta.get(k, j);
-				pixel[0] = Math.acos(pixel[0]);
-				angulo.put(k, j, pixel);
-			}
-		}
-
-		for (int k = 0; k < teta.rows(); k++) {
-			for (int j = 0; j < teta.cols(); j++) {
-				double[] pixelB = mB.get(k, j);
-				double[] pixelG = mG.get(k, j);
-				double[] pixelCom, pixelAng;
-				if (pixelB[0] > pixelG[0]) {
-					pixelCom = comparacion.get(k, j);
-					pixelCom[0] = 1.0;
-					comparacion.put(k, j, pixelCom);
-					pixelAng = angulo.get(k, j);
-					pixelAng[0] = (2 * Math.PI) - pixelAng[0];
-					angulo.put(k, j, pixelAng);
-				}
-			}
-		}
+		Core.pow(parcial, 2, parcial3); 
+		Core.subtract(mG, mB, parcial);
+		Core.multiply(parcial1, parcial, parcial);
+		Core.add(parcial3, parcial, parcial);
+		Core.sqrt(parcial, parcial1);
+		Core.add(parcial1, epsilon, parcial1);
+		Core.multiply(h, new Scalar(0.5), parcial);
+		Core.divide(parcial, parcial1, parcial);
 		
-		angulo.convertTo(angulo, CvType.CV_8U, 255, 0);
-		Imgproc.equalizeHist(angulo, h);
+		parcial1 = getAngle(parcial, mB, mG);
+		parcial1.convertTo(parcial1, CvType.CV_8U, 255, 0);
+		Imgproc.equalizeHist(parcial1, h);
 		h.convertTo(h, CvType.CV_64F, 1.0 / 255.0);
-		Scalar valorPi = new Scalar(2 * Math.PI);
-		Core.divide(h, valorPi, h);
-		Core.min(mR, mG, minimo);
-		Core.min(minimo, mB, minimo);
-		Core.add(mR, mG, suma);
-		Core.add(suma, mB, suma);
-		Core.add(suma, epsilon, suma);
-		Core.divide(minimo, suma, s);
+
+		Core.divide(h, new Scalar(2 * Math.PI), h);
+		Core.min(mR, mG, parcial1);
+		Core.min(parcial1, mB, parcial1);
+		Core.add(mR, mG, parcial);
+		Core.add(parcial, mB, parcial);
+		Core.add(parcial, epsilon, parcial);
+		Core.divide(parcial1, parcial, s);
 		Scalar valorS = new Scalar(-3.0);
 		Scalar valorS1 = new Scalar(-1.0);
 		Core.multiply(s, valorS, s);
 		Core.subtract(s, valorS1, s);
 
-		Mat pI = new Mat();
-		Core.add(mR, mG, pI);
-		Core.add(mB, pI, pI);
-		Core.divide(pI, tres, i);
+		Core.add(mR, mG, parcial);
+		Core.add(mB, parcial, parcial);
+		Core.divide(parcial, new Scalar(3.0), i);
 		i.convertTo(i, CvType.CV_8U, 255, 0);
 		Imgproc.equalizeHist(i, i);
 		i.convertTo(i, CvType.CV_64F, 1.0 / 255.0);
+		
 		s.convertTo(s, CvType.CV_8U, 255, 0);
 		Imgproc.equalizeHist(s, s);
 		s.convertTo(s, CvType.CV_64F, 1.0 / 255.0);
+		
+		parcial.release();
+		parcial1.release();
 		
 	}
 
@@ -466,8 +444,8 @@ public class Procesa {
 				}
 			}
 
-			System.out.println("valores:"+valor.get(0, 0)[0]+valor.get(0, 1)[0]+","+valor.get(0, 2)[0]+","+valor.get(0, 3)[0]+","+valor.get(0, 4)[0]+","+valor.get(0, 5)[0]+","+valor.get(0, 6)[0]+","+valor.get(0, 7)[0]+","+valor.get(0, 8)[0]);
-			System.out.println(" valref:"+val[0]+","+val[1]+","+val[2]+","+val[3]+","+val[4]+","+val[5]+","+val[6]+","+val[7]+","+val[8]);
+//			System.out.println("valores:"+valor.get(0, 0)[0]+valor.get(0, 1)[0]+","+valor.get(0, 2)[0]+","+valor.get(0, 3)[0]+","+valor.get(0, 4)[0]+","+valor.get(0, 5)[0]+","+valor.get(0, 6)[0]+","+valor.get(0, 7)[0]+","+valor.get(0, 8)[0]);
+//			System.out.println(" valref:"+val[0]+","+val[1]+","+val[2]+","+val[3]+","+val[4]+","+val[5]+","+val[6]+","+val[7]+","+val[8]);
 		}
 
 	// Aplica el clasificador K-means para obtener la matriz de indices de
@@ -493,6 +471,80 @@ public class Procesa {
 		}
 		
 		System.out.println(mIdx.dump());
+	}
+	
+	
+	
+	public Mat acos(Mat in) {
+//		double negate = x <= 0 ? 1 : 0;
+		Mat negate = new Mat();
+		Core.inRange(in, new Scalar(-1), new Scalar(0), negate);
+		Core.divide(negate, new Scalar(255), negate);
+		negate.convertTo(negate, CvType.CV_64F);
+//		x = Math.abs(x);
+		Mat in_abs = new Mat();
+		Core.absdiff(in, new Scalar(0), in_abs);
+//		double ret = -0.0187293;
+//		ret = ret * x;
+		Mat ret = new Mat();
+		Core.multiply(in_abs, new Scalar(-0.0187293), ret);
+//		ret = ret + 0.0742610;
+		Core.add(ret, new Scalar(0.0742610), ret);
+//		ret = ret * x;
+		Core.multiply(ret, in_abs, ret);
+//		ret = ret - 0.2121144;
+		Core.add(ret, new Scalar(-0.2121144), ret);
+//		ret = ret * x;
+		Core.multiply(ret, in_abs, ret);
+//		ret = ret + 1.5707288;
+		Core.add(ret, new Scalar(1.5707288), ret);
+//		ret = ret * Math.sqrt(1.0 - x);
+//		Nota: 1 - x = - x + 1 = -1 * x + 1;
+		Mat sqrt = new Mat();
+		Core.multiply(in_abs, new Scalar(-1), sqrt);
+		Core.add(sqrt, new Scalar(1), sqrt);
+		Core.sqrt(sqrt, sqrt);
+		Core.multiply(ret, sqrt, ret);
+//		ret = ret - 2 * negate * ret;
+		Mat tmp = new Mat();
+		Core.multiply(ret, negate, tmp);
+		Core.multiply(tmp, new Scalar(-2), tmp);
+		Core.add(ret, tmp, ret);
+//		return negate * 3.14159265358979 + ret;
+		Core.multiply(negate, new Scalar(3.14159265358979), negate);
+		Core.add(ret, negate, ret);
+		
+		negate.release();
+		in_abs.release();
+		sqrt.release();
+		tmp.release();
+		
+		return ret;
+	}
+
+	public Mat getAngle(Mat in, Mat mB, Mat mG) {
+		Mat mat_two_times_pi = new Mat();
+		
+		Mat comp = Mat.zeros(mB.rows(), mB.cols(), CvType.CV_64F);
+		Core.subtract(mB, mG, comp);	
+		Core.inRange(comp, epsilon, new Scalar(Double.MAX_VALUE), mat_two_times_pi);
+		mat_two_times_pi.convertTo(mat_two_times_pi, CvType.CV_64F);
+		Core.divide(mat_two_times_pi, new Scalar(255), mat_two_times_pi);
+		
+		Mat sig_change = new Mat();
+		Core.multiply(mat_two_times_pi, new Scalar(-2), sig_change);
+		Core.add(sig_change, new Scalar(1), sig_change);
+		Core.multiply(mat_two_times_pi, new Scalar(2 * Math.PI), mat_two_times_pi);
+
+		Mat angle = acos(in);
+		Core.multiply(angle, sig_change, angle);
+		Core.add(mat_two_times_pi, angle, angle);
+		
+		mat_two_times_pi.release();
+		comp.release();
+		sig_change.release();
+		
+		return angle;
 	}
 
 }

@@ -59,8 +59,8 @@ public class Resultados {
 	    	 	String subName=null;
 	    	 	Ficheros archivo=new Ficheros();
 	    	 	// Lectura del fichero
-	    	 	String rutaNombres="/home/cesar/Escritorio/nombres.csv";//ruta al archivo de nombres
-	    	 	String rutaClases="/home/cesar/Escritorio/clases.txt"; //ruta al archivo de coordenadas (x,y) de cada PI
+	    	 	String rutaNombres="src/main/java/ec/app/facerecognition/res/nombres.csv";//ruta al archivo de nombres
+	    	 	String rutaClases="src/main/java/ec/app/facerecognition/res/clases.txt"; //ruta al archivo de coordenadas (x,y) de cada PI
 	    	 	nombreImagen=archivo.abrir(rutaNombres);
 	    	 	clases=archivo.abrir(rutaClases);       	
 	    	 
