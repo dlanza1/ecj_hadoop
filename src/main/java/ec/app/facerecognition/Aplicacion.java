@@ -31,9 +31,6 @@ public class Aplicacion {
 				+ valRef[5] + "," + valRef[6] + "," + valRef[7] + ","
 				+ valRef[8]);
 
-		centers=entre.getCenters();
-		valRef=entre.getValRef();
-		MIndex=entre.getMIndex();
 		//System.out.println("ValRef:"+valRef[0]+","+valRef[1]+","+valRef[2]+","+valRef[3]+","+valRef[4]+","+valRef[5]+","+valRef[6]+","+valRef[7]+","+valRef[8]);
 		
 		//LLamando a la recuperación

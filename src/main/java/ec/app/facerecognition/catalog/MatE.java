@@ -50,29 +50,10 @@ public class MatE extends Mat {
 	public MatE(int rows, int cols, int type) {
 		super(rows, cols, type);
 	}
-
-	/**
-	 * Print the first dimension
-	 */
-	public void print() {
-		for (int r = 0; r < rows(); r++){
-			for (int c = 0; c < cols(); c++)
-				System.out.print(get(r,c)[0] + " ");
-			System.out.println();
-		}
-	}
 	
 	@Override
 	public String toString() {
-		StringBuilder b = new StringBuilder();
-		
-		for (int r = 0; r < rows(); r++){
-			for (int c = 0; c < cols(); c++)
-				b.append(get(r,c)[0]);
-			b.append("\n");
-		}
-		
-		return b.toString();
+		return dump();
 	}
 
 	public static MatE read(DataInput in) throws IOException {

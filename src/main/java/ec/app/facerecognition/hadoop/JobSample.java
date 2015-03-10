@@ -12,6 +12,7 @@ import org.apache.hadoop.util.ToolRunner;
 import ec.app.facerecognition.hadoop.input.ImageInputFormat;
 import ec.app.facerecognition.hadoop.input.ImageRecordReader;
 import ec.app.facerecognition.hadoop.writables.MatEWritable;
+import ec.app.facerecognition.hadoop.writables.TrainingResultsWritable;
 
 public class JobSample extends Configured implements Tool{
 
@@ -24,7 +25,7 @@ public class JobSample extends Configured implements Tool{
 	@Override
 	public int run(String[] arg0) throws Exception { 
 		
-		Job job = Job.getInstance(new Configuration(), "Face Recognition");
+		Job job = Job.getInstance(new Configuration(), "ECJ-FaceRecognition Generation = 1, Individual = 1, Training");
 		job.setJarByClass(ComputeImagenMapper.class);
 
 		job.setInputFormatClass(ImageInputFormat.class);
@@ -32,9 +33,10 @@ public class JobSample extends Configured implements Tool{
 		job.setMapOutputKeyClass(NullWritable.class);
 		job.setMapOutputValueClass(MatEWritable.class);
 
-		job.setReducerClass(NormalizeMatrixReducer.class);
-		job.setOutputKeyClass(MatEWritable.class);
-		job.setOutputValueClass(MatEWritable.class);
+		job.setReducerClass(TrainingReducer.class);
+		job.setNumReduceTasks(1);
+		job.setOutputKeyClass(NullWritable.class);
+		job.setOutputValueClass(TrainingResultsWritable.class);
 
 		job.setOutputFormatClass(SequenceFileOutputFormat.class);
 		

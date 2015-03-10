@@ -375,6 +375,8 @@ public class Procesa {
 		TermCriteria criteria = new TermCriteria(TermCriteria.EPS+ TermCriteria.MAX_ITER, 10000, 0.0001);
 		Core.kmeans(MNor, 10, labels, criteria, 1, Core.KMEANS_RANDOM_CENTERS,centers);
 		mIndexada(labels, 1368, 10, MIndex);//poner el numero de imagenes
+		
+		System.out.println(MIndex.dump());
 	}
 
 	/**

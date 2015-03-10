@@ -25,6 +25,7 @@ import org.junit.Test;
 import ec.app.facerecognition.hadoop.input.ImageInputFormat;
 import ec.app.facerecognition.hadoop.input.ImageRecordReader;
 import ec.app.facerecognition.hadoop.writables.MatEWritable;
+import ec.app.facerecognition.hadoop.writables.TrainingResultsWritable;
 
 public class MapReduceJobTests {
 
@@ -37,7 +38,7 @@ public class MapReduceJobTests {
 
 		
 		File baseDir = new File("./target/hdfs/").getAbsoluteFile();
-//		FileUtil.fullyDelete(baseDir);
+		FileUtil.fullyDelete(baseDir);
 		Configuration conf = new Configuration();
 		conf.set(MiniDFSCluster.HDFS_MINIDFS_BASEDIR, baseDir.getAbsolutePath());
 		MiniDFSCluster.Builder builder = new MiniDFSCluster.Builder(conf);
@@ -45,7 +46,8 @@ public class MapReduceJobTests {
 		hdfsURI = "hdfs://localhost:" + hdfsCluster.getNameNodePort() + "/";
 		
 		FileSystem hdfs = hdfsCluster.getFileSystem();
-		hdfs.copyFromLocalFile(new Path("src/main/java/ec/app/facerecognition/img/test/"), new Path(hdfsURI + "img/in"));
+		hdfs.copyFromLocalFile(new Path("res/img/test/"), new Path(hdfsURI + "img/in"));
+//		hdfs.copyFromLocalFile(new Path("res/img/"), new Path(hdfsURI + "img/in"));
 		
 		YarnConfiguration clusterConf = new YarnConfiguration();
 		clusterConf.setInt(YarnConfiguration.RM_SCHEDULER_MINIMUM_ALLOCATION_MB, 64);
@@ -66,11 +68,13 @@ public class MapReduceJobTests {
 	    job.setMapOutputKeyClass(NullWritable.class);
 	    job.setMapOutputValueClass(MatEWritable.class);
 	    
-	    job.setReducerClass(NormalizeMatrixReducer.class);
-	    job.setOutputKeyClass(MatEWritable.class);
-	    job.setOutputValueClass(MatEWritable.class);
+	    job.setReducerClass(TrainingReducer.class);
+	    job.setOutputKeyClass(NullWritable.class);
+	    job.setOutputValueClass(TrainingResultsWritable.class);
 	    
 	    job.setOutputFormatClass(SequenceFileOutputFormat.class);
+	    
+	    job.setNumReduceTasks(1);
 	    
 	    ImageInputFormat.setInputPaths(job, hdfsURI + "img/in");
 	    SequenceFileOutputFormat.setOutputPath(job, new Path(hdfsURI + "img/out/"));
@@ -101,13 +105,12 @@ public class MapReduceJobTests {
 	    FileUtil.fullyDelete(new File("./target/job/out"));
 	    hdfs.copyToLocalFile(new Path(hdfsURI + "img/out"), new Path("./target/job"));
 	    
-		//key = :0.1591549430918953,0.9980554205153143,0.9980554205153144,0.0787351688524073,0.48032738100948985,0.442698276882563,0.4999999999999986,0.4999999999999986,0.4999999999999986
 	    SequenceFile.Reader reader = new SequenceFile.Reader(conf, Reader.file(new Path(hdfsURI + "img/out/part-r-00000")));
 		
-	    MatEWritable key = new MatEWritable();
-	    MatEWritable val = new MatEWritable();
+	    NullWritable key = NullWritable.get();
+	    TrainingResultsWritable val = new TrainingResultsWritable();
 		while(reader.next(key, val)){
-			key.print();
+			System.out.println(val);
 		}
 	}
 	
