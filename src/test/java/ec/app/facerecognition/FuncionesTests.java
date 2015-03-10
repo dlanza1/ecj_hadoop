@@ -71,7 +71,7 @@ public class FuncionesTests {
 		m3.put(0, 0, rad3);
 		
 		try{																									   
-			assertEquals(Procesa.getAngulo(m1, m2, m3).get(0, 0)[0], getAngulo_original(m1, m2, m3).get(0, 0)[0], 0.000068);
+			assertEquals(Procesa.getAngle(m1, m2, m3).get(0, 0)[0], getAngulo_original(m1, m2, m3).get(0, 0)[0], 0.000068);
 		}catch(AssertionError e){
 			return 1;
 		}
