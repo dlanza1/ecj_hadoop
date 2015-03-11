@@ -35,8 +35,6 @@ public class MapReduceJobTests {
 
 	@Before
 	public void setUp() throws IOException {
-
-		
 		File baseDir = new File("./target/hdfs/").getAbsoluteFile();
 		FileUtil.fullyDelete(baseDir);
 		Configuration conf = new Configuration();
@@ -59,12 +57,35 @@ public class MapReduceJobTests {
 
 	@Test
 	public void testMapReduce() throws Exception {
-
-		Job job = Job.getInstance(miniCluster.getConfig(), "Face Recognition");
-	    job.setJarByClass(ComputeImagenMapper.class);
+		Configuration conf = new Configuration();
+		conf .setInt(ImageRecordReader.NUM_OF_SPLITS_PARAM, 10);
+		conf.set(ImageRecordReader.IMAGES_FILE_PARAM, "src/main/java/ec/app/facerecognition/res/test/nombres.csv");
+		conf.set(ImageRecordReader.POI_FILE_PARAM, "src/main/java/ec/app/facerecognition/res/test/datos.csv");
+//		conf.set(ImageRecordReader.IMAGES_FILE_PARAM, "src/main/java/ec/app/facerecognition/res/nombres.csv");
+//		conf.set(ImageRecordReader.POI_FILE_PARAM, "src/main/java/ec/app/facerecognition/res/datos.csv");
+		conf.set(ImageRecordReader.FILTER_POI_PARAM,
+										  "00000000" + "00000000" // 0 - 15
+										+ "11111111" + "11111111" //16 - 31
+										+ "11111111" + "11111111" //32 - 47
+										+ "11111111" + "11111111" //48 - 63
+										+ "11111111" + "1111"     //64 - 75  
+										);
+		
+		String base_run_dir = "./target/ecj_hadoop/";
+		
+		runTrainingJob(conf, base_run_dir, 0, 0);
+		runQueryJob(conf, base_run_dir, 0, 0);
+	}
+	
+	private void runTrainingJob(Configuration conf, String base_run_dir, int gen, int ind) throws IOException, ClassNotFoundException, InterruptedException {
+		Job job = Job.getInstance(new Configuration(), 
+				"ECJ-FaceRecognition Generation = " + gen + ", Individual = " + ind + ", Training phase");
+		
+		job.getConfiguration().addResource(conf);
+	    job.setJarByClass(ComputeParamsMapper.class);
 	    
 	    job.setInputFormatClass(ImageInputFormat.class);
-	    job.setMapperClass(ComputeImagenMapper.class);
+	    job.setMapperClass(ComputeParamsMapper.class);
 	    job.setMapOutputKeyClass(NullWritable.class);
 	    job.setMapOutputValueClass(MatEWritable.class);
 	    
@@ -78,20 +99,6 @@ public class MapReduceJobTests {
 	    
 	    ImageInputFormat.setInputPaths(job, hdfsURI + "img/in");
 	    SequenceFileOutputFormat.setOutputPath(job, new Path(hdfsURI + "img/out/"));
-	    
-	    Configuration conf = job.getConfiguration();
-		conf.setInt(ImageRecordReader.NUM_OF_SPLITS_PARAM, 10);
-		conf.set(ImageRecordReader.IMAGES_FILE_PARAM, "src/main/java/ec/app/facerecognition/res/test/nombres.csv");
-		conf.set(ImageRecordReader.POI_FILE_PARAM, "src/main/java/ec/app/facerecognition/res/test/datos.csv");
-//		conf.set(ImageRecordReader.IMAGES_FILE_PARAM, "src/main/java/ec/app/facerecognition/res/nombres.csv");
-//		conf.set(ImageRecordReader.POI_FILE_PARAM, "src/main/java/ec/app/facerecognition/res/datos.csv");
-		conf.set(ImageRecordReader.FILTER_POI_PARAM,
-				  "00000000" + "00000000" // 0 - 15
-				+ "11111111" + "11111111" //16 - 31
-				+ "11111111" + "11111111" //32 - 47
-				+ "11111111" + "11111111" //48 - 63
-				+ "11111111" + "1111"     //64 - 75  
-				);
 	    
 		job.waitForCompletion(true);
 //		job.submit();
@@ -114,6 +121,47 @@ public class MapReduceJobTests {
 		}
 	}
 	
+	private void runQueryJob(Configuration conf, String base_run_dir, int i, int j) throws IOException, ClassNotFoundException, InterruptedException {
+		Job job = Job.getInstance(miniCluster.getConfig(), "Face Recognition");
+	    job.setJarByClass(ComputeParamsMapper.class);
+	    
+	    job.setInputFormatClass(ImageInputFormat.class);
+	    job.setMapperClass(ComputeParamsMapper.class);
+	    job.setMapOutputKeyClass(NullWritable.class);
+	    job.setMapOutputValueClass(MatEWritable.class);
+	    
+	    job.setReducerClass(TrainingReducer.class);
+	    job.setOutputKeyClass(NullWritable.class);
+	    job.setOutputValueClass(TrainingResultsWritable.class);
+	    
+	    job.setOutputFormatClass(SequenceFileOutputFormat.class);
+	    
+	    job.setNumReduceTasks(1);
+	    
+	    ImageInputFormat.setInputPaths(job, hdfsURI + "img/in");
+	    SequenceFileOutputFormat.setOutputPath(job, new Path(hdfsURI + "img/out/"));
+	    
+		job.waitForCompletion(true);
+//		job.submit();
+//		while(!job.isComplete())
+//			System.out.println("waiting for job");
+		
+		Assert.assertTrue(job.isSuccessful());
+		
+		FileSystem hdfs = hdfsCluster.getFileSystem();
+
+	    FileUtil.fullyDelete(new File("./target/job/out"));
+	    hdfs.copyToLocalFile(new Path(hdfsURI + "img/out"), new Path("./target/job"));
+	    
+	    SequenceFile.Reader reader = new SequenceFile.Reader(conf, Reader.file(new Path(hdfsURI + "img/out/part-r-00000")));
+		
+	    NullWritable key = NullWritable.get();
+	    TrainingResultsWritable val = new TrainingResultsWritable();
+		while(reader.next(key, val)){
+			System.out.println(val);
+		}
+	}
+
 	@After
 	public void destroy(){
 		miniCluster.stop();

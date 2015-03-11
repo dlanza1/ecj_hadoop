@@ -7,12 +7,10 @@ import java.util.List;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.opencv.core.Core;
-import org.opencv.core.Core.MinMaxLocResult;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.TermCriteria;
 
-import ec.app.facerecognition.catalog.Image;
 import ec.app.facerecognition.catalog.MatE;
 import ec.app.facerecognition.hadoop.writables.MatEWritable;
 import ec.app.facerecognition.hadoop.writables.TrainingResultsWritable;
@@ -47,22 +45,8 @@ public class TrainingReducer extends
 		
 		int number_of_poi = matRef.rows() / number_of_images;
 		
-		//Get maximun per column
-		MatE max_per_col = new MatE(Mat.zeros(1, Image.NUMBER_OF_PARAMS, CvType.CV_64F));
-		Mat ROI = new Mat();
-		for (int c = 0; c < matRef.cols(); c++) {
-			ROI = matRef.submat(0, matRef.rows(), c, c + 1);
-			MinMaxLocResult mmr = Core.minMaxLoc(ROI);
-			max_per_col.put(0, c, mmr.maxVal);
-		}
-		
-		//Normalize per column
-		for (int c = 0; c < matRef.cols(); c++) {
-			double max_col = max_per_col.get(0, c)[0];
-			for (int r = 0; r < matRef.rows(); r++) {
-				matRef.put(r, c, matRef.get(r, c)[0] / max_col);
-			}
-		}
+		MatE max_per_column = matRef.getMaxPerColumn();
+		matRef = matRef.normalize(max_per_column);
 		
 		//Compute KMeans
 		MatE centers = new MatE();
@@ -88,7 +72,7 @@ public class TrainingReducer extends
 		centers.convertTo(centers, CvType.CV_64F);
 		textureIndexMatriz.convertTo(textureIndexMatriz, CvType.CV_64F);
 		
-		context.write(NullWritable.get(), new TrainingResultsWritable(max_per_col, centers, textureIndexMatriz));
+		context.write(NullWritable.get(), new TrainingResultsWritable(max_per_column, centers, textureIndexMatriz));
 	}
 
 }

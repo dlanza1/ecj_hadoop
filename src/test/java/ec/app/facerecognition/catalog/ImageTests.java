@@ -33,7 +33,7 @@ public class ImageTests {
 		for (int i = 0; i < 20; i++)
 			poi.add(new POI(i, (int) (Math.random() * 500d) + 50 , (int) (Math.random() * 300d) + 50));
 		
-		Image i = new Image("", image, poi);
+		Image i = new Image(0, "", image, poi);
 		
 		assertEquals(i.getParameters(5), i.getParameters_old(5));
 	}

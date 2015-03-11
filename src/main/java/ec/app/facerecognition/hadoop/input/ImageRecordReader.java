@@ -57,7 +57,8 @@ public class ImageRecordReader extends RecordReader<NullWritable, ImageWritable>
 			InterruptedException {
 		FileSystem fs = actualPath.getFileSystem(context.getConfiguration());
 		
-		ImageWritable image = new ImageWritable(actualPath.getName(), 
+		ImageWritable image = new ImageWritable(0,
+												actualPath.getName(), 
 												MatE.fromFile(fs.open(actualPath)), 
 												actualPoi);
 

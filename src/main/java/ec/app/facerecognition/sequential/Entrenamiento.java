@@ -2,7 +2,7 @@
  * Esta clase genera el entrenamiento para las imagenes dentro de la base de datos
  * 
  * **/
-package ec.app.facerecognition;
+package ec.app.facerecognition.sequential;
 
 import java.io.File;
 import java.io.FileOutputStream;

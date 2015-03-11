@@ -1,4 +1,4 @@
-package ec.app.facerecognition;
+package ec.app.facerecognition.sequential;
 
 import java.io.IOException;
 

@@ -20,6 +20,7 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.core.Scalar;
+import org.opencv.core.Core.MinMaxLocResult;
 import org.opencv.highgui.Highgui;
 
 public class MatE extends Mat {
@@ -277,4 +278,53 @@ public class MatE extends Mat {
 		return Core.countNonZero(dst) == 0;
 	}
 
+	/**
+	 * Normalize per column
+	 * 
+	 * @return Normalized matrix
+	 */
+	public MatE normalize() {
+		MatE max_per_column = getMaxPerColumn();
+		
+		MatE normalized = normalize(max_per_column);
+		
+		max_per_column.release();
+		
+		return normalized;
+	}
+
+	public MatE getMaxPerColumn() {
+		MatE max_per_col = new MatE(Mat.zeros(1, Image.NUMBER_OF_PARAMS, CvType.CV_64F));
+		Mat ROI = new Mat();
+		for (int c = 0; c < cols(); c++) {
+			ROI = submat(0, rows(), c, c + 1);
+			MinMaxLocResult mmr = Core.minMaxLoc(ROI);
+			max_per_col.put(0, c, mmr.maxVal);
+		}
+		
+		return max_per_col;
+	}
+
+	/**
+	 * Normalize per column
+	 * 
+	 * @param max_per_col Max values per column
+	 * @return Normalized matrix
+	 */
+	public MatE normalize(MatE max_per_col) {
+		MatE normalized = new MatE(Mat.zeros(rows(), cols(), type()));
+		
+		for (int c = 0; c < cols(); c++) {
+			double max_col = max_per_col.get(0, c)[0];
+			for (int r = 0; r < rows(); r++) {
+				normalized.put(r, c, get(r, c)[0] / max_col);
+			}
+		}
+		
+		return normalized;
+	}
+
+	public static MatE zeros(int rows, int cols, int type){
+		return new MatE(Mat.zeros(rows, cols, type));
+	}
 }

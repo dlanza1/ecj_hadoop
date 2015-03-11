@@ -17,6 +17,8 @@ import org.opencv.core.Scalar;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
+import ec.app.facerecognition.sequential.Procesa;
+
 public class FuncionesTests {
 
 	public FuncionesTests() {

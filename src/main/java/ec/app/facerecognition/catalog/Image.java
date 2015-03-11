@@ -11,6 +11,8 @@ import org.opencv.core.MatOfDouble;
 public class Image {
 	
 	public static final int NUMBER_OF_PARAMS = 9;
+	
+	protected Integer id;
 
 	protected String file_name;
 	
@@ -22,10 +24,12 @@ public class Image {
 	protected LinkedList<POI> poi;
 	
 	public Image() {
+		this.id = -1;
 		this.value = new MatE();
 	}
 	
-	public Image(String file_name, MatE value, LinkedList<POI> poi) {
+	public Image(Integer id, String file_name, MatE value, LinkedList<POI> poi) {
+		this.id = id;
 		this.file_name = file_name;
 		this.value = value;
 		this.poi = poi;
@@ -145,4 +149,7 @@ public class Image {
 		return params;
 	}
 
+	public Integer getId() {
+		return id;
+	}
 }

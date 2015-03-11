@@ -12,12 +12,12 @@ import ec.app.facerecognition.catalog.MatE;
 import ec.app.facerecognition.catalog.POI;
 
 public class ImageWritable extends Image implements WritableComparable<ImageWritable> {
-	
+
 	public ImageWritable() {
 	}
 
-	public ImageWritable(String file_name, MatE value, LinkedList<POI> poi) {
-		super(file_name, value, poi);
+	public ImageWritable(Integer id, String file_name, MatE value, LinkedList<POI> poi) {
+		super(id, file_name, value, poi);
 	}
 
 	@Override
@@ -47,7 +47,7 @@ public class ImageWritable extends Image implements WritableComparable<ImageWrit
 
 	@Override
 	public int compareTo(ImageWritable other) {
-		return file_name.compareTo(other.file_name);
+		return id.compareTo(other.id);
 	}
 
 }

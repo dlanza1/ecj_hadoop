@@ -8,7 +8,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import ec.app.facerecognition.hadoop.writables.ImageWritable;
 import ec.app.facerecognition.hadoop.writables.MatEWritable;
 
-public class ComputeImagenMapper extends Mapper<NullWritable, ImageWritable, NullWritable, MatEWritable> {
+public class ComputeParamsMapper extends Mapper<NullWritable, ImageWritable, NullWritable, MatEWritable> {
 
 	private int roi_radius;
 	

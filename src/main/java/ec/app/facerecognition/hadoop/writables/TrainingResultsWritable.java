@@ -54,4 +54,16 @@ public class TrainingResultsWritable implements WritableComparable<TrainingResul
 				+ textureIndexMatriz + "]";
 	}
 
+	public MatE getMaxPerCol() {
+		return max_per_col;
+	}
+
+	public MatE getCenters() {
+		return centers;
+	}
+
+	public MatE getTextureIndexMatriz() {
+		return textureIndexMatriz;
+	}
+
 }
