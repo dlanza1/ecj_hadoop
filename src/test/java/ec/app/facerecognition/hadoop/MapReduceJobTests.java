@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import ec.app.facerecognition.hadoop.input.ImageInputFormat;
 import ec.app.facerecognition.hadoop.input.ImageRecordReader;
-import ec.app.facerecognition.hadoop.writables.MatEWritable;
+import ec.app.facerecognition.hadoop.writables.MatEWithIDWritable;
 import ec.app.facerecognition.hadoop.writables.TrainingResultsWritable;
 
 public class MapReduceJobTests {
@@ -45,6 +45,7 @@ public class MapReduceJobTests {
 		
 		FileSystem hdfs = hdfsCluster.getFileSystem();
 		hdfs.copyFromLocalFile(new Path("res/img/test/"), new Path(hdfsURI + "img/in"));
+		hdfs.copyFromLocalFile(new Path("src/main/java/ec/app/facerecognition/res/test/"), new Path(hdfsURI + "img/res"));
 //		hdfs.copyFromLocalFile(new Path("res/img/"), new Path(hdfsURI + "img/in"));
 		
 		YarnConfiguration clusterConf = new YarnConfiguration();
@@ -59,10 +60,8 @@ public class MapReduceJobTests {
 	public void testMapReduce() throws Exception {
 		Configuration conf = new Configuration();
 		conf .setInt(ImageRecordReader.NUM_OF_SPLITS_PARAM, 10);
-		conf.set(ImageRecordReader.IMAGES_FILE_PARAM, "src/main/java/ec/app/facerecognition/res/test/nombres.csv");
-		conf.set(ImageRecordReader.POI_FILE_PARAM, "src/main/java/ec/app/facerecognition/res/test/datos.csv");
-//		conf.set(ImageRecordReader.IMAGES_FILE_PARAM, "src/main/java/ec/app/facerecognition/res/nombres.csv");
-//		conf.set(ImageRecordReader.POI_FILE_PARAM, "src/main/java/ec/app/facerecognition/res/datos.csv");
+		conf.set(ImageRecordReader.IMAGES_FILE_PARAM, hdfsURI + "img/res/nombres.csv");
+		conf.set(ImageRecordReader.POI_FILE_PARAM, hdfsURI + "img/res/datos.csv");
 		conf.set(ImageRecordReader.FILTER_POI_PARAM,
 										  "00000000" + "00000000" // 0 - 15
 										+ "11111111" + "11111111" //16 - 31
@@ -87,7 +86,7 @@ public class MapReduceJobTests {
 	    job.setInputFormatClass(ImageInputFormat.class);
 	    job.setMapperClass(ComputeParamsMapper.class);
 	    job.setMapOutputKeyClass(NullWritable.class);
-	    job.setMapOutputValueClass(MatEWritable.class);
+	    job.setMapOutputValueClass(MatEWithIDWritable.class);
 	    
 	    job.setReducerClass(TrainingReducer.class);
 	    job.setOutputKeyClass(NullWritable.class);
@@ -128,7 +127,7 @@ public class MapReduceJobTests {
 	    job.setInputFormatClass(ImageInputFormat.class);
 	    job.setMapperClass(ComputeParamsMapper.class);
 	    job.setMapOutputKeyClass(NullWritable.class);
-	    job.setMapOutputValueClass(MatEWritable.class);
+	    job.setMapOutputValueClass(MatEWithIDWritable.class);
 	    
 	    job.setReducerClass(TrainingReducer.class);
 	    job.setOutputKeyClass(NullWritable.class);

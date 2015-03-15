@@ -1,6 +1,7 @@
 package ec.app.facerecognition.hadoop;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,18 +13,19 @@ import org.opencv.core.Mat;
 import org.opencv.core.TermCriteria;
 
 import ec.app.facerecognition.catalog.MatE;
-import ec.app.facerecognition.hadoop.writables.MatEWritable;
+import ec.app.facerecognition.hadoop.writables.MatEWithIDWritable;
 import ec.app.facerecognition.hadoop.writables.TrainingResultsWritable;
 
 public class TrainingReducer extends
-		Reducer<NullWritable, MatEWritable, NullWritable, TrainingResultsWritable> {
+		Reducer<NullWritable, MatEWithIDWritable, NullWritable, TrainingResultsWritable> {
 	
 	private int num_centers = 10;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void reduce(
 			NullWritable key,
-			Iterable<MatEWritable> values,
+			Iterable<MatEWithIDWritable> values,
 			Context context)
 			throws IOException, InterruptedException {
 		
@@ -32,17 +34,18 @@ public class TrainingReducer extends
 		MatE matRef = new MatE();
 
 		//Join all params
-		List<Mat> mats = new LinkedList<Mat>();
-		for (MatEWritable matEWritable : values) {
-			MatE tmp = new MatE();
-			matEWritable.copyTo(tmp);
-			matEWritable.release();
+		List<MatEWithIDWritable> mats = new LinkedList<MatEWithIDWritable>();
+		for (MatEWithIDWritable mat : values) {
+			MatEWithIDWritable tmp = new MatEWithIDWritable();
+			mat.copyTo(tmp);
+			mat.release();
 			mats.add(tmp);
 			
 			number_of_images++;
 		}
-		Core.vconcat(mats, matRef);
-		
+		Collections.sort(mats);
+		Core.vconcat((List<Mat>)(List<?>) mats, matRef);
+
 		int number_of_poi = matRef.rows() / number_of_images;
 		
 		MatE max_per_column = matRef.getMaxPerColumn();

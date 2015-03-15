@@ -57,7 +57,7 @@ public class MatE extends Mat {
 		return dump();
 	}
 
-	public static MatE read(DataInput in) throws IOException {
+	public void read(DataInput in) throws IOException {
 		int rows = in.readInt();
 		int cols = in.readInt();
 		int channels = in.readInt();
@@ -66,10 +66,8 @@ public class MatE extends Mat {
 		for (int i = 0; i < buff.length; i++)
 			buff[i] = in.readDouble();
 		
-		MatE loaded = new MatE(rows, cols, CvType.CV_64F);
-		loaded.put(0, 0, buff);
-		
-		return loaded;
+		create(rows, cols, CvType.CV_64F);
+		put(0, 0, buff);
 	}
 
 	public void write(DataOutput out) throws IOException {

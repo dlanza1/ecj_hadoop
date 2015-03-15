@@ -8,7 +8,7 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 
 import ec.app.facerecognition.hadoop.input.ImageInputFormat;
-import ec.app.facerecognition.hadoop.writables.QueryVectorWritable;
+import ec.app.facerecognition.hadoop.writables.MatEWithIDWritable;
 
 public class RetrieveJob {
 	
@@ -34,7 +34,7 @@ public class RetrieveJob {
 		
 		job.setMapperClass(QueryVectorMapper.class);
 		job.setMapOutputKeyClass(NullWritable.class);
-		job.setMapOutputValueClass(QueryVectorWritable.class);
+		job.setMapOutputValueClass(MatEWithIDWritable.class);
 
 		job.setReducerClass(RetrieveReducer.class);
 		job.setNumReduceTasks(1);

@@ -14,10 +14,10 @@ import org.opencv.core.Mat;
 
 import ec.app.facerecognition.catalog.MatE;
 import ec.app.facerecognition.hadoop.writables.ImageWritable;
-import ec.app.facerecognition.hadoop.writables.QueryVectorWritable;
+import ec.app.facerecognition.hadoop.writables.MatEWithIDWritable;
 import ec.app.facerecognition.hadoop.writables.TrainingResultsWritable;
 
-public class QueryVectorMapper extends Mapper<NullWritable, ImageWritable, NullWritable, QueryVectorWritable> {
+public class QueryVectorMapper extends Mapper<NullWritable, ImageWritable, NullWritable, MatEWithIDWritable> {
 
 	private int roi_radius;
 	
@@ -42,6 +42,7 @@ public class QueryVectorMapper extends Mapper<NullWritable, ImageWritable, NullW
 		Reader reader = new Reader(fs.getConf(), Reader.file(path));
 	    NullWritable key = NullWritable.get();
 	    trainingResults = new TrainingResultsWritable();
+	    
 		reader.next(key, trainingResults);
 	}
 	
@@ -58,7 +59,7 @@ public class QueryVectorMapper extends Mapper<NullWritable, ImageWritable, NullW
 			queryVector.put(0, (int) idCenters.get(poi_index, 0)[0], queryVector.get(0, (int) idCenters.get(poi_index, 0)[0])[0] + 1);
 		}
 		
-		context.write(NullWritable.get(), new QueryVectorWritable(image.getId(), queryVector));
+		context.write(NullWritable.get(), new MatEWithIDWritable(image.getId(), queryVector));
 	}
 
 	private MatE knn(MatE centers, MatE normalized_params) {

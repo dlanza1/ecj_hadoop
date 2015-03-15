@@ -25,9 +25,12 @@ public class TrainingResultsWritable implements WritableComparable<TrainingResul
 
 	@Override
 	public void readFields(DataInput in) throws IOException {
-		max_per_col = MatE.read(in);
-		centers = MatE.read(in);
-		textureIndexMatriz = MatE.read(in);
+		max_per_col = new MatE();
+		max_per_col.read(in);
+		centers = new MatE();
+		centers.read(in);
+		textureIndexMatriz = new MatE();
+		textureIndexMatriz.read(in);
 	}
 
 	@Override

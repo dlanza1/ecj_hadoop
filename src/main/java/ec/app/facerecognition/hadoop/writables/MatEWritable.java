@@ -20,7 +20,7 @@ public class MatEWritable extends MatE implements WritableComparable<MatEWritabl
 
 	@Override
 	public void readFields(DataInput in) throws IOException {
-		super.read(in).copyTo(this);
+		read(in);
 	}
 
 	@Override

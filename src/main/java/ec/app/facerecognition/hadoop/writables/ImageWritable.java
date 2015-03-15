@@ -22,8 +22,10 @@ public class ImageWritable extends Image implements WritableComparable<ImageWrit
 
 	@Override
 	public void readFields(DataInput in) throws IOException {
+		id = in.readInt();
 		file_name = in.readUTF();
-		value = MatE.read(in);
+		value = new MatE();
+		value.read(in);
 		
 		int poi_length = in.readInt();
 		poi = new LinkedList<POI>();
@@ -36,6 +38,7 @@ public class ImageWritable extends Image implements WritableComparable<ImageWrit
 
 	@Override
 	public void write(DataOutput out) throws IOException {
+		out.writeInt(id);
 		out.writeUTF(file_name);
 		value.write(out);
 		value.release();
