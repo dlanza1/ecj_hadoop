@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.apache.hadoop.fs.FileSystem;
@@ -32,16 +33,10 @@ public class ImageRecordReader extends RecordReader<NullWritable, ImageWritable>
 	
 	private static final int DEFAULT_NUMBER_OF_POI = 76;
 	
-	private Path[] paths;
-	private int index_path;
-	
-	private HashMap<String, LinkedList<POI>> filesAndPoi;
-	
-	private TaskAttemptContext context;
 	private int number_of_images;
+	private int processed_images;
 
-	private Path actualPath;
-	private LinkedList<POI> actualPoi;
+	private Iterator<ImageWritable> images;
 
 	@Override
 	public void close() throws IOException {
@@ -53,37 +48,22 @@ public class ImageRecordReader extends RecordReader<NullWritable, ImageWritable>
 	}
 
 	@Override
-	public ImageWritable getCurrentValue() throws IOException,
-			InterruptedException {
-		FileSystem fs = actualPath.getFileSystem(context.getConfiguration());
+	public ImageWritable getCurrentValue() throws IOException, InterruptedException {
+		processed_images++;
 		
-		ImageWritable image = new ImageWritable(0,
-												actualPath.getName(), 
-												MatE.fromFile(fs.open(actualPath)), 
-												actualPoi);
-
-		if(image.getValue() == null || !image.getValue().hasContent())
-			throw new IOException("the image " + actualPath.getName() +" couldn't be loaded");
-		
-		return image;
+		return images.next();
 	}
 
 	@Override
 	public float getProgress() throws IOException, InterruptedException {
-		return (float) (number_of_images - filesAndPoi.size()) / (float) number_of_images;
+		return (float) processed_images / (float) number_of_images;
 	}
 
 	@Override
 	public void initialize(InputSplit inputSplit, TaskAttemptContext context)
 			throws IOException, InterruptedException {
-		this.paths = ((CombineFileSplit) inputSplit).getPaths();
-		this.index_path = -1;
-		this.context = context;
+		HashMap<String, Path> split_paths = pathToMap(((CombineFileSplit) inputSplit).getPaths());
 		
-		loadConfigFiles();
-	}
-
-	private void loadConfigFiles() throws IOException {
 		String filterPath_s = context.getConfiguration().get(IMAGES_FILE_PARAM);
 		String poiPath_s = context.getConfiguration().get(POI_FILE_PARAM);
 		if(filterPath_s == null || poiPath_s == null)
@@ -115,14 +95,21 @@ public class ImageRecordReader extends RecordReader<NullWritable, ImageWritable>
 		BufferedReader br_filter = new BufferedReader(new InputStreamReader(fs.open(filterPath)));
 		BufferedReader br_poi = new BufferedReader(new InputStreamReader(fs.open(poiPath)));
 		
-		filesAndPoi = new HashMap<String, LinkedList<POI>>();
 		LinkedList<POI> pois;
+		LinkedList<ImageWritable> images = new LinkedList<ImageWritable>();
 		String file_name, poi_line;
-        while ((file_name = br_filter.readLine()) != null){
+		int line_number = -1;
+        while ((file_name = br_filter.readLine()) != null){        	
         	poi_line = br_poi.readLine();
         	if(poi_line == null)
         		throw new IllegalStateException("the configuration file " + poiPath.getName()
         				+ "has less lines that " + filterPath.getName());
+        	
+        	line_number++;
+        	
+        	Path file = split_paths.get(file_name);
+        	if(file == null)
+        		continue;
         	
         	pois = new LinkedList<POI>();
         	String[] coords = poi_line.split(" ");
@@ -141,36 +128,42 @@ public class ImageRecordReader extends RecordReader<NullWritable, ImageWritable>
         		throw new IllegalStateException("there was an error reading the POI "
         				+ "(the number of poi readed is " + poi_index + " and should be " + num_poi + ")");
         	
-        	filesAndPoi.put(file_name, pois);
+    		ImageWritable image = new ImageWritable(line_number,
+    												file.getName(), 
+    												MatE.fromFile(fs.open(file)), 
+    												pois);
+
+    		if(image.getValue() == null || !image.getValue().hasContent())
+    			throw new IOException("the image " + file.getName() +" couldn't be loaded");
+    		
+    		images.add(image);
         }
         
     	if(br_poi.readLine() != null)
     		throw new IllegalStateException("the configuration file " + poiPath.getName()
     				+ "has more lines that " + filterPath.getName());
     	
-    	number_of_images = filesAndPoi.size();
+    	number_of_images = images.size();
+    	processed_images = 0;
     	
 		br_filter.close();
 		br_poi.close();
+		
+		this.images = images.iterator();
+	}
+
+	private HashMap<String, Path> pathToMap(Path[] paths) {
+		HashMap<String, Path> out = new HashMap<>();
+		
+		for (Path path : paths)
+			out.put(path.getName(), path);
+		
+		return out;
 	}
 
 	@Override
 	public boolean nextKeyValue() throws IOException, InterruptedException {
-		index_path++;
-		
-		while(filesAndPoi != null 
-				&& index_path < paths.length 
-				&& !filesAndPoi.containsKey(paths[index_path].getName()))
-			index_path++;
-		
-		if(index_path < paths.length){
-			actualPath = paths[index_path];
-			actualPoi = filesAndPoi.remove(actualPath.getName());
-			
-			return true;
-		}else{
-			return false;
-		}
+		return images.hasNext();
 	}
 
 }

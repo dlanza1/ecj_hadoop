@@ -19,12 +19,8 @@ import ec.time.utils.Timer;
 import ec.util.*;
 
 /**
- * The SimpleEvaluator is a simple, non-coevolved generational evaluator which
- * evaluates every single member of every subpopulation individually in its own
- * problem space. One Problem instance is cloned from p_problem for each
- * evaluating thread. The Problem must implement SimpleProblemForm.
- * ddfdf
- * @author Sean Lukee
+ * 
+ * @author Sean Lukee, Daniel Lanza
  * @version 2.0
  * 
  *          Thanks to Ralf Buschermohle <lobequadrat@googlemail.com> for early
