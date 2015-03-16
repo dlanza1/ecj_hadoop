@@ -75,6 +75,8 @@ public class MatE extends Mat {
 		out.writeInt(cols());
 		out.writeInt(channels());
 		
+		convertTo(this, CvType.CV_64F);
+		
 		double[] buff = new double[rows() * cols() * channels()];
 		get(0, 0, buff);
 		
@@ -324,5 +326,16 @@ public class MatE extends Mat {
 
 	public static MatE zeros(int rows, int cols, int type){
 		return new MatE(Mat.zeros(rows, cols, type));
+	}
+
+	public MatE rep(int num_centers, int index) {
+		double value;
+		MatE copy = new MatE(Mat.zeros(num_centers, cols(), CvType.CV_64F));
+		for (int col = 0; col < cols(); col++) {
+			value = get(index, col)[0];
+			for (int row = 0; row < num_centers; row++)
+				copy.put(row, col, value);
+		}
+		return copy;
 	}
 }

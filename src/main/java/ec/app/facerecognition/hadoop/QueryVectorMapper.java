@@ -15,9 +15,10 @@ import org.opencv.core.Mat;
 import ec.app.facerecognition.catalog.MatE;
 import ec.app.facerecognition.hadoop.writables.ImageWritable;
 import ec.app.facerecognition.hadoop.writables.MatEWithIDWritable;
+import ec.app.facerecognition.hadoop.writables.MatEWritable;
 import ec.app.facerecognition.hadoop.writables.TrainingResultsWritable;
 
-public class QueryVectorMapper extends Mapper<NullWritable, ImageWritable, NullWritable, MatEWithIDWritable> {
+public class QueryVectorMapper extends Mapper<NullWritable, ImageWritable, MatEWritable, MatEWithIDWritable> {
 
 	private int roi_radius;
 	
@@ -36,7 +37,6 @@ public class QueryVectorMapper extends Mapper<NullWritable, ImageWritable, NullW
 		Path path = new Path("hdfs:" + file);
 		
 		FileSystem fs = FileSystem.get(conf);
-		System.out.println("Exists " + path + ": " + fs.exists(path));
 		
 		@SuppressWarnings("resource")
 		Reader reader = new Reader(fs.getConf(), Reader.file(path));
@@ -59,7 +59,8 @@ public class QueryVectorMapper extends Mapper<NullWritable, ImageWritable, NullW
 			queryVector.put(0, (int) idCenters.get(poi_index, 0)[0], queryVector.get(0, (int) idCenters.get(poi_index, 0)[0])[0] + 1);
 		}
 		
-		context.write(NullWritable.get(), new MatEWithIDWritable(image.getId(), queryVector));
+		context.write(new MatEWritable(trainingResults.getTextureIndexMatrix()), 
+						new MatEWithIDWritable(image.getId(), queryVector));
 	}
 
 	private MatE knn(MatE centers, MatE normalized_params) {
@@ -71,7 +72,7 @@ public class QueryVectorMapper extends Mapper<NullWritable, ImageWritable, NullW
 		for (int poi_index = 0; poi_index < normalized_params.rows(); poi_index++) {
 			MatE dis1 = MatE.zeros(num_centers, 1, CvType.CV_64F);
 
-			dis = repMat(normalized_params, num_centers, poi_index);
+			dis = normalized_params.rep(num_centers, poi_index);
 
 			Core.subtract(dis, centers, dis);
 			Core.pow(dis, 2.0, dis);
@@ -95,15 +96,5 @@ public class QueryVectorMapper extends Mapper<NullWritable, ImageWritable, NullW
 		
 		return idCenters;
 	}
-	
-	private MatE repMat(MatE matNor, int num_centers, int poi_num) {
-		double valor;
-		MatE copia = MatE.zeros(num_centers, matNor.cols(), CvType.CV_64F);
-		for (int col = 0; col < matNor.cols(); col++) {
-			valor = matNor.get(poi_num, col)[0];
-			for (int row = 0; row < num_centers; row++)
-				copia.put(row, col, valor);
-		}
-		return copia;
-	}
+
 }

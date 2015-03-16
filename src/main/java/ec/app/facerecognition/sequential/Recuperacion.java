@@ -1,10 +1,8 @@
 package ec.app.facerecognition.sequential;
 
 import java.io.BufferedReader;
-import java.io.PrintWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.PrintWriter;
 import java.util.StringTokenizer;
 
 import org.opencv.core.Core;
@@ -28,7 +26,7 @@ public class Recuperacion {
 		this.valRef = valRef;
 		this.MIndex = new MatE(MIndex);
 		this.vecinosDistMIndex = new MatE(vecinosDistMIndex);
-		this.vecinosIdMIndex = new MatE(vecinosDistMIndex);
+		this.vecinosIdMIndex = new MatE(vecinosIdMindex);
 
 	}
 
@@ -47,7 +45,7 @@ public class Recuperacion {
 		MatE image = new MatE();
 		MatE matRef = new MatE(Mat.zeros(60, 9, CvType.CV_64F));
 		MatE matNor = new MatE(Mat.zeros(matRef.size(), CvType.CV_64F));
-		MatE vectorConsulta =new MatE( Mat.zeros(1368, 10, CvType.CV_64F));
+		MatE vectorConsulta = new MatE( Mat.zeros(1368, 10, CvType.CV_64F));
 		MatE vecinosIdCenters = new MatE(Mat.zeros(60, 1, CvType.CV_32F));
 		MatE vecinosDistCenters = new MatE(Mat.zeros(60, 1, CvType.CV_64F));
 

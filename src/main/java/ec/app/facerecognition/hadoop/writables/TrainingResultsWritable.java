@@ -65,7 +65,7 @@ public class TrainingResultsWritable implements WritableComparable<TrainingResul
 		return centers;
 	}
 
-	public MatE getTextureIndexMatriz() {
+	public MatE getTextureIndexMatrix() {
 		return textureIndexMatriz;
 	}
 

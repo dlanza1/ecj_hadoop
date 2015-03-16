@@ -111,7 +111,8 @@ public class MapReduceJobTests {
 	    FileUtil.fullyDelete(new File("./target/job/out"));
 	    hdfs.copyToLocalFile(new Path(hdfsURI + "img/out"), new Path("./target/job"));
 	    
-	    SequenceFile.Reader reader = new SequenceFile.Reader(conf, Reader.file(new Path(hdfsURI + "img/out/part-r-00000")));
+	    @SuppressWarnings("resource")
+		SequenceFile.Reader reader = new SequenceFile.Reader(conf, Reader.file(new Path(hdfsURI + "img/out/part-r-00000")));
 		
 	    NullWritable key = NullWritable.get();
 	    TrainingResultsWritable val = new TrainingResultsWritable();
@@ -152,7 +153,8 @@ public class MapReduceJobTests {
 	    FileUtil.fullyDelete(new File("./target/job/out"));
 	    hdfs.copyToLocalFile(new Path(hdfsURI + "img/out"), new Path("./target/job"));
 	    
-	    SequenceFile.Reader reader = new SequenceFile.Reader(conf, Reader.file(new Path(hdfsURI + "img/out/part-r-00000")));
+	    @SuppressWarnings("resource")
+		SequenceFile.Reader reader = new SequenceFile.Reader(conf, Reader.file(new Path(hdfsURI + "img/out/part-r-00000")));
 		
 	    NullWritable key = NullWritable.get();
 	    TrainingResultsWritable val = new TrainingResultsWritable();
