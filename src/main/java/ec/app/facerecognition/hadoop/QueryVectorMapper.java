@@ -10,7 +10,6 @@ import org.apache.hadoop.io.SequenceFile.Reader;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
-import org.opencv.core.Mat;
 
 import ec.app.facerecognition.catalog.MatE;
 import ec.app.facerecognition.hadoop.writables.ImageWritable;
@@ -48,15 +47,18 @@ public class QueryVectorMapper extends Mapper<NullWritable, ImageWritable, MatEW
 	
 	@Override
 	protected void map(NullWritable key, ImageWritable image, Context context)
-			throws IOException, InterruptedException {
+			throws IOException, InterruptedException {;
 		
 		MatE normalized_params = image.getParameters(roi_radius).normalize(trainingResults.getMaxPerCol());
 		
 		MatE idCenters = knn(trainingResults.getCenters(), normalized_params);
 
-		MatE queryVector = new MatE(Mat.zeros(1, trainingResults.getCenters().rows(), CvType.CV_64F));
-		for (int poi_index = 0; poi_index < 60; poi_index++) {
-			queryVector.put(0, (int) idCenters.get(poi_index, 0)[0], queryVector.get(0, (int) idCenters.get(poi_index, 0)[0])[0] + 1);
+		MatE queryVector = MatE.zeros(1, trainingResults.getCenters().rows(), CvType.CV_64F);
+		
+		for (int poi_index = 0; poi_index < idCenters.rows(); poi_index++) {
+			int x = (int) idCenters.get(poi_index, 0)[0];
+			double y = queryVector.get(0, x)[0];
+			queryVector.put(0, x, y + 1);
 		}
 		
 		context.write(new MatEWritable(trainingResults.getTextureIndexMatrix()), 

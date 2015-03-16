@@ -6,21 +6,40 @@
 
 package ec.app.facerecognition;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.LinkedList;
+import java.util.Collections;
+import java.util.List;
 
-import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
-import ec.*;
-import ec.hadoop.HadoopClient;
-import ec.simple.SimpleProblemForm;
-import ec.time.utils.Timer;
-import ec.util.*;
+import ec.Evaluator;
+import ec.EvolutionState;
+import ec.Fitness;
+import ec.Individual;
+import ec.Population;
+import ec.Subpopulation;
+import ec.app.facerecognition.hadoop.EvaluateIndividual;
+import ec.app.facerecognition.hadoop.input.ImageRecordReader;
+import ec.util.Parameter;
+import ec.util.ThreadPool;
+import ec.vector.BitVectorIndividual;
+
+/* 
+ * SimpleEvaluator.java
+ * 
+ * Created: Wed Aug 18 21:31:18 1999
+ * By: Sean Luke
+ */
 
 /**
+ * The SimpleEvaluator is a simple, non-coevolved generational evaluator which
+ * evaluates every single member of every subpopulation individually in its own
+ * problem space. One Problem instance is cloned from p_problem for each
+ * evaluating thread. The Problem must implement SimpleProblemForm.
  * 
- * @author Sean Lukee, Daniel Lanza
+ * @author Sean Luke
  * @version 2.0
  * 
  *          Thanks to Ralf Buschermohle <lobequadrat@googlemail.com> for early
@@ -41,54 +60,34 @@ public class HadoopEvaluator extends Evaluator {
 	public static final String P_CHUNK_SIZE = "chunk-size";
 	public static final String V_AUTO = "auto";
 
-	public static final String P_HDFS_PREFIX = "hdfs-prefix";
-	public static final String P_JOBTRACKER_ADDRESS = "jobtracker-address";
-	public static final String P_JOBTRACKER_PORT = "jobtracker-port";
-	public static final String P_HDFS_ADDRESS = "hdfs-address";
-	public static final String P_HDFS_PORT = "hdfs-port";
-
 	public static final int MERGE_MEAN = 0;
 	public static final int MERGE_MEDIAN = 1;
 	public static final int MERGE_BEST = 2;
 
 	public int numTests = 1;
 	public int mergeForm = MERGE_MEAN;
-	public boolean cloneProblem;
 
 	Object[] lock = new Object[0]; // Arrays are serializable
+	int individualCounter = 0;
+	int subPopCounter = 0;
 	int chunkSize; // a value >= 1, or C_AUTO
-	private String work_folder;
-	private String hdfs_address;
-	private String hdfs_port;
-	private String jobtracker_address;
-	private String jobtracker_port;
-	
 	public static final int C_AUTO = 0;
+
+	public ThreadPool pool = new ThreadPool();
+	
+	private Configuration conf;
 
 	// checks to make sure that the Problem implements SimpleProblemForm
 	public void setup(final EvolutionState state, final Parameter base) {
 		super.setup(state, base);
-		if (!(p_problem instanceof SimpleProblemForm))
-			state.output.fatal("" + this.getClass()
-					+ " used, but the Problem is not of SimpleProblemForm",
-					base.push(P_PROBLEM));
-
-		cloneProblem = state.parameters.getBoolean(base.push(P_CLONE_PROBLEM),
-				null, true);
-		if (!cloneProblem && (state.breedthreads > 1)) // uh oh, this can't be
-														// right
-			state.output
-					.fatal("The Evaluator is not cloning its Problem, but you have more than one thread.",
-							base.push(P_CLONE_PROBLEM));
-
+		
 		numTests = state.parameters.getInt(base.push(P_NUM_TESTS), null, 1);
 		if (numTests < 1)
 			numTests = 1;
 		else if (numTests > 1) {
 			String m = state.parameters.getString(base.push(P_MERGE), null);
 			if (m == null)
-				state.output
-						.warning("Merge method not provided to SimpleEvaluator.  Assuming 'mean'");
+				state.output.warning("Merge method not provided to SimpleEvaluator.  Assuming 'mean'");
 			else if (m.equals(V_MEAN))
 				mergeForm = MERGE_MEAN;
 			else if (m.equals(V_MEDIAN))
@@ -113,25 +112,21 @@ public class HadoopEvaluator extends Evaluator {
 						"Chunk Size must be either an integer >= 1 or 'auto'",
 						base.push(P_CHUNK_SIZE), null);
 		}
-
-		// Warnning only 1 thread
-		if (state.evalthreads > 1) {
-			state.output
-					.warning("The execution is going to be only in one thread. (state.evalthreads = 1)");
-		}
-
-		// Load directory prefix parameter
-		work_folder = state.parameters.getStringWithDefault(
-				base.push(P_HDFS_PREFIX), null, "ecj_work_folder_hc");
 		
-		hdfs_address = state.parameters.getStringWithDefault(
-				base.push(P_HDFS_ADDRESS), null, "nodo1");
-		hdfs_port = state.parameters.getStringWithDefault(
-				base.push(P_HDFS_PORT), null, "8020");
-		jobtracker_address = state.parameters.getStringWithDefault(
-				base.push(P_JOBTRACKER_ADDRESS), null, "nodo1");
-		jobtracker_port = state.parameters.getStringWithDefault(
-				base.push(P_JOBTRACKER_PORT), null, "8021");
+		conf = new Configuration();
+		conf.set(EvaluateIndividual.BASE_RUN_DIR_PARAM, EvaluateIndividual.BASE_RUN_DIR 
+				+ EvaluateIndividual.getTimestamp() + "/");
+		conf.setInt(ImageRecordReader.NUM_OF_SPLITS_PARAM, 30);
+		conf.set(ImageRecordReader.IMAGES_FILE_PARAM, "/user/hdfs/ecj_hadoop/files.csv");
+		conf.set(ImageRecordReader.POI_FILE_PARAM, "/user/hdfs/ecj_hadoop/poi.csv");
+		conf.set(EvaluateIndividual.CLASSES_FILE_PARAM, "/user/hdfs/ecj_hadoop/classes.txt");
+		
+		//Disable logging
+		List<Logger> loggers = Collections.<Logger>list(LogManager.getCurrentLoggers());
+		loggers.add(LogManager.getRootLogger());
+		for (Logger logger : loggers ) {
+		    logger.setLevel(Level.OFF);
+		}
 	}
 
 	Population oldpop = null;
@@ -154,7 +149,7 @@ public class HadoopEvaluator extends Evaluator {
 		}
 
 		// swap
-		// Population oldpop = state.population;
+		//Population oldpop = state.population;
 		state.population = pop;
 	}
 
@@ -201,67 +196,28 @@ public class HadoopEvaluator extends Evaluator {
 		if (numTests > 1)
 			expand(state);
 
-		SimpleProblemForm prob = null;
-		if (cloneProblem)
-			prob = (SimpleProblemForm) (p_problem.clone());
-		else
-			prob = (SimpleProblemForm) (p_problem); // just use the
-													// prototype
-		
-		((ec.Problem) prob).prepareToEvaluate(state, 0);
-		
-		try {
-			HadoopClient hc = new HadoopClient(
-					hdfs_address,
-					hdfs_port,
-					jobtracker_address,
-					jobtracker_port);
-			hc.setWorkFolder(work_folder);
-			
-			Timer t = new Timer().start();
-			System.out.println("Evaluación iniciada.");
-			
-			// Create and upload checkpoint (without population)
-			LinkedList<Individual[]> individuals_tmp = new LinkedList<Individual[]>();
-			for (Subpopulation subp : state.population.subpops){
-				individuals_tmp.add(subp.individuals);
-				subp.individuals = null;
-			}
-			Checkpoint.setCheckpoint(state);
-			int i = 0;
-			for (Individual[] individuals : individuals_tmp) {
-				state.population.subpops[i++].individuals = individuals;
-			}
-			
-			hc.addCacheFile(new File("" + state.checkpointPrefix + "."
-					+ state.generation + ".gz"), true, true);
-			System.out.println("Añadido checkpoint a cache " + t.getMili());
-			t.start();
+		Subpopulation[] subpops = state.population.subpops;
+		Individual[] inds = subpops[0].individuals;
 
-			//Generate input file
-			hc.createInput(state);
-			System.out.println("Creado y subido fichero de entrada " + t.getMili());
-			t.start();
+		try{
+			EvaluateIndividual[] threads = new EvaluateIndividual[inds.length];
+
+			//Creates threads
+			for (int ind = 0; ind < inds.length; ind++)
+				threads[ind] = new EvaluateIndividual(state, conf, state.generation, ind, (BitVectorIndividual) inds[ind]);
 			
-			// Submit job
-			Job job = hc.getEvaluationJob(); 
-			job.waitForCompletion(true);
-			System.out.println("Trabajo hecho " + t.getMili());
-			t.start();
+			//Run all thread
+			for (int ind = 0; ind < inds.length; ind++)
+				threads[ind].start();
 			
-			hc.readFitness(state);
-			System.out.println("Leido fitness " + t.getMili());
-			t.stop();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			//Wait for all threads
+			for (int ind = 0; ind < inds.length; ind++)
+				threads[ind].join();
+			
+		}catch(Exception e){
+			System.err.println("there was a problem evaluating the individuals");
 		}
 
-		((ec.Problem) prob).finishEvaluating(state, 0);
-		
 		if (numTests > 1)
 			contract(state);
 	}
@@ -278,6 +234,26 @@ public class HadoopEvaluator extends Evaluator {
 						.isIdealFitness())
 					return true;
 		return false;
+	}
+
+	// computes the chunk size if 'auto' is set. This may be different depending
+	// on the subpopulation,
+	// which is backward-compatible with previous ECJ approaches.
+	int computeChunkSizeForSubpopulation(EvolutionState state, int subpop,
+			int threadnum) {
+		int numThreads = state.evalthreads;
+
+		// we will have some extra individuals. We distribute these among the
+		// early subpopulations
+		int individualsPerThread = state.population.subpops[subpop].individuals.length
+				/ numThreads; // integer division
+		int slop = state.population.subpops[subpop].individuals.length
+				- numThreads * individualsPerThread;
+
+		if (threadnum >= slop) // beyond the slop
+			return individualsPerThread;
+		else
+			return individualsPerThread + 1;
 	}
 
 }

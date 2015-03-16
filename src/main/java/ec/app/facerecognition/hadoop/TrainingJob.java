@@ -16,7 +16,7 @@ public class TrainingJob{
 	
 	Job job;
 
-	public TrainingJob(Configuration conf, int generation, int individual) throws IOException {
+	public TrainingJob(Configuration conf, int generation, int individual) throws IOException {		
 		this.job = Job.getInstance(conf, "ECJ-FaceRecognition Generation = "+generation
 				+", Individual = "+individual+", Training phase");
 		
@@ -24,6 +24,7 @@ public class TrainingJob{
 	}
 
 	public boolean run() throws IOException, ClassNotFoundException, InterruptedException  { 
+		
 		job.setJarByClass(ComputeParamsMapper.class);
 		job.addFileToClassPath(new Path(EvaluateIndividual.OPENCV_JAR));
 
@@ -41,7 +42,7 @@ public class TrainingJob{
 		job.setOutputValueClass(TrainingResultsWritable.class);
 		job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
-		return job.waitForCompletion(true);
+		return job.waitForCompletion(false);
 	}
 
 	public Path getOutputPath() {

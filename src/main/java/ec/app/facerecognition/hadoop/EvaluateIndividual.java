@@ -5,7 +5,10 @@ import java.util.Calendar;
 
 import org.apache.hadoop.conf.Configuration;
 
+import ec.EvolutionState;
 import ec.app.facerecognition.hadoop.input.ImageRecordReader;
+import ec.simple.SimpleFitness;
+import ec.vector.BitVectorIndividual;
 
 public class EvaluateIndividual extends Thread {
 
@@ -19,50 +22,31 @@ public class EvaluateIndividual extends Thread {
 
 	public static final String CLASSES_FILE_PARAM = "mapreduce.input.img.classes";
 	
-	private Float fitness;
-
-	public static void main(String[] args) throws IOException {
-		Configuration conf = new Configuration();
-		// conf.set("fs.default.name","hdfs://nodo1:8020/");
-
-		conf.set(BASE_RUN_DIR_PARAM, BASE_RUN_DIR + getTimestamp() + "/");
-		conf.setInt(ImageRecordReader.NUM_OF_SPLITS_PARAM, 30);
-		conf.set(ImageRecordReader.IMAGES_FILE_PARAM, "/user/hdfs/ecj_hadoop/files.csv");
-		conf.set(ImageRecordReader.POI_FILE_PARAM, "/user/hdfs/ecj_hadoop/poi.csv");
-		conf.set(CLASSES_FILE_PARAM, "/user/hdfs/ecj_hadoop/classes.txt");
-		
-		EvaluateIndividual e = new EvaluateIndividual(conf, 0, 0, "00000000" + "00000000" // 0 - 15
-																	+ "11111111" + "11111111" // 16 - 31
-																	+ "11111111" + "11111111" // 32 - 47
-																	+ "11111111" + "11111111" // 48 - 63
-																	+ "11111111" + "1111" /* 64 - 75 */);
-		e.start();
-		EvaluateIndividual e1 = new EvaluateIndividual(conf, 0, 1, "00000000" + "00000000" // 0 - 15
-																	+ "11111111" + "11111111" // 16 - 31
-																	+ "11111111" + "11111111" // 32 - 47
-																	+ "11111111" + "11111111" // 48 - 63
-																	+ "11111111" + "1111" /* 64 - 75 */);
-		e1.start();
-		
-		try {
-			e.join();
-			e1.join();
-		} catch (InterruptedException e2) {
-			e2.printStackTrace();
-		}
-		
-		System.out.println(e.fitness);
-		System.out.println(e1.fitness);
-	}
+	private BitVectorIndividual individual;
 
 	private TrainingJob traningJob;
 	private QueryJob retrieveJob;
+	private EvolutionState state;
+	private int ind;
 
-	public EvaluateIndividual(Configuration conf, int gen, int ind, String filter) throws IOException {
-		conf.set(ImageRecordReader.FILTER_POI_PARAM, filter);
+	public EvaluateIndividual(EvolutionState state, 
+			Configuration conf, 
+			int gen, 
+			int ind, 
+			BitVectorIndividual individual) 
+					throws IOException {
 		
-		conf.set(INDIVIDUAL_DIR_PARAM, 
-				conf.get(BASE_RUN_DIR_PARAM).concat("generation=" + gen + "/").concat("individual=" + ind + "/"));
+		this.ind = ind;
+		
+		this.state = state;
+		this.individual = individual;
+		
+		if(this.individual.evaluated)
+			return;
+		
+		conf.set(ImageRecordReader.FILTER_POI_PARAM, individual.genotypeToStringForHumans());
+		
+		conf.set(INDIVIDUAL_DIR_PARAM, conf.get(BASE_RUN_DIR_PARAM).concat("generation=" + gen + "/").concat("individual=" + ind + "/"));
 
 		traningJob = new TrainingJob(conf, gen, ind);
 		retrieveJob = new QueryJob(conf, gen, ind);
@@ -71,20 +55,38 @@ public class EvaluateIndividual extends Thread {
 	@Override
 	public void run() {
 		super.run();
+		
+		if(this.individual.evaluated)
+			return;
 
 		try {
-			if(!traningJob.run())
-				throw new RuntimeException("there was a problem during the training phase");
+			System.out.println("Individual " + ind + ": running training phase...");
 			
-			fitness = retrieveJob.run();
-			if(fitness == null)
-				throw new RuntimeException("there was a problem during the retreive phase");
+			if(traningJob != null && !traningJob.run())
+				throw new RuntimeException("Individual " + ind + ": there was a problem during the training phase");
+			
+			System.out.println("Individual " + ind + ": training phase finished");
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException("Individual " + ind + ": there was a problem during the training phase");
+		}
+		
+		try {
+			System.out.println("Individual " + ind + ": running query phase...");
+			
+			Float fitness = retrieveJob.run();
+			if(fitness == null)
+				throw new RuntimeException("Individual " + ind + ": there was a problem during the query phase");
+			
+			System.out.println("Individual " + ind + ": query phase finished (fitness=" + fitness + ")");
+			
+			((SimpleFitness) individual.fitness).setFitness(state, fitness, fitness >= 1F);
+			individual.evaluated = true;
+		} catch (Exception e) {
+			throw new RuntimeException("Individual " + ind + ": there was a problem during the query phase");
 		}
 	}
 
-	private static String getTimestamp() {
+	public static String getTimestamp() {
 		Calendar cal = Calendar.getInstance();
 		
 		int month = (cal.get(Calendar.MONTH) + 1);

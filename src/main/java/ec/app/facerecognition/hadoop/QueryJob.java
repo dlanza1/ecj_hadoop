@@ -28,6 +28,7 @@ public class QueryJob {
 
 	public float run() throws Exception { 
 		
+		
 		job.setJarByClass(ComputeParamsMapper.class);
 		job.addFileToClassPath(new Path(EvaluateIndividual.OPENCV_JAR));
 
@@ -45,7 +46,8 @@ public class QueryJob {
 		job.setOutputValueClass(FloatWritable.class);
 		job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
-		job.waitForCompletion(true);
+		if(!job.waitForCompletion(false))
+			throw new RuntimeException("there was an error in a query job: the job was not successful");
 		
 		//Get result
 		@SuppressWarnings("resource")

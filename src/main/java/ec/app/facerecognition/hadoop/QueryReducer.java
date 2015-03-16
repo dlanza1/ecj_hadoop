@@ -30,6 +30,8 @@ public class QueryReducer extends Reducer<MatEWritable, MatEWithIDWritable, Null
 	 */
 	HashMap<Integer, Integer> img_class;
 	
+	private int num_nearest = 5;
+	
 	@Override
 	protected void setup(Context context) throws IOException, InterruptedException {
 		super.setup(context);
@@ -99,29 +101,32 @@ public class QueryReducer extends Reducer<MatEWritable, MatEWithIDWritable, Null
 		Collections.sort(vectors);
 		Core.vconcat((List<Mat>)(List<?>) vectors, query_mat);
 
-		MatE nearestIds = knn(textureIndexMatrix, query_mat, 5);
-		MatE confusionMatrix = generateConfusionMatrix(nearestIds);
+		MatE nearestIds = knn(textureIndexMatrix, query_mat, num_nearest);
+		MatE confusionMatrix = generateConfusionMatrix(nearestIds, num_nearest);
 		
 		//Compute percentage
 		float suma=0;
 		for (int i=0;i<confusionMatrix.rows();i++)
 			suma = suma + (float)confusionMatrix.get(i,i)[0];
 		
-		float percentage = suma / (float)vectors.size();
+		float percentage = suma / (float)vectors.size() / (float)num_nearest;
 		
 		context.write(NullWritable.get(), new FloatWritable(percentage));
 	}
 	
-	private MatE generateConfusionMatrix(Mat nearestIds){
+	private MatE generateConfusionMatrix(Mat nearestIds, int num_nearest){
 		MatE confusionMatrix = MatE.zeros(228, 228,CvType.CV_32F);
 		
 		Integer c1,c2;
 		
-		for (Integer i=0;i < nearestIds.rows();i++){
+		for (int i = 0;i < nearestIds.rows();i++){
 			c1 = img_class.get(i);
-			c2 = img_class.get((int)nearestIds.get(i,0)[0]);
 			
-			confusionMatrix.put(c1, c2, (int) confusionMatrix.get(c1,c2 )[0] + 1);
+			for (int j = 0; j < num_nearest; j++) {
+				c2 = img_class.get((int)nearestIds.get(i,j)[0]);
+				
+				confusionMatrix.put(c1, c2, (int) confusionMatrix.get(c1, c2)[0] + 1);
+			}
 		}
 		
 		return confusionMatrix;
