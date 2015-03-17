@@ -116,7 +116,7 @@ public class HadoopEvaluator extends Evaluator {
 		conf = new Configuration();
 		conf.set(EvaluateIndividual.BASE_RUN_DIR_PARAM, EvaluateIndividual.BASE_RUN_DIR 
 				+ EvaluateIndividual.getTimestamp() + "/");
-		conf.setInt(ImageRecordReader.NUM_OF_SPLITS_PARAM, 30);
+		conf.setInt(ImageRecordReader.NUM_OF_SPLITS_PARAM, 10);
 		conf.set(ImageRecordReader.IMAGES_FILE_PARAM, "/user/hdfs/ecj_hadoop/files.csv");
 		conf.set(ImageRecordReader.POI_FILE_PARAM, "/user/hdfs/ecj_hadoop/poi.csv");
 		conf.set(EvaluateIndividual.CLASSES_FILE_PARAM, "/user/hdfs/ecj_hadoop/classes.txt");

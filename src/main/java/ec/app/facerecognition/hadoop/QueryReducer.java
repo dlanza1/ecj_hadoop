@@ -30,7 +30,7 @@ public class QueryReducer extends Reducer<MatEWritable, MatEWithIDWritable, Null
 	 */
 	HashMap<Integer, Integer> img_class;
 	
-	private int num_nearest = 5;
+	private int num_nearest = 6;//6 images per person
 	
 	@Override
 	protected void setup(Context context) throws IOException, InterruptedException {
@@ -109,7 +109,7 @@ public class QueryReducer extends Reducer<MatEWritable, MatEWithIDWritable, Null
 		for (int i=0;i<confusionMatrix.rows();i++)
 			suma = suma + (float)confusionMatrix.get(i,i)[0];
 		
-		float percentage = suma / (float)vectors.size() / (float)num_nearest;
+		float percentage = suma / (float)vectors.size() / (float)(num_nearest - 1);
 		
 		context.write(NullWritable.get(), new FloatWritable(percentage));
 	}
@@ -122,7 +122,7 @@ public class QueryReducer extends Reducer<MatEWritable, MatEWithIDWritable, Null
 		for (int i = 0;i < nearestIds.rows();i++){
 			c1 = img_class.get(i);
 			
-			for (int j = 0; j < num_nearest; j++) {
+			for (int j = 1; j < num_nearest; j++) {
 				c2 = img_class.get((int)nearestIds.get(i,j)[0]);
 				
 				confusionMatrix.put(c1, c2, (int) confusionMatrix.get(c1, c2)[0] + 1);
@@ -133,7 +133,7 @@ public class QueryReducer extends Reducer<MatEWritable, MatEWithIDWritable, Null
 	}
 	
 	private MatE knn(MatE textureIndexMatrix, MatE query_mat, int num_nearest) {
-		MatE nearestIds = MatE.zeros(query_mat.rows(), 5, CvType.CV_32F);
+		MatE nearestIds = MatE.zeros(query_mat.rows(), num_nearest, CvType.CV_32F);
 		
 		MatE A = new MatE(), C = new MatE();
 		int datos;
