@@ -19,7 +19,7 @@ import ec.app.facerecognition.hadoop.writables.TrainingResultsWritable;
 
 public class QueryVectorMapper extends Mapper<NullWritable, ImageWritable, MatEWritable, MatEWithIDWritable> {
 
-	private int roi_radius;
+	private int windows_size;
 	
 	private TrainingResultsWritable trainingResults;
 	
@@ -27,7 +27,7 @@ public class QueryVectorMapper extends Mapper<NullWritable, ImageWritable, MatEW
 	protected void setup(Context context) throws IOException, InterruptedException {
 		Configuration conf = context.getConfiguration();
 		
-		roi_radius = conf.getInt("ec.app.facerecognition.roi.radius", 5);
+		windows_size = conf.getInt(EvaluateIndividual.WINDOWS_SIZE_PARAM, 5);
 		
 		//Get training results
 		String file = context.getConfiguration().get(EvaluateIndividual.INDIVIDUAL_DIR_PARAM).concat("training/part-r-00000");
@@ -49,7 +49,7 @@ public class QueryVectorMapper extends Mapper<NullWritable, ImageWritable, MatEW
 	protected void map(NullWritable key, ImageWritable image, Context context)
 			throws IOException, InterruptedException {;
 		
-		MatE normalized_params = image.getParameters(roi_radius).normalize(trainingResults.getMaxPerCol());
+		MatE normalized_params = image.getParameters(windows_size).normalize(trainingResults.getMaxPerCol());
 		
 		MatE idCenters = knn(trainingResults.getCenters(), normalized_params);
 

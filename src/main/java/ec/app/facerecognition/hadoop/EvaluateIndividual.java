@@ -22,6 +22,10 @@ public class EvaluateIndividual extends Thread {
 
 	public static final String CLASSES_FILE_PARAM = "mapreduce.input.img.classes";
 	
+	public static final String WINDOWS_SIZE_PARAM = "app.facerecognition.windows.size";
+	public static final String NUM_CENTERS_PARAM = "app.facerecognition.centers.num";
+	public static final String NUM_NEAREST_PARAM = "app.facerecognition.nearest.classes.num";
+	
 	private BitVectorIndividual individual;
 
 	private TrainingJob traningJob;

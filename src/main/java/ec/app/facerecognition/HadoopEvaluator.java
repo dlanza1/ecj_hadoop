@@ -52,7 +52,11 @@ public class HadoopEvaluator extends Evaluator {
 	public static final String P_CLONE_PROBLEM = "clone-problem";
 	public static final String P_NUM_TESTS = "num-tests";
 	public static final String P_MERGE = "merge";
-
+	public static final String P_WINDOWS_SIZE = "windows-size";
+	public static final String P_IMAGES_NUM_SPLITS = "images-splits";
+	public static final String P_NUMBER_OF_CENTERS = "centers";
+	public static final String P_NUM_NEAREST_CLASSES = "nearest-classes";
+	
 	public static final String V_MEAN = "mean";
 	public static final String V_MEDIAN = "median";
 	public static final String V_BEST = "best";
@@ -76,6 +80,10 @@ public class HadoopEvaluator extends Evaluator {
 	public ThreadPool pool = new ThreadPool();
 	
 	private Configuration conf;
+	private int windowsSize;
+	private int numSplits;
+	private int numCenters;
+	private int numNearestClasses;
 
 	// checks to make sure that the Problem implements SimpleProblemForm
 	public void setup(final EvolutionState state, final Parameter base) {
@@ -113,15 +121,55 @@ public class HadoopEvaluator extends Evaluator {
 						base.push(P_CHUNK_SIZE), null);
 		}
 		
+		if (!state.parameters.exists(base.push(P_WINDOWS_SIZE), null)) {
+			windowsSize = 5;
+		} else {
+			windowsSize = state.parameters.getInt(base.push(P_WINDOWS_SIZE), null, 1);
+
+			if (windowsSize == 0) // uh oh
+				state.output.fatal("Windows size must be an integer >= 1", base.push(P_WINDOWS_SIZE), null);
+		}
+		
+		if (!state.parameters.exists(base.push(P_IMAGES_NUM_SPLITS), null)) {
+			numSplits = 10;
+		} else {
+			numSplits = state.parameters.getInt(base.push(P_IMAGES_NUM_SPLITS), null, 1);
+
+			if (numSplits == 0) // uh oh
+				state.output.fatal("Number of splits must be an integer >= 1", base.push(P_IMAGES_NUM_SPLITS), null);
+		}
+		
+		if (!state.parameters.exists(base.push(P_NUMBER_OF_CENTERS), null)) {
+			numCenters = 10;
+		} else {
+			numCenters = state.parameters.getInt(base.push(P_NUMBER_OF_CENTERS), null, 1);
+
+			if (numCenters == 0) // uh oh
+				state.output.fatal("Number of centers must be an integer >= 1", base.push(P_NUMBER_OF_CENTERS), null);
+		}
+		
+		if (!state.parameters.exists(base.push(P_NUM_NEAREST_CLASSES), null)) {
+			numNearestClasses = 6;
+		} else {
+			numNearestClasses = state.parameters.getInt(base.push(P_NUM_NEAREST_CLASSES), null, 1);
+
+			if (numNearestClasses == 0) // uh oh
+				state.output.fatal("Number of nearest classes must be an integer >= 1", base.push(P_NUM_NEAREST_CLASSES), null);
+		}
+		
 		conf = new Configuration();
 		conf.set(EvaluateIndividual.BASE_RUN_DIR_PARAM, EvaluateIndividual.BASE_RUN_DIR 
 				+ EvaluateIndividual.getTimestamp() + "/");
-		conf.setInt(ImageRecordReader.NUM_OF_SPLITS_PARAM, 10);
+		conf.setInt(ImageRecordReader.NUM_OF_SPLITS_PARAM, numSplits);
 		conf.set(ImageRecordReader.IMAGES_FILE_PARAM, "/user/hdfs/ecj_hadoop/files.csv");
 		conf.set(ImageRecordReader.POI_FILE_PARAM, "/user/hdfs/ecj_hadoop/poi.csv");
 		conf.set(EvaluateIndividual.CLASSES_FILE_PARAM, "/user/hdfs/ecj_hadoop/classes.txt");
+		conf.setInt(EvaluateIndividual.WINDOWS_SIZE_PARAM, windowsSize);
+		conf.setInt(EvaluateIndividual.NUM_CENTERS_PARAM, numCenters);
+		conf.setInt(EvaluateIndividual.NUM_NEAREST_PARAM, numNearestClasses);
 		
 		//Disable logging
+		@SuppressWarnings("unchecked")
 		List<Logger> loggers = Collections.<Logger>list(LogManager.getCurrentLoggers());
 		loggers.add(LogManager.getRootLogger());
 		for (Logger logger : loggers ) {

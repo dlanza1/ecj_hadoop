@@ -19,7 +19,14 @@ import ec.app.facerecognition.hadoop.writables.TrainingResultsWritable;
 public class TrainingReducer extends
 		Reducer<NullWritable, MatEWithIDWritable, NullWritable, TrainingResultsWritable> {
 	
-	private int num_centers = 10;
+	private int num_centers;
+	
+	@Override
+	protected void setup(
+			Reducer<NullWritable, MatEWithIDWritable, NullWritable, TrainingResultsWritable>.Context context)
+			throws IOException, InterruptedException {
+		num_centers = context.getConfiguration().getInt(EvaluateIndividual.NUM_CENTERS_PARAM, 10);
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override

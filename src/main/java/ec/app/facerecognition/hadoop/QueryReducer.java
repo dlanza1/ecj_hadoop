@@ -30,12 +30,14 @@ public class QueryReducer extends Reducer<MatEWritable, MatEWithIDWritable, Null
 	 */
 	HashMap<Integer, Integer> img_class;
 	
-	private int num_nearest = 6;//6 images per person
+	private int num_nearest;
 	
 	@Override
 	protected void setup(Context context) throws IOException, InterruptedException {
 		super.setup(context);
 		Configuration conf = context.getConfiguration();
+		
+		num_nearest = context.getConfiguration().getInt(EvaluateIndividual.NUM_NEAREST_PARAM, 6);
 		
 		img_class = getImagesClass(conf);
 	}

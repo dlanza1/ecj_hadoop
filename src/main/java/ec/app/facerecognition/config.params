@@ -6,20 +6,26 @@
 
 breedthreads	= 1
 evalthreads	= 1
-seed.0		= 4357
+seed.0		= 1347
 
 state		= ec.simple.SimpleEvolutionState
 
 pop		= ec.Population
 init		= ec.simple.SimpleInitializer
 finish		= ec.simple.SimpleFinisher
-breed		= ec.simple.GroupBreeder
-breed.groups = 3
+breed		= ec.simple.SimpleBreeder
+breed.elite.0 = 1
+
 eval		= ec.app.facerecognition.HadoopEvaluator
+eval.windows-size	= 5
+eval.images-splits	= 10
+eval.centers	= 10
+eval.nearest-classes	= 6
+
 stat		= ec.simple.SimpleStatistics
 exch		= ec.simple.SimpleExchanger
 
-generations		= 200
+generations		= 1000
 quit-on-run-complete	= true
 checkpoint		= false
 checkpoint-prefix	= ec
@@ -34,7 +40,7 @@ pop.subpop.0.size 		= 10
 pop.subpop.0.duplicate-retries 	= 0
 pop.subpop.0.species 		= ec.vector.BitVectorSpecies
 
-pop.subpop.0.species.fitness 	= ec.simple.SimpleFitnessWithTime
+pop.subpop.0.species.fitness 	= ec.simple.SimpleFitness
 pop.subpop.0.species.ind	= ec.vector.BitVectorIndividual
 
 pop.subpop.0.species.genome-size	= 76
@@ -48,3 +54,5 @@ pop.subpop.0.species.pipe.source.0.source.0	= ec.select.TournamentSelection
 pop.subpop.0.species.pipe.source.0.source.1	= ec.select.TournamentSelection
 
 select.tournament.size		= 2
+
+eval.problem	= ec.app.tutorial1.MaxOnes
