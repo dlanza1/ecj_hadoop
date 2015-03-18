@@ -1,3 +1,56 @@
+Apache Hadoop es un framework de software que soporta aplicaciones distribuidas con capacidades de procesamiento de cantidades masivas de información. Permite a las aplicaciones trabajar con miles de nodos y petabytes de datos. Hadoop se inspiró en los documentos de Google para MapReduce \cite{paper-mapreduce} y Google File System (GFS) \cite{paper-gfs}.
+
+Hadoop es un proyecto de alto nivel Apache que está siendo construido y usado por una comunidad global de contribuyentes bastante amplia y activa, mediante el lenguaje de programación Java. Yahoo! ha sido el mayor contribuyente al proyecto, y usa Hadoop extensivamente en su negocio.
+
+\figuraSinMarco{0.8}{imagenes/procesos-hadoop}{Procesos en los diferentes nodos de un cluster Hadoop}{procesos-hadoop}{}
+
+Hadoop requiere tener instalados entre nodos en el clúster JRE 1.6 o superior, y SSH. Un clúster típico incluye un nodo maestro y múltiples nodos esclavo. El nodo maestro consiste en un proceso jobtracker (rastreador de trabajo), tasktracker (rastreador de tareas), namenode (nodo de nombres), y datanode (nodo de datos). Un esclavo o compute node (nodo de cómputo) consisten en un nodo de datos y un rastreador de tareas \ver{procesos-hadoop}. 
+
+Como se puede apreciar, Hadoop puede ser claramente dividido en dos partes, el sistema de ficheros, HDFS, y la parte que implementa la parte de procesamiento de información, la capa MapReduce.
+
+\subsection{El sistema de ficheros}
+
+El Hadoop Distributed File System (HDFS) es un sistema de archivos distribuido, escalable y portátil escrito en Java para el framework Hadoop. Cada nodo en una instancia Hadoop típicamente tiene un único nodo de datos; un clúster de datos forma el clúster HDFS. La situación es típica porque cada nodo no requiere un nodo de datos para estar presente. 
+
+Cada nodo sirve bloques de datos sobre la red usando un protocolo de bloqueo específico para HDFS. El sistema de archivos usa la capa TCP/IP para la comunicación; los clientes usan RPC para comunicarse entre ellos. El HDFS almacena archivos grandes, a través de múltiples máquinas. Consigue fiabilidad mediante replicado de datos a través de múltiples hosts, y no requiere almacenamiento RAID en ellos. Con el valor de replicación por defecto, 3, los datos se almacenan en 3 nodos: dos en el mismo rack, y otro en un rack distinto. Los nodos de datos pueden hablar entre ellos para reequilibrar datos, mover copias, y conservar alta la replicación de datos. HDFS no cumple totalmente con POSIX porque los requerimientos de un sistema de archivos POSIX difieren de los objetivos de una aplicación Hadoop, porque el objetivo no es tanto cumplir los estándares POSIX sino la máxima eficacia y rendimiento de datos. HDFS fue diseñado para gestionar archivos muy grandes. Algo que debe ser tenido en cuenta es que no proporciona alta disponibilidad, ya que la caída de su nodo maestro supone la caída del sistema de ficheros.
+
+Su escalabilidad y su rendimiento se pueden llevar a cabo gracias a la falta de una de las características m\'as comunes en un sistema de ficheros, la capacidad de modificar el contenido de los ficheros que contiene, una característica no necesaria para el propósito para el que esta dise\~nado.
+
+Aunque Hadoop tiene su propio sistema de ficheros, HDFS, no esta cerrado al uso de tan solo ese sistema, otros sistemas de ficheros son también compatibles como Amazon S3, CloudStore o FTP.
+
+\subsection{La capa MapReduce}
+
+Aparte del sistema de archivos, está el motor MapReduce, que consiste en un Job Tracker (rastreador de trabajos), para el cual las aplicaciones cliente envían trabajos MapReduce.
+
+El rastreador de trabajos (Job Tracker) impulsa el trabajo fuera a los nodos Task Tracker disponibles en el clúster, intentando mantener el trabajo tan cerca de los datos como sea posible. Con un sistema de archivos consciente del rack en el que se encuentran los datos, el Job Tracker sabe qué nodo contiene la información, y cuáles otras máquinas están cerca. Si el trabajo no puede ser almacenado en el nodo actual donde residen los datos, se da la prioridad a los nodos del mismo rack. Esto reduce el tráfico de red en la red principal backbone. Si un Task Tracker (rastreador de tareas) falla o no llega a tiempo, la parte de trabajo se reprograma. El TaskTracker en cada nodo genera un proceso separado JVM para evitar que el propio TaskTracker mismo falle si el trabajo en cuestión tiene problemas. Se envía información desde el TaskTracker al JobTracker cada pocos minutos para comprobar su estado. El estado del Job Tracker y el TaskTracker y la información obtenida se pueden ver desde un navegador web proporcionado por Jetty.
+
+\subsubsection{Un trabajo MapReduce}
+
+\figuraSinMarco{1}{imagenes/mapreduce-job}{Fases de un trabajo MapReduce}{mapreduce-job}{}
+
+Un trabajo MapReduce aplica dos funciones, como su nombre indica, una es una función Map (una operación a cada uno de los registros de entrada) y una función Reduce (una operación que resuma la salida de la función Map) para aplicar este modelo, Hadoop divide el proceso en diferentes fases, podemos resumirlas de la siguiente manera:
+
+\begin{enumerate}
+	\item Se divide los ficheros de entrada en tantas partes como n\'umero de tareas Map vayan a componer el trabajo.
+	\item Cada tarea Map lee una de las partes y aplica a cada registro de entrada una función que define el usuario. La salida de esta fase son tuplas de clave-valor.
+	\item La salida de cada tarea Map se organiza de forma local en el nodo que la ha ejecutado formando grupos, cada uno de ellos contiene todas las tuplas con la misma clave.
+	\item Se transfieren todos los grupos con la misma clave al nodo que vaya a ejecutar la tarea de Reduce, de forma que las claves se entregan de manera ordenada.
+	\item Se unen todos los grupos recibidos con la misma clave creando así la entrada de la tarea de Reduce.
+	\item Se aplica la función de Reduce la cual recibe todas las tuplas con la misma clave y produce también tuplas de clave-valor.
+	\item La salida de la operación de Reduce se almacena en el sistema de ficheros.
+\end{enumerate}
+
+Todo este proceso se ve resumido el diagrama \ver{mapreduce-job}, donde se muestran cada una de estas fases.
+
+La idea de la integración es que la entrada del trabajo de MapReduce este compuesta por todos los individuos a evaluar, de manera que la función Map sea la que evalúe cada individuo, prescindiendo de la etapa de Reduce, de manera que se escriba en el sistema de ficheros directamente la salida de la fase de Map, el resultado de la evaluación de los individuos.
 
 
-\subsection{Implementaci\'on del modelo Map/Reduce\label{desarrollo-hadoop-implementacion-modelo}}
+
+
+
+
+
+
+
+
+
