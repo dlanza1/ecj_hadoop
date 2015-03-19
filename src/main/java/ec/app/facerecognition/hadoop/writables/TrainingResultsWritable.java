@@ -52,9 +52,9 @@ public class TrainingResultsWritable implements WritableComparable<TrainingResul
 
 	@Override
 	public String toString() {
-		return "TrainingResultsWritable [max_per_col=" + max_per_col
-				+ ", centers=" + centers + ", textureIndexMatriz="
-				+ textureIndexMatriz + "]";
+		return "TrainingResultsWritable [max_per_col=" + max_per_col.dump()
+				+ ", centers=" + centers.dump() + ", textureIndexMatriz="
+				+ textureIndexMatriz.dump() + "]";
 	}
 
 	public MatE getMaxPerCol() {

@@ -40,12 +40,16 @@ public class QueryReducer extends Reducer<MatEWritable, MatEWithIDWritable, Null
 		num_nearest = context.getConfiguration().getInt(EvaluateIndividual.NUM_NEAREST_PARAM, 6);
 		
 		img_class = getImagesClass(conf);
+		
+		System.out.println("Association img-class: " + img_class);
 	}
 	
 	private HashMap<Integer, Integer> getImagesClass(Configuration conf) throws IOException {
 
 		//Get classes
 		HashMap<String, Integer> classes = readClasses(conf);
+		
+		System.out.println("Classes: " + classes);
 		
 		//Associate each image with the class
 		HashMap<Integer, Integer> img_class = new HashMap<Integer, Integer>();
@@ -81,6 +85,8 @@ public class QueryReducer extends Reducer<MatEWritable, MatEWithIDWritable, Null
 			index++;
 		}
 		
+		br_classes.close();
+		
 		return classes;
 	}
 
@@ -102,9 +108,19 @@ public class QueryReducer extends Reducer<MatEWritable, MatEWithIDWritable, Null
 		}
 		Collections.sort(vectors);
 		Core.vconcat((List<Mat>)(List<?>) vectors, query_mat);
+		
+		System.out.println("Join all vectors: ");
+		System.out.println(query_mat.dump());
 
 		MatE nearestIds = knn(textureIndexMatrix, query_mat, num_nearest);
+		
+		System.out.println("Nearest ids: ");
+		System.out.println(nearestIds.dump());
+		
 		MatE confusionMatrix = generateConfusionMatrix(nearestIds, num_nearest);
+		
+		System.out.println("Confusion matrix:: ");
+		System.out.println(confusionMatrix.dump());
 		
 		//Compute percentage
 		float suma=0;
@@ -121,11 +137,11 @@ public class QueryReducer extends Reducer<MatEWritable, MatEWithIDWritable, Null
 		
 		Integer c1,c2;
 		
-		for (int i = 0;i < nearestIds.rows();i++){
-			c1 = img_class.get(i);
+		for (int img = 0;img < nearestIds.rows();img++){
+			c1 = img_class.get(img);
 			
 			for (int j = 1; j < num_nearest; j++) {
-				c2 = img_class.get((int)nearestIds.get(i,j)[0]);
+				c2 = img_class.get((int) nearestIds.get(img, j)[0]);
 				
 				confusionMatrix.put(c1, c2, (int) confusionMatrix.get(c1, c2)[0] + 1);
 			}

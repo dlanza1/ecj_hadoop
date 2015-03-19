@@ -43,6 +43,9 @@ public class QueryVectorMapper extends Mapper<NullWritable, ImageWritable, MatEW
 	    trainingResults = new TrainingResultsWritable();
 	    
 		reader.next(key, trainingResults);
+		
+		System.out.println("Training results:");
+		System.out.println(trainingResults);
 	}
 	
 	@Override
@@ -51,8 +54,14 @@ public class QueryVectorMapper extends Mapper<NullWritable, ImageWritable, MatEW
 		
 		MatE normalized_params = image.getParameters(windows_size).normalize(trainingResults.getMaxPerCol());
 		
+		System.out.println("Normalized params:");
+		System.out.println(normalized_params);
+		
 		MatE idCenters = knn(trainingResults.getCenters(), normalized_params);
 
+		System.out.println("ID centers:");
+		System.out.println(idCenters);
+		
 		MatE queryVector = MatE.zeros(1, trainingResults.getCenters().rows(), CvType.CV_64F);
 		
 		for (int poi_index = 0; poi_index < idCenters.rows(); poi_index++) {
@@ -60,6 +69,9 @@ public class QueryVectorMapper extends Mapper<NullWritable, ImageWritable, MatEW
 			double y = queryVector.get(0, x)[0];
 			queryVector.put(0, x, y + 1);
 		}
+		
+		System.out.println("Query vector:");
+		System.out.println(queryVector);
 		
 		context.write(new MatEWritable(trainingResults.getTextureIndexMatrix()), 
 						new MatEWithIDWritable(image.getId(), queryVector));

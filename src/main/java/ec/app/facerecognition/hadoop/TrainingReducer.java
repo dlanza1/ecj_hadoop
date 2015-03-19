@@ -52,11 +52,17 @@ public class TrainingReducer extends
 		}
 		Collections.sort(mats);
 		Core.vconcat((List<Mat>)(List<?>) mats, matRef);
+		
+		System.out.println("Reference matrix: ");
+		System.out.println(matRef);
 
 		int number_of_poi = matRef.rows() / number_of_images;
 		
 		MatE max_per_column = matRef.getMaxPerColumn();
 		matRef = matRef.normalize(max_per_column);
+		
+		System.out.println("Max per column: ");
+		System.out.println(max_per_column);
 		
 		//Compute KMeans
 		MatE centers = new MatE();
@@ -64,6 +70,12 @@ public class TrainingReducer extends
 		TermCriteria criteria = new TermCriteria(TermCriteria.EPS + TermCriteria.MAX_ITER, 10000, 0.0001);
 		MatE labels = new MatE();
 		Core.kmeans(matRef, num_centers , labels, criteria, 1, Core.KMEANS_RANDOM_CENTERS, centers);
+		
+		System.out.println("Centers:");
+		System.out.println(centers);
+		
+		System.out.println("Labels:");
+		System.out.println(labels);
 		
 		//Generates texture index matrix
 		MatE textureIndexMatriz = new MatE(Mat.zeros(number_of_images, num_centers, CvType.CV_32F));
@@ -78,6 +90,9 @@ public class TrainingReducer extends
 		}
 		
 		labels.release();
+		
+		System.out.println("Texture index matrix:");
+		System.out.println(textureIndexMatriz);
 		
 		centers.convertTo(centers, CvType.CV_64F);
 		textureIndexMatriz.convertTo(textureIndexMatriz, CvType.CV_64F);
