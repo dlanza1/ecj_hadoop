@@ -29,7 +29,7 @@ public class EvaluateIndividual extends Thread {
 	private BitVectorIndividual individual;
 
 	private TrainingJob traningJob;
-	private QueryJob retrieveJob;
+	private QueryJob queryJob;
 	private EvolutionState state;
 	private int ind;
 
@@ -53,7 +53,7 @@ public class EvaluateIndividual extends Thread {
 		conf.set(INDIVIDUAL_DIR_PARAM, conf.get(BASE_RUN_DIR_PARAM).concat("generation=" + gen + "/").concat("individual=" + ind + "/"));
 
 		traningJob = new TrainingJob(conf, gen, ind);
-		retrieveJob = new QueryJob(conf, gen, ind);
+		queryJob = new QueryJob(conf, gen, ind);
 	}
 
 	@Override
@@ -77,7 +77,7 @@ public class EvaluateIndividual extends Thread {
 		try {
 			System.out.println("Individual " + ind + ": running query phase...");
 			
-			Float fitness = retrieveJob.run();
+			Float fitness = queryJob.run();
 			if(fitness == null)
 				throw new RuntimeException("Individual " + ind + ": there was a problem during the query phase");
 			

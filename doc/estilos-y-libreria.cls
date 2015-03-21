@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{memoriaPFC}[2007/04/23 v0.3.1.1 Plantilla para hacer el PFC de la Facultad de Ingenieria de la Universidad de Deusto.]
+\ProvidesClass{estilos-y-libreria}[2007/04/23 v0.3.1.1 Plantilla para hacer el PFC de la Facultad de Ingenieria de la Universidad de Deusto.]
 \DeclareOption{borrador}{%
   \PassOptionsToPackage{draft}{graphicx}
   % \PassOptionsToPackage{hyperref}{draft}
