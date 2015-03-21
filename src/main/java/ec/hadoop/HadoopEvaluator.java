@@ -119,8 +119,7 @@ public class HadoopEvaluator extends Evaluator {
 
 		// Warnning only 1 thread
 		if (state.evalthreads > 1) {
-			state.output
-					.warning("The execution is going to be only in one thread. (state.evalthreads = 1)");
+			state.output.warning("The execution is going to be only in one thread. (state.evalthreads = 1)");
 		}
 
 		// Load directory prefix parameter

@@ -1,0 +1,107 @@
+Para probar la implementación realizada, se ha configurado un problema sencillo que hace uso de la evaluación en un cluster Hadoop. El problema configurado se conoce con el nombre MaxOne y tiene como objetivo la construcción de una cadena de 1s, cada individuo esta representado por un conjunto de 1s y 0s teniendo todos los individuos una cadena de la misma longitud. La función de fitness es tan sencilla como contar el n\'umero de 1s en la cadena, el individuo ideal ser\'a aquel que su cadena contenga solo 1s.
+
+Si quisiéramos ejecutar este problema con ECJ, sin hacer uso de la integración con Hadoop, debemos definir dos cosas. En primer lugar una clase que representa el problema, la cual en este caso tan solo implementa la función de evaluación, y en segundo lugar el fichero de configuración de ECJ.
+
+A continuación mostramos una posible implementación de la clase que representa el problema:
+
+\begin{lstlisting}[language=Java]
+public class MaxOnes extends Problem implements SimpleProblemForm {
+	public void evaluate(final EvolutionState state, final Individual ind, final int subpopulation, final int threadnum) {
+		int sum = 0;
+		
+		BitVectorIndividual bv_ind = (BitVectorIndividual) ind;
+
+		//Contamos numero de 1s
+		for (int x = 0; x < bv_ind.genome.length; x++)
+			sum += (bv_ind.genome[x] ? 1 : 0);
+		
+		//Establecemos el fitness
+		((SimpleFitness) ind2.fitness).setFitness(state,
+				(float) (((double) sum) / bv_ind.genome.length),
+				sum == bv_ind.genome.length);  // es el individuo ideal?
+		
+		//Indicamos que ha sido evaluado
+		bv_ind.evaluated = true;
+	}
+}
+\end{lstlisting}
+
+La imlementacion es tan b\'asica como convertir el individuo al tipo que le corresponde, BitVectorIndividual, contar el n\'umero de bits a true, establecer el fitness indicando si es el individuo ideal o no y por \'ultimo marcarlo como evaluado.
+
+Una vez hecho esto debemos definir el fichero de configuración (con un nombre como config.params), el cual puede contener algo como lo siguiente:
+
+\begin{lstlisting}[language=Java]
+//Numero de hilos a usar para evaluacion y reproduccion
+breedthreads	= 1
+evalthreads	= 1
+
+//Semilla de aleatoriedad
+seed.0		= 4357
+
+//Clases a utilizar para cada fase del proceso de evolucion
+state		= ec.simple.SimpleEvolutionState
+pop		= ec.Population
+init		= ec.simple.SimpleInitializer
+finish		= ec.simple.SimpleFinisher
+breed	= ec.simple.SimpleBreeder
+eval		= ec.simple.SimpleEvaluator
+stat		= ec.simple.SimpleStatistics
+exch		= ec.simple.SimpleExchanger
+
+//Numero de generaciones maximo
+generations		= 200
+quit-on-run-complete	= true
+checkpoint		= false
+
+//Definimos una subpoblacion de BitVectorIndividuals de 200 bits y una reproduccion con seleccion por torneo de 2 individuos
+pop.subpops		= 1
+pop.subpop.0		= ec.Subpopulation
+pop.subpop.0.size 		= 10
+pop.subpop.0.duplicate-retries 	= 0
+pop.subpop.0.species 		= ec.vector.BitVectorSpecies
+pop.subpop.0.species.fitness 	= ec.simple.SimpleFitness
+pop.subpop.0.species.ind	= ec.vector.BitVectorIndividual
+pop.subpop.0.species.genome-size	= 200
+pop.subpop.0.species.crossover-type	= one
+pop.subpop.0.species.crossover-prob	= 1.0
+pop.subpop.0.species.mutation-prob	= 0.01
+pop.subpop.0.species.pipe			= ec.vector.breed.VectorMutationPipeline
+pop.subpop.0.species.pipe.source.0		= ec.vector.breed.VectorCrossoverPipeline
+pop.subpop.0.species.pipe.source.0.source.0	= ec.select.TournamentSelection
+pop.subpop.0.species.pipe.source.0.source.1	= ec.select.TournamentSelection
+select.tournament.size		= 2
+
+//Indicamos la clase que define el problema (contiene la funcion de evaluacion)
+eval.problem		= ec.app.tutorial1.MaxOnes
+\end{lstlisting}
+
+Una vez definidos estamos ficheros, podríamos ejecutarlo de forma local compilando el código fuente y ejecutando el siguiente comando:
+
+\mostrarconsola{
+	[usu@host src]\$ java ec.Evolve -file config.params
+}
+
+De este modo ejecutaríamos el un algoritmo evolutivo de forma local el cual terminar\'a su ejecución en cuanto encuentre a un individuo idea o alcance la generación 200.
+
+Para este problema la ejecuci\'on es rápida, quizás un minuto o dos, ya que la función de evaluación es sencilla, y son pocos individuos, pero y si la evaluación fuera costosa o tuviéramos millones de individuos en la población? pues si disponemos de acceso a un cluster Hadoop podemos cambiar una linea y la evaluación se ejecutar\'a de forma distribuida haciendo uso de todos los recursos disponibles del cluster de manera que el tiempo de ejecución se reduzca notablemente. Esto podríamos conseguirlo cambiando el evaluador en el fichero de configuración, anteriormente lo establecimos a ec.simple.SimpleEvaluator (linea 14), si lo establecemos a ec.hadoop.HadoopEvaluator se ejecutar\'a haciendo uso de la implementación realizada, por lo que los individuos serán evaluados en todos los nodos del cluster Hadoop. Esta configuraci\'on ha sido probada obteniendo los mismos resultados que con la ejecución local.
+
+Mas adelante \verapartado{resultados-maxone} se muestran los beneficios de utilizar esta solución, donde vemos que los tiempos se reducen considerablemente si lo comparamos con una ejecución secuencial.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
