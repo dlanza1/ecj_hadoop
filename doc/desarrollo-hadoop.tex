@@ -42,6 +42,7 @@ Un trabajo MapReduce aplica dos funciones, como su nombre indica, una es una fun
 
 Todo este proceso se ve resumido el diagrama \ver{mapreduce-job}, donde se muestran cada una de estas fases.
 
+\label{fase-map-eval}
 La idea de la integración es que la entrada del trabajo de MapReduce este compuesta por todos los individuos a evaluar, de manera que la función Map sea la que evalúe cada individuo, prescindiendo de la etapa de Reduce, de manera que se escriba en el sistema de ficheros directamente la salida de la fase de Map, el resultado de la evaluación de los individuos.
 
 

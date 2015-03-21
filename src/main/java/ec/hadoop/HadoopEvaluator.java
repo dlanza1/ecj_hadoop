@@ -214,12 +214,13 @@ public class HadoopEvaluator extends Evaluator {
 		((ec.Problem) prob).prepareToEvaluate(state, 0);
 		
 		try {
-			HadoopClient hc = new HadoopClient(
+			HadoopClient hadoopClient = new HadoopClient(
 					hdfs_address,
 					hdfs_port,
 					jobtracker_address,
 					jobtracker_port);
-			hc.setWorkFolder(work_folder);
+			
+			hadoopClient.setWorkFolder(work_folder);
 			
 			Timer t = new Timer().start();
 			System.out.println("Evaluación iniciada.");
@@ -236,23 +237,22 @@ public class HadoopEvaluator extends Evaluator {
 				state.population.subpops[i++].individuals = individuals;
 			}
 			
-			hc.addCacheFile(new File("" + state.checkpointPrefix + "."
-					+ state.generation + ".gz"), true, true);
+			hadoopClient.addCacheFile(new File("" + state.checkpointPrefix + "." + state.generation + ".gz"), true, true);
 			System.out.println("Añadido checkpoint a cache " + t.getMili());
 			t.start();
 
 			//Generate input file
-			hc.createInput(state);
+			hadoopClient.createInput(state);
 			System.out.println("Creado y subido fichero de entrada " + t.getMili());
 			t.start();
 			
 			// Submit job
-			Job job = hc.getEvaluationJob(); 
+			Job job = hadoopClient.getEvaluationJob(); 
 			job.waitForCompletion(true);
 			System.out.println("Trabajo hecho " + t.getMili());
 			t.start();
 			
-			hc.readFitness(state);
+			hadoopClient.readFitness(state);
 			System.out.println("Leido fitness " + t.getMili());
 			t.stop();
 		} catch (IOException e) {
@@ -277,9 +277,9 @@ public class HadoopEvaluator extends Evaluator {
 	public boolean runComplete(final EvolutionState state) {
 		for (int x = 0; x < state.population.subpops.length; x++)
 			for (int y = 0; y < state.population.subpops[x].individuals.length; y++)
-				if (state.population.subpops[x].individuals[y].fitness
-						.isIdealFitness())
+				if (state.population.subpops[x].individuals[y].fitness.isIdealFitness())
 					return true;
+		
 		return false;
 	}
 

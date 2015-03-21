@@ -103,18 +103,16 @@ public class HadoopClient {
 
 	public void createInput(EvolutionState state) throws IOException {
 		Path input_file = new Path(work_folder.concat("/input/population.seq"));
-		Writer writer = getSequenceFileWriter(input_file,
-				IndividualIndexWritable.class, IndividualWritable.class);
+		Writer writer = getSequenceFileWriter(input_file, IndividualIndexWritable.class, IndividualWritable.class);
 
 		Subpopulation[] subpops = state.population.subpops;
 		int len = subpops.length;
 		for (int pop = 0; pop < len; pop++) {
-			for (int x = 0; x < subpops[pop].individuals.length; x++) {
-
-				if (!subpops[pop].individuals[x].evaluated)
-					writer.append(new IndividualIndexWritable(pop, x),
-							new IndividualWritable(state,
-									subpops[pop].individuals[x]));
+			for (int indiv = 0; indiv < subpops[pop].individuals.length; indiv++) {
+				if (!subpops[pop].individuals[indiv].evaluated){
+					writer.append(new IndividualIndexWritable(pop, indiv), 
+							      new IndividualWritable(state, subpops[pop].individuals[indiv]));
+				}
 			}
 		}
 
