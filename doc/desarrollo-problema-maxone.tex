@@ -86,8 +86,6 @@ De este modo ejecutaríamos el un algoritmo evolutivo de forma local el cual ter
 
 Para este problema la ejecuci\'on es rápida, quizás un minuto o dos, ya que la función de evaluación es sencilla, y son pocos individuos, pero y si la evaluación fuera costosa o tuviéramos millones de individuos en la población? pues si disponemos de acceso a un cluster Hadoop podemos cambiar una linea y la evaluación se ejecutar\'a de forma distribuida haciendo uso de todos los recursos disponibles del cluster de manera que el tiempo de ejecución se reduzca notablemente. Esto podríamos conseguirlo cambiando el evaluador en el fichero de configuración, anteriormente lo establecimos a ec.simple.SimpleEvaluator (linea 14), si lo establecemos a ec.hadoop.HadoopEvaluator se ejecutar\'a haciendo uso de la implementación realizada, por lo que los individuos serán evaluados en todos los nodos del cluster Hadoop. Esta configuraci\'on ha sido probada obteniendo los mismos resultados que con la ejecución local.
 
-Mas adelante \verapartado{resultados-maxone} se muestran los beneficios de utilizar esta solución, donde vemos que los tiempos se reducen considerablemente si lo comparamos con una ejecución secuencial.
-
 
 
 

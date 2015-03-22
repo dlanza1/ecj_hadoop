@@ -1,0 +1,26 @@
+\label{resultados-parity}
+
+Para los problemas donde el coste de la evaluación es despreciable, la paralelizaci\'on de esta fase cobra sentido cuando la cantidad de individuos a evaluar es importante. ECJ posee un evaluador que permite paralelizar la evaluación de los individuos de manera que se use los diferentes núcleos de procesamiento que posea la maquina en la que se ejecute, de manera que compararemos los resultados obtenidos con la ejecución secuencial y la multihilo. En la tabla que se muestra a continuación, mostramos tiempos en segundos del tiempo que toma la evaluación en diferentes ejecuciones con diferente n\'umero de individuos y utilizando ejecuciones multihilo, estos tiempos corresponden a ejecuciones del problema Parity y la m\'maquina donde se ejecut\'o disponía de 8 núcleos de procesamiento.
+
+\begin{table}[H]
+  \begin{center}
+    \begin{center}
+    \begin{tabular}{l | c c c c}
+    N\'umero de individuos & Secuencial & 2 hilos & 4 hilos & 8 hilos \\ \hline
+    30.000 & 19 & 10 & 5 & 3\\
+    50.000 & 31 & 16 & 8 & 4\\
+    100.000 & 65 & 32 & 16 & 8\\
+    300.000 & & & 47 & 25\\
+    500.000 & & & 82 & 41\\
+    1.000.000 & & & & 87\\
+    1.500.000 & & & & 130\\
+    \end{tabular}
+    \end{center}
+    \caption{Tiempos de ejecución secuencial y mulhilo}
+    \label{tabla_tiempos_ecj}
+  \end{center}
+\end{table}
+
+Observamos claramente como los tiempos son directamente proporcionales al n\'umero de individuos e indirectamente proporcionales al n\'muero de hilos que utilicemos para la evaluación. Como se puede apreciar con ejecuciones de millones de individuos, incluso utilizando 8 hilos de procesamiento, nos acercamos a tiempos del orden de minutos, teniendo en cuenta que esto debemos hacerlo por generación, la evaluación de los individuos empieza a ser un problema. 
+
+Abordemos ahora una ejecución utilizando la implementación realizada, de manera que los individuos se evalúen a lo largo de un cluster Hadoop utilizando cada una de las maquinas disponibles y los núcleos de procesamiento de cada una. Las ejecuciones realizadas hicieron uso de un cluster de 7 maquinas interconectadas donde se encuentra desplegada la herramienta Hadoop.

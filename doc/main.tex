@@ -59,8 +59,11 @@
 		\input{desarrollo-hadoop.tex}
 	\section{Implementaci\'on}
 		\input{desarrollo-implementacion.tex}
-	\section{Despliegue de un problema sencillo: MaxOne}
-		\input{desarrollo-problema-maxone.tex}
+	\section{Despliegue de problemas utilizando la implementaci\'on}
+		\subsection{MaxOne}
+			\input{desarrollo-problema-maxone.tex}
+		\subsection{Parity}
+			\input{desarrollo-problema-parity.tex}
 	\section{Algo m\'as complejo: reconocimiento facial}
 		\input{desarrollo-problema-facerecognition.tex}
 
@@ -73,12 +76,17 @@
 		\input{manual-compilacion.tex}
 
 \chapter{Resultados}
-	\label{resultados-maxone}
-	\label{resultados-facerecognition}
+	\input{resultados-introduccion.tex}
+	\section{Millones de individuos: Parity}
+		\input{resultados-parity.tex}
+	\section{Evaluacion costosa: reconocimiento facial}
+		\input{resultados-facerecognition.tex}	
 
 \chapter{Trabajos futuros}
 
 \chapter{Conclusiones}
+Esta implementación multihilo, se ve limitada a la cantidad de núcleos de procesamiento de una solo m\'maquina, pero si utilizamos la integración con Had
+
 
 \chapter{Anexo I. C\'odigo fuente}
 

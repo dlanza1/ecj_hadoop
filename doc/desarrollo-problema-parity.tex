@@ -1,0 +1,115 @@
+En esta sección vamos a configurar un sencillo problema de programación genética conocido por la comunidad por el nombre de Parity, el objetivo de este problema de programación genética es encontrar un programa que produzca un valor de la paridad par booleana dadas n entradas booleanas independientes. Por lo general, se utilizan 6 entradas booleanas (Parity-6), y el objetivo es que coincida con el valor del bit de paridad para cada una de las entradas de 2 elevado a 6 = 64 posibles.
+
+Si queremos ejecutar este problema es ECJ debemos definir 3 cosas, implementar una clase que defina el problema y la cual pueda evaluar los individuos, definir otra clase que represente la paridad y ayuda a la transferencia de esta entre individuos de la población y por \'ultimo el fichero de par\'ametros de ECJ.
+
+Comentamos en primer lugar la implementación de la clase que representa la paridad, utilizada en este caso para transferir un 0 o un 1 dependiendo de la paridad calculada.
+
+\begin{lstlisting}[language=Java]
+public class ParityData extends GPData {
+	// Valor de retorno, debe ser siempre 1 o 0
+	public int x;
+
+	public void copyTo(final GPData gpd) {
+		((ParityData) gpd).x = x;
+	}
+}
+\end{lstlisting}
+
+La clase que representa el problema, la cual lleva a cabo la evaluaci\'on de los individuos, se muestra a continuación.
+
+\begin{lstlisting}[language=Java]
+public class Parity extends GPProblem implements SimpleProblemForm {
+	public int numBits;
+	public int totalSize;
+	public int bits; // data bits
+
+	public void setup(final EvolutionState state, final Parameter base) {
+		
+		//Obtnemos el numero de bits a utilizar desde el fichero de parametros
+		numBits = state.parameters.getIntWithMax(base.push(P_NUMBITS), null, 2, 31);
+
+		//Calculamos la combinacion ma\'xima
+		totalSize = 1;
+		for (int x = 0; x < numBits; x++)
+			totalSize *= 2;
+	}
+
+	public void evaluate(final EvolutionState state, final Individual ind,
+			final int subpopulation, final int threadnum) {
+		
+		//Aqui se almacenara el valor de paridad retornado por el programa gen\'etico
+		ParityData input = (ParityData) (this.input);
+
+		int sum = 0;
+		//Recorremos cada combinacion a probar
+		for (bits = 0; bits < totalSize; bits++) {		
+			//Comprobamos si es par o impar
+			int tb = 0;
+			for (int b = 0; b < numBits; b++)
+				tb += (bits >>> b) & 1;
+			tb &= 1; // now tb is 1 if we're odd, 0 if we're even
+
+			//Ejecutamos el programa genetico que representa al individuo
+			((GPIndividual) ind).trees[0].child.eval(state, threadnum, input, stack, ((GPIndividual) ind), this);
+
+			//Si coinciden sumamos 1
+			if ((input.x & 1) == tb)
+				sum++;
+		}
+
+		//Establecemos el fitness en funcion del numero de aciertos
+		KozaFitness f = ((KozaFitness) ind.fitness);
+		f.setStandardizedFitness(state, (float) (totalSize - sum));
+		f.hits = sum;
+	}
+}
+\end{lstlisting}
+
+En esta implementación, en primer lugar se ejecuta el método setup el cual obtiene el parámetro del numero de bits a utilizar en el problema y posteriormente se calcula el valor de la combinación maxima con ese numero de bits. Respecto a la evaluación de los individuos en el método evaluate, en primer lugar se creo un objeto que representa el valor devuelto por el programa genético, posteriormente se recorren todos los valores posibles y por cada uno se calcula la paridad del valor y se ejecuta el genetico, si ambos coinciden en el valor devuelto se incrementa el contador (sum). Finalmente se establece el fitness del individuo en funci\'on del n\'umero de aciertos.
+
+Tras definir las dos clases anteriores, lo único que queda es el fichero de parámetros, a el cual podemos nombrar parity.params y cuyo contenido puede ser el siguiente:
+
+\begin{lstlisting}[language=Java]
+# Heredamos parametros basicos desde otro fichero
+parent.0 = ../../gp/koza/koza.params
+
+# Definimos todas las funciones a utilizar
+gp.fs.size = 1
+gp.fs.0.name = f0
+gp.fs.0.func.0 = ec.app.parity.func.And
+gp.fs.0.func.0.nc = nc2
+gp.fs.0.func.1 = ec.app.parity.func.Or
+gp.fs.0.func.1.nc = nc2
+gp.fs.0.func.2 = ec.app.parity.func.Nand
+gp.fs.0.func.2.nc = nc2
+gp.fs.0.func.3 = ec.app.parity.func.Nor
+gp.fs.0.func.3.nc = nc2
+# Definimos tantas como queramos
+...
+
+# Definimos el problema
+eval.problem = ec.app.parity.Parity
+eval.problem.data = ec.app.parity.ParityData
+
+# Numero de bits a utilizar
+eval.problem.bits = 12
+gp.fs.0.size = 16 # = eval.problem.bits + 4 para este problema
+\end{lstlisting}
+
+Con el objetivo de no repetir parámetros que suelen utilizarse con mucho frecuencia, heredamos desde un fichero de pararemos que contiene los m\'as usuales y sobreescribimos los que especifican el problema concreto, esto lo hacemos en la primera linea del fichero de parámetros con el parámetro parent y la ruta al fichero de parámetros que queremos heredar. A continuación se definen las funciones que pueden componer los programas genéticos producidos, indicamos el problema con las clases que hemos generado anteriormente y por ultimo definimos el numero de bits a utilizar en el problema.
+
+Una vez definidos los ficheros necesarios, al igual que en el problema MaxOne podemos ejecutarlo si compilamos el código y ejecutamos el siguiente comando:
+
+\mostrarconsola{
+	[usu@host src]\$ java ec.Evolve -file parity.params
+}
+
+La configuración actual hace uso del evaluador definido en el fichero "../../gp/koza/ koza.params" del cual hereda y corresponde a ec.simple.SimpleEvaluator, este evaluador realizara una evaluación secuencial de los individuos pero si lo establecemos a ec.hadoop.HadoopEvaluator se ejecutar\'a en el cluster Hadoop. Para hacer esto podemos a\~nadir la siguiente linea al fichero de parámetros:
+
+\begin{lstlisting}[language=Java]
+eval = ec.hadoop.HadoopEvaluator
+\end{lstlisting}
+
+Esto sobreescribir\'a el valor del evaluador establecido en el fichero que heredamos y por consiguiente se hará uso del evaluador de Hadoop.
+
+Mas adelante \verapartado{resultados-parity} se muestran los beneficios de utilizar esta solución, donde vemos que los tiempos se reducen considerablemente si lo comparamos con una ejecución secuencial.

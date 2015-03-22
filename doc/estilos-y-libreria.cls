@@ -5,7 +5,7 @@
   % \PassOptionsToPackage{hyperref}{draft}
 }
 \ProcessOptions
-\LoadClass[10pt,a4paper,oneside]{scrbook}
+\LoadClass[12pt,a4paper,oneside]{scrbook}
 % \RequirePackage[automark,nouppercase]{scrpage2}
 \RequirePackage[automark,markuppercase]{scrpage2}
 \RequirePackage[utf8]{inputenc}
@@ -334,8 +334,8 @@
 \setlength{\textwidth}{\paperwidth}
 \addtolength{\textwidth}{-6cm}
 
-% Separacion de 3 milímetros entre los párrafos
-\parskip=3mm
+% Separacion de 4 milímetros entre los párrafos
+\parskip=4mm
 % Para compilar con pdfLaTeX:
 \setlength{\pdfpagewidth}{\paperwidth}
 \setlength{\pdfpageheight}{\paperheight}
@@ -398,7 +398,7 @@
   \cleardoublepage
   \pagestyle{headings}
   % \newcommand{\cabeceraimpar}{\textit{\headmark}}
-  \renewcommand{\cabecerapar}{\textit{PROYECTO FIN DE CARRERA}}
+  \renewcommand{\cabecerapar}{\textit{PROYECTO FIN DE GRADO}}
   \pagenumbering{arabic}
 
   % Redefinimos el formato de \chapter

@@ -2,10 +2,10 @@
   Copyright 2006 by Sean Luke
   Licensed under the Academic Free License version 3.0
   See the file "LICENSE" for more information
-*/
-
+ */
 
 package ec.app.parity;
+
 import ec.gp.*;
 
 /* 
@@ -17,14 +17,14 @@ import ec.gp.*;
 
 /**
  * @author Sean Luke
- * @version 1.0 
+ * @version 1.0
  */
 
-public class ParityData extends GPData
-    {
-    // return value -- should ALWAYS be either 1 or 0
-    public int x;
+public class ParityData extends GPData {
+	// return value -- should ALWAYS be either 1 or 0
+	public int x;
 
-    public void copyTo(final GPData gpd) 
-        { ((ParityData)gpd).x = x; }
-    }
+	public void copyTo(final GPData gpd) {
+		((ParityData) gpd).x = x;
+	}
+}
