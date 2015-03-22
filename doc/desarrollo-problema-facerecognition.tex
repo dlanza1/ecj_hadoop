@@ -16,7 +16,7 @@ El sistema debe ser entrenado haciendo uso de una base de datos de imágenes en 
 
 La configuracion de este problema en ECJ guarda mucha relación con el problema anterior \verapartado{desarrollo-maxone}, ya que los individuos también serán una cadena de 0s y 1s que indiquen si se utiliza o no el punto de interés, por lo que prácticamente lo único que cambia es la evaluación de individuos la cual es radicalmente m\'as compleja y costosa. La evaluación de cada individuo consistirá en ejecutar el sistema de reconocimiento facial solo con los puntos que el genotipo del individuo indique que se deban utilizar, el fitness corresponderá al porcentaje de imágenes correctamente clasificadas en la fase de consulta.
 
-SI tenemos en cuenta el tiempo que se tarda en la ejecución secuencial del algoritmo (3 minutos) y hacemos unas cuentas sencillas podemos ver que si tenemos una peque\~na población de 10 individuos, cada generación tardar\'a en ser evaluada una media hora, si queremos evolucionarlo necesitaremos quizás decenas o centenas de generaciones lo cual conllevar\'ia un tiempo impracticable. Es por esto que adem\'as de la integración con ECJ, haremos uso de la integración con Hadoop para distribuir y paralizar el proceso y así poder hacer que la evaluación de cada generación sea cuestión de pocos minutos.
+SI tenemos en cuenta el tiempo que se tarda en la ejecución secuencial del algoritmo (3 minutos) y hacemos unas cuentas sencillas podemos ver que si tenemos una peque\~na población de 10 individuos, cada generación tardar\'a en ser evaluada una media hora, si queremos evolucionarlo necesitaremos quizás decenas o centenas de generaciones lo cual conllevar\'ia un tiempo impracticable. Es por esto que adem\'as de la integración con ECJ, haremos uso de la integración con Hadoop para distribuir y paralizar el proceso y así poder hacer que la evaluación de cada generación sea cuestión de pocos minutos. Los resultados obtenidos pueden ser consultados m\'as adelante en este documento \verapartado{resultados-facerecognition}.
 
 \subsection{Integraci\'on}
 
@@ -64,12 +64,161 @@ Pasamos ahora a describir que es lo que hace cada uno de los hilos. Al ser hilos
 
 \subsubsection{Trabajo de la fase de entrenamiento}
 
+Este trabajo de Hadoop implementa las dos fases de un trabajo de Hadoop, la fase de Map y la de Reduce por lo que describiremos en que consiste cada una. La primera fase, la de Map, tiene como implementación el siguiente fragmento de c\'odigo:
+
+ \begin{lstlisting}[language=Java]
+	@Override
+	protected void map(NullWritable key, ImageWritable image, Context context)
+			throws IOException, InterruptedException {
+		
+		MatE parameters = image.getParameters(windows_size);
+		
+		context.write(NullWritable.get(), new MatEWithIDWritable(image.getId(), parameters));
+	}
+\end{lstlisting}
+
+Como se puede observar, lo que recibe nuestra tarea map son tuplas de NullWritable y ImageWritable, en este caso la clave no la utilizamos por que la establecemos a NullWritable y lo que recibimos en el valor es una imagen a procesar. De lo que se encarga esta función es de extraer los parámetros de cada uno de los puntos de interés (solo los que el genotipo del individuo indique a 1) y almacenarlos en una matriz de OpenCV (MatE), la cual junto con el identificador de la imagen, formaran la salida de la función map. El calculo de estos parámetros conlleva numerosas operaciones con cada imagen las cuales no se describen ya que se considera no es el propósito de este trabajo, sin embargo estas pueden ser consultados en el código fuente que se proporciona.
+
+Una vez finalizada la fase de Map tenemos todos los parámetros de cada imagen, de modo que la fase de Reduce puede comenzar, en nuestro caso la fase de Reduce se lleva a cabo en un solo nodo (no en uno en concreto, si no en alguno de los que componen el cluster) ya que este necesita toda la información producida por la fase de Map para obtener sus resultados. Procedemos ahora a mostrar la implementación de la fase de Reduce.
+
+ \begin{lstlisting}[language=Java]
+@Override
+	protected void reduce(
+			NullWritable key,
+			Iterable<MatEWithIDWritable> values,
+			Context context)
+			throws IOException, InterruptedException {
+
+		//Unimos todos los parametros recibidos por orden en una sola matriz
+		MatE matRef = new MatE();
+		List<MatEWithIDWritable> mats = new LinkedList<MatEWithIDWritable>();
+		for (MatEWithIDWritable mat : values) {
+			MatEWithIDWritable tmp = new MatEWithIDWritable();
+			mat.copyTo(tmp);
+			mat.release();
+			mats.add(tmp);
+			
+			number_of_images++;
+		}
+		Collections.sort(mats);
+		Core.vconcat((List<Mat>)(List<?>) mats, matRef);
+
+		//Obtenemos valores maximos por columnas y la normalizamos
+		MatE max_per_column = matRef.getMaxPerColumn();
+		matRef = matRef.normalize(max_per_column);
+		
+		//Calculamos Kmeans
+		MatE centers = new MatE();
+		MatE labels = new MatE();
+		TermCriteria criteria = new TermCriteria(TermCriteria.EPS + TermCriteria.MAX_ITER, 10000, 0.0001);
+		Core.kmeans(matRef, num_centers , labels, criteria, 1, Core.KMEANS_RANDOM_CENTERS, centers);
+		
+		//Generamos matriz de indices de texturas
+		MatE textureIndexMatriz = new MatE(Mat.zeros(number_of_images, num_centers, CvType.CV_32F));
+		int pos;
+		for (int i = 0; i < number_of_images; i++) {
+			pos = number_of_poi * i;
+			for (int j = pos; j < pos + number_of_poi; j++) {
+				double[] valor = textureIndexMatriz.get(i, (int) labels.get(j, 0)[0]);
+				valor[0] = valor[0] + 1;
+				textureIndexMatriz.put(i, (int)labels.get(j,0)[0], valor);
+			}
+		}
+		
+		//Producimos la salida
+		context.write(NullWritable.get(), new TrainingResultsWritable(max_per_column, centers, textureIndexMatriz));
+	}
+\end{lstlisting}
+
+Podemos observar como el método reduce recibe como entrada una lista (values) la cual contiene todas matrices producidas por la fase de Map. Lo que hacemos en el reduce es unir todas esas matrices de parámetros en una sola, calcular los máximos por columna, normalizarla, calcular Kmeans y generar una matriz de indices de textura. Finalmente escribimos todos los resultados los cuales necesitaremos para el proximo trabajo, el de consulta.
+
 \subsubsection{Trabajo de la fase de consulta}
 
+De la etapa de consulta del sistema de reconocimiento faciel es de lo que se encarga el trabajo de Hadoop que ahora vamos ha describir. Al igual que el anterior, este utiliza la fase de Map y la de Reduce (una sola tarea de reduce) para obtener finalmente el fitness del individuo. Mostramos en primer lugar la implementación de la fase de Map.
 
+ \begin{lstlisting}[language=Java]
+ 	private TrainingResultsWritable trainingResults;
+ 
+	@Override
+	protected void setup(Context context) throws IOException, InterruptedException {
 
+		//Obtenemos los resultados del entrenamiento
+		String file = context.getConfiguration().get(EvaluateIndividual.INDIVIDUAL_DIR_PARAM).concat("training/part-r-00000");
+		Reader reader = new Reader(fs.getConf(), Reader.file(file));
+		reader.next(key, trainingResults);
+	}
+	
+	@Override
+	protected void map(NullWritable key, ImageWritable image, Context context)
+			throws IOException, InterruptedException {;
+		
+		//Normalizamos los parametros de la imagen
+		MatE normalized_params = image.getParameters(windows_size).normalize(trainingResults.getMaxPerCol());
+		
+		//Obtenemos centroides con Knn
+		MatE idCenters = knn(trainingResults.getCenters(), normalized_params);
 
+		//Obtenemos vector de consulta		
+		MatE queryVector = MatE.zeros(1, trainingResults.getCenters().rows(), CvType.CV_64F);
+		for (int poi_index = 0; poi_index < idCenters.rows(); poi_index++) {
+			int x = (int) idCenters.get(poi_index, 0)[0];
+			double y = queryVector.get(0, x)[0];
+			queryVector.put(0, x, y + 1);
+		}
+		
+		context.write(new MatEWritable(trainingResults.getTextureIndexMatrix()), 
+						new MatEWithIDWritable(image.getId(), queryVector));
+	}
+\end{lstlisting}
 
+Al igual que el anterior trabajo, el de entrenamiento, la fase de Map recibe las imágenes como entrada, pero este difiere del anterior en que implementa el método setup() el cual se ejecuta antes del iniciar la ejecución de la tarea y se encarga de obtener los resultados producidos por el trabajo anterior los cuales están en el directorio del individuo. Respecto al método map, en primer lugar obtiene los parámetros de la imagen recibida y los normaliza con respecto los máximos obtenemos del trabajo anterior, una vez normalizados, obtiene los centroides haciendo uso de un algoritmo Knn y por \'ultimo genera un vector de consulta que junto a la matriz de \'indices de textura del trabajo anterior compondrán la salida de la fase de Map.
+
+Abordamos ahora la fase de Reduce del trabajo, cuya implementación se muestra a continuación.
+
+ \begin{lstlisting}[language=Java]
+	//Relacion de imagen-clase (persona)
+	HashMap<Integer, Integer> img_class;
+	
+	@Override
+	protected void setup(Context context) throws IOException, InterruptedException {
+		img_class = getImagesClass(conf);
+	}
+	
+	@Override
+	protected void reduce(MatEWritable textureIndexMatrix, Iterable<MatEWithIDWritable> queryVectors, Context context)
+			throws IOException, InterruptedException {
+
+		//Unimos todos los vectores de consulta
+		MatE query_mat = new MatE();
+		List<MatEWithIDWritable> vectors = new LinkedList<MatEWithIDWritable>();
+		for (MatEWithIDWritable queryVector : queryVectors) {
+			MatEWithIDWritable tmp = new MatEWithIDWritable();
+			queryVector.copyTo(tmp);
+			queryVector.release();
+			
+			vectors.add(tmp);
+		}
+		Collections.sort(vectors);
+		Core.vconcat((List<Mat>)(List<?>) vectors, query_mat);
+		
+		//Obtenmos los ids mas cercanos
+		MatE nearestIds = knn(textureIndexMatrix, query_mat, num_nearest);
+		
+		//Calculamos matriz de confusion		
+		MatE confusionMatrix = generateConfusionMatrix(nearestIds, num_nearest);
+
+		//Obtenemos porcentaje de acierto
+		float suma=0;
+		for (int i=0;i<confusionMatrix.rows();i++)
+			suma = suma + (float)confusionMatrix.get(i,i)[0];
+		
+		float percentage = suma / (float)vectors.size() / (float)(num_nearest - 1);
+		
+		context.write(NullWritable.get(), new FloatWritable(percentage));
+	}
+\end{lstlisting}
+
+En esta fase, al igual que la anterior, implementamos el método setup() encargado en este caso de obtener la clase (persona) que corresponde a cada una de las imágenes. Respecto al método reduce, une en primer lugar por orden todos los vectores de consulta recibidos, obtiene los ids de las imagenes que m\'as se le asemejan, calcula la matriz de confusi\'on y por \'ultimo obtiene el porcentaje de aciertos, el cual en este caso corresponde al fitness del individuo y por consiguiente esta ser\'a la salida del trabajo de consulta.
 
 
 
