@@ -1,19 +1,19 @@
-Existen problemas computacionales que no pueden ser resueltos con metodologías tradicionales, o porque no existe una solución que pueda proporcionar un resultado aceptable o porque la solución desarrollada necesita de un tiempo y recursos que no son manejables. Para este tipo de problemas se buscan implementaciones que no proporcionan siempre la mejor soluci\'on pero que intentar acercarse lo máximo posible, a estos problemas se les conoce como problemas de optimizaron.
+Existen problemas computacionales que no pueden ser resueltos con técnicas tradicionales, o porque no existe una que pueda proporcionar un resultado aceptable o porque la técnica aplicada necesita de un tiempo o recursos de los que no se disponen. Así es el caso en problemas NP donde una búsqueda exhaustiva encontraría la mejor solución pero el tiempo necesario para su ejecución se hace impracticable. Para este tipo de problemas se buscan técnicas que no proporcionan siempre la mejor soluci\'on pero que intentar acercarse lo máximo posible haciendo uso de recursos razonables, a estos problemas se les conoce como problemas de optimizaci\'on.
 
 Se han desarrollado diferentes formas de afrontar estos problemas de optimizaci\'on y una de ellas es la computación evolutiva, este modelo se basa en las teoría de la evolución que Charles Darwin postul\'o. Esta idea de aplicar la teor\'ia Darwiniana de la evolución surgió en los a\~nos 50 y desde entonces han surgidos diferentes corrientes de investigación:
 
 \begin{itemize}
-	\item Algoritmos genéticos, desarrolla programas informáticos, tradicionalmente representados en la memoria como estructuras de árboles. Los árboles pueden ser fácilmente evaluados de forma recursiva. Cada nodo del árbol tiene una función como operador y cada nodo terminal tiene un operando.
+	\item Algoritmos genéticos, donde los individuos de la población son representados por cadenas de bits o números.
 	\item Programación evolutiva, una variación de los algoritmos genéticos, donde lo que cambia es la representación de los individuos. En el caso de la Programación evolutiva los individuos son ternas cuyos valores representan estados de un autómata finito. 
 	\item Estrategias evolutivas, se diferencia de las demás en que la representación de cada individuo de la población consta de dos tipos de variables: las variables objeto, posibles valores que hacen que la función objetivo alcance el óptimo, y las variables estratégicas, las cuales indican de qué manera las variables objeto son afectadas por la mutación.. 
 \end{itemize}
 
-Este modelo por tanto, se basa generalmente en la evolución de una población y la lucha por la supervivencia. En su teoría, Darwin dictamin\'o que durante muchas generaciones, la variación, la selección natural y la herencia dan forma a las especies con el fin de satisfacer las demandas del entorno, de la misma manera pero con el fin de satisfacer una buena solución se basa la computación evolutiva. Podemos observar entonces, algunos elementos importantes como son:
+Este modelo por tanto, se basa generalmente en la evolución de una población y la lucha por la supervivencia. En su teoría, Darwin dictamin\'o que durante muchas generaciones, la variación, la selección natural y la herencia dan forma a las especies con el fin de satisfacer las demandas del entorno, con la misma idea pero con el fin de satisfacer una buena solución al problema que se plantee, surge la computación evolutiva. Podemos observar entonces, algunos elementos importantes como son:
 
 \begin{itemize}
 	\item La población de individuos, donde cada una de ellos representa directa o indirectamente una solución al problema.
-	\item Aptitud de los individuos, atributo que describe cuanto de cerca esta este individuo (solución) de la solución \'optima. 
-	\item Procedimientos de sección, es la estrateg\'ia a seguir para elegir los progenitores de la siguiente genraci\'on. Esta normalmente elige a los individuos mas apto pero existen otras muchas técnicas.
+	\item Aptitud de los individuos, atributo que describe cuanto de cerca est\'a este individuo (solución) de la solución \'optima. 
+	\item Procedimientos de sección, es la estrateg\'ia a seguir para elegir los progenitores de la siguiente genraci\'on. \'Esta normalmente elige a los individuos mas apto pero existen otras muchas técnicas.
 	\item Procedimiento de transformaci\'on, se lleva a cabo sobre los individuos seleccionados y puede consistir en la combinación de varios individuos o en la mutación (cambios normalmente aleatorios en el individuo).
 \end{itemize}
 
@@ -22,11 +22,11 @@ Para llevar a cabo la implementación en computadoras, se ha dividido el problem
 \begin{enumerate}
 	\item Inicializaci\'on, en esta primera fase se genera la población inicial, normalmente se genera una cantidad de individuos que es configurada y cada uno de ellos se genera de manera aleatoria, siempre respetando las restricciones que el problema imponga a la solución.
 	\item Evaluaci\'on, se calcula la aptitud de cada uno de los individuos de la población para poder determinar posteriormente cuales son m\'as aptos.
-	\item Las fases que siguen a continuación se repiten hasta que se cumpla una de las siguientes dos condiciones, o que se encuentre la solución \'optima o que se alcance un limite impuesto por el programador como un n\'umero de generaciones máximo o un tiempo máximo.
+	\item Las fases que siguen a continuación se repiten hasta que se cumpla una de las siguientes dos condiciones: que se encuentre la solución \'optima o que se alcance un l\'imite impuesto por el programador como un n\'umero de generaciones máximo o un tiempo máximo.
 	\begin{enumerate}
-		\item Selección, siguiendo la estrategia de selección de progenitores elegida, se eligen individuos de la población. Normalmente los que sean mas aptos.
+		\item Selección, siguiendo la estrategia de selección de progenitores elegida, se eligen individuos de la población. Normalmente los que sean m\'as aptos.
 		\item Procreaci\'on, utilizando los individuos seleccionados, se combinan para generar nuevos individuos, y con ellos una nueva población (generación).
-		\item Mutaci\'on, se eligen normalmente de forma aleatoria individuos a los que se les aplica una modificación tambi\'en aleatoria, estos nuevos individuos se incluyen también en la nueva poblaci\'on.
+		\item Mutaci\'on, a un porcentaje de los individuos recién generados se les aplica una modificación aleatoria.
 		\item Evaluaci\'on, todos los individuos de la nueva poblaci\'on son evaluados.
 	\end{enumerate}
 \end{enumerate}
@@ -35,7 +35,7 @@ Con el fin de entender mejor este proceso, se muestra una imagen \ver{fases-evol
 
 \figuraSinMarco{0.7}{imagenes/fases-evolucion}{Fases del proceso evolutivo}{fases-evolutivo}{}
 
-Varias herramientas han surgido en la comunidad para ayudar a la investigación de este modelo, en difierentes lenguajes de programación y plataformas. En nuestro caso hemos elegido ECJ que es un framework bien conocido por la comunidad, implementado en el lenguaje de programación Java y que posee una flexibilidad importante para la ejecución de problemas de muy distinta naturaliza. M\'as adelante \verapartado{desarrollo-ecj} se describe con m\'as detalle esta herramienta, explicando su funcionamiento e implementación.
+Varias herramientas han surgido en la comunidad para ayudar a la investigación de este modelo, en diferentes lenguajes de programación y plataformas. En nuestro caso hemos elegido ECJ que es un framework bien conocido por la comunidad, implementado en el lenguaje de programación Java y que posee una flexibilidad importante para la ejecución de problemas de muy distinta naturaleza. M\'as adelante \verapartado{desarrollo-ecj} se describe con m\'as detalle esta herramienta, explicando su funcionamiento e implementación.
 
 \subsection{Paralelizaci\'on\label{analisis-evolutivos-paralelizacion}}
 
@@ -43,4 +43,42 @@ Como hemos comentado anteriormente \verapartado{motivaciones} este proyecto surg
 
 Varias partes del proceso evolutivo pueden ser paralizadas, pero no todas merecen el esfuerzo ya que el coste en algunas de ellas es mínimo. Una de las fases que suele conllevar un coste computacional alto y que su paralelizaci\'on en la mayoría de problemas es sencilla, es la fase de evaluaci\'on de individuos.
 
-Se han utilizado diferentes técnicas para este prop\'osito, una de ellas es la ejecución de la evaluación de individuos haciendo uso procesadores multin\'ucleo/multihilo. Esta t\'encima consigue buenos resultados pero se limita a las capacidades del procesador que contenga esa computadora. Otro intento para llevar a cabo la paralelizaci\'on del proceso ha sido la ejecución en diferentes m\'aquinas, las cuales se conectan haciendo uso de una red. Este planteamiento requiere de una implementación m\'as compleja y no suele explotar todos los recursos, adema\'as de que algunas soluciones planteadas carecen de la escalabilidad deseada. Tambo\'en han surgido implementaciones que hacen uso de ambas t\'ecnicas, esta solución suele ser la m\'as apropiada ya que hace un uso m\'as eficiente del hardware proporcionado, aunque requiere de una implementación a\'un m\'as costosa.
+Se han utilizado diferentes técnicas para este prop\'osito //TODO(incluir referencias), una de ellas es la ejecución de la evaluación de individuos haciendo uso de procesadores multin\'ucleo/multihilo. Esta t\'ecnica consigue buenos resultados pero se limita a las capacidades del procesador que posea la computadora donde se ejecute. Otro intento para llevar a cabo la paralelizaci\'on del proceso ha sido la ejecución en diferentes m\'aquinas, las cuales se conectan haciendo uso de una red. Este planteamiento requiere de una implementación m\'as compleja y no suele explotar todos los recursos de forma eficiente, adema\'as de que algunas soluciones planteadas carecen de la escalabilidad deseada. Tambi\'en han surgido implementaciones que hacen uso de ambas t\'ecnicas, esta solución suele ser la m\'as apropiada ya que hace un uso m\'as eficiente del hardware disponible, aunque requiere de una implementación a\'un m\'as compleja.
+
+Con el fin de llevar a cabo la paralelizaci\'on, han surgido diferentes modelos paralelos, algunos de los cuales se describen a continuación:
+
+\begin{itemize}
+	\item Modelo maestro-esclavo, se mantiene una población donde la evaluación del fitness y/o la aplicación de los operadores genéticos se hace en paralelo. Se implementan procesos maestro-esclavo, donde el maestro almacena la población y los esclavos solicitan parte de la población al proceso maesto para evaluarla.
+	\item Modelo de Islas, la población de individuos se divide en subpoblaciones que evolucionan independientemente. Ocasionalmente, se producen migraciones entre ellas, permitiéndoles intercambiar información genética. Con la utilización de la migración, este modelo puede explotar las diferencias en las subpoblaciones; esta variación representa una fuente de diversidad genética. Sin embargo, si un número de individuos emigran en cada generación, ocurre una mezcla global y se eliminan las diferencias locales, y si la migración es infrecuente, es probable que se produzca convergencia prematura en las subpoblaciones.
+	\item Modelo celular, se coloca cada individuo en una matriz, donde cada uno sólo podrá buscar reproducirse con los individuos que tenga a su alrededor escogiendo al azar o al mejor adaptado. El descendiente pasar\'a a ocupar una posición cercana. No hay islas en este modelo, pero hay efectos potenciales similares. Asumiendo que el cruce esta restringido a individuos adyacentes, dos individuos separados por 20 espacios están tan aislados como si estuvieran en dos islas, este tipo de separación es conocido como aislamiento por distancia. Luego de la primera evaluación, los individuos están todavía distribuidos al azar sobre la matriz. Posteriormente, empiezan a emerger zonas como cromosomas y adaptaciones semejantes. La reproducción y selección local crea tendencias evolutivas aisladas, luego de varias generaciones, la competencia local resultara en grupos m\'as grandes de individuos semejantes.
+\end{itemize}
+
+La implementación del paralelismo de estos y otros modelos han hecho uso de tecnologías que permitan la comunicación y distribución de los diferentes procesos que llevan a cabo el proceso evolutivo, algunas de ellas se describen a continuación:
+
+\begin{itemize}
+	\item MPI, es un estándar que define la sintaxis y la semántica de las funciones contenidas en una biblioteca de paso de mensajes diseñada para ser usada en programas que exploten la existencia de múltiples procesadores.
+	\item PVM, es una biblioteca para el cómputo paralelo en un sistema distribuido de computadoras. Está diseñado para permitir que una red de computadoras heterogénea comparta sus recursos de cómputo (como el procesador y la memoria RAM) con el fin de aprovechar esto para disminuir el tiempo de ejecución de un programa al distribuir la carga de trabajo en varias computadoras.
+	\item BOINC, una plataforma de computación voluntaria de propósito general para proyectos de computación distribuida, que permite compartir los recursos de las computadoras de sus contribuyentes con otros proyectos. 
+\end{itemize}
+
+El inter\'es por explorar el uso de otras tecnologías para la paralelizaci\'on de los procesos evolutivos nos ha llevado a la integración de una herramienta de c\'omputo evolutivo con una herramienta que tiene como principal propósito el procesamiento masivo de información, algo que conlleva la distribución y paralelizaci\'on de multiples tareas a lo largo de amplios clusters de computadores.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

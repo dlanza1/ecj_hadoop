@@ -1,9 +1,8 @@
-Surgen numerosas herramientas en este campo que ayudan a su investigación, una bien conocida por la comunidad es ECJ. 
-Esta herramienta ha sido llevada a cabo por el departamento de ciencias de la computación de la universidad de George Mason, US y ahora mismo se encuentra en su version 22.
+Las personas que se dedican a la investigación han apreciado desde siempre disponer de herramientas que faciliten la tarea de la investigación e implementen los algoritmos que necesitan utilizar, en este sentido surgen numerosas herramientas en el campo de la computación evolutiva, una bien conocida por la comunidad es ECJ. Esta herramienta ha sido llevada a cabo por el departamento de ciencias de la computación de la universidad de George Mason, US y ahora mismo se encuentra en su versi\'on 22.
 
-Esta herramienta ha sido concedida para proporcionar una amplia flexibilidad para poder albergar numerosos tipos de problema, adem\'as, persiguiendo este mismo objetivo, ha sido desarrollada en el lenguaje de programación Java, lo que permite que pueda ser ejecutada en cualquier sistema operativo tanto Windows como Linux.
+Esta herramienta ha sido concebida para proporcionar una amplia flexibilidad que permita albergar numerosos tipos de problemas. Adem\'as, persiguiendo este mismo objetivo, ha sido desarrollada en el lenguaje de programación Java, lo que permite que pueda ser ejecutada en cualquier sistema operativo tanto Windows como Linux.
 
-Algunas de sus características mas importantes y por las cuales ha adquirido la popularidad que posee son las siguientes:
+Algunas de sus características m\'as importantes y por las cuales ha adquirido la popularidad que posee son las siguientes:
 
 \begin{itemize}
 	\item Facilidad de analizar la ejecución con una util implementación de logging.
@@ -15,14 +14,14 @@ Algunas de sus características mas importantes y por las cuales ha adquirido la
 	\item Proceso de reproducción muy flexible representado por una jerarquía de operaciones.
 \end{itemize}
 
-Estas y otras características han hecho que ECJ se posicione como una de las herramientas favoritas para la investigación de la computación evolutiva. El hecho de su amplia utilización en la comunidad ha motivado el uso de ECJ en este trabajo ya que de este modo el publico al que puede ir dirigido es m\'as amplio y mas grupos de investigación puedan beneficiarse de los resultados que de este se obtengan.
-
-La ejecución de cualquier algoritmo en ECJ esta guiada a través de los ficheros de configuración que deben ser anteriormente establecidos. Estos ficheros de configuración poseen una estructura jerárquica lo que permite que un fichero de configuración pueda incluir a otro/s y sobreescribir parámetros que hayan sido establecidos. Esta estructura permite que se pueda describir un problema con pocos parámetros ya que los que se utilicen de manera general estarán contenidos en otros que ser\'an simplemente incluidos. En estos ficheros de configuración se incluyen numerosos parámetros que describen el comportamiento del proceso evolutivo y existen algunos de ellos que son obligatorios especificar, como por ejemplo los que determinan que clase implementa cada una de las partes de la evolución.
+Estas y otras características han hecho que ECJ se posicione como una de las herramientas favoritas para la investigación de la computación evolutiva. El hecho de su amplia utilización en la comunidad ha motivado el uso de ECJ en este trabajo ya que de este modo el p\'ublico al que puede ir dirigido es m\'as amplio y m\'as grupos de investigación puedan beneficiarse de los resultados que de este se obtengan.
 
 \figuraSinMarco{0.8}{imagenes/ecj-classes}{Clases que representan el proceso evolutivo  en ECJ}{ecj-classes}{}
+
+La ejecución de cualquier algoritmo en ECJ esta guiada a través de los ficheros de configuración que deben ser anteriormente establecidos. Estos ficheros de configuración poseen una estructura jerárquica lo que permite que un fichero de configuración pueda incluir a otro/s y sobreescribir parámetros que hayan sido establecidos. Esta estructura permite que se pueda describir un problema con pocos parámetros ya que los que se utilicen de manera general estarán contenidos en otros que ser\'an simplemente incluidos. En estos ficheros de configuración se incluyen numerosos parámetros que describen el comportamiento del proceso evolutivo y existen algunos de ellos que son obligatorios especificar, como por ejemplo los que determinan que clase implementa cada una de las partes de la evolución.
 
 \subsection{Proceso evolutivo}
 
 En la documentación de ECJ se facilita un diagrama \ver{ecj-classes} que describe de forma clara como se implementa el proceso evolutivo en esta herramienta. Podemos observar que la clase que inicia el proceso evolutivo es Evolve, la cual genera un EvolutionState que es el contiene cada una de las clases/etapas del proceso. La mayor parte de estas clases deben ser especificadas en los ficheros de configuración, de esta manera ECJ sabe que clase implementa cada una de las partes.
 
-Como se ha comentado anteriormente \verapartado{analisis-evolutivos-paralelizacion}, la parte del proceso que suele ser m\'as costosa es la evaluación de individuos, representada \ver{ecj-classes} en ECJ por la clase Evaluator. En esta herramienta esta es la clase encargada de la evaluación de cada uno de los individuos de la población, lo cual suele ser lo m\'as costoso computacionalmente y por consiguiente ser\'a la parte de ECJ donde se centre la implementación de la integración con Hadoop.
+Como se ha comentado anteriormente \verapartado{analisis-evolutivos-paralelizacion}, la parte del proceso que suele ser m\'as costosa es la evaluación de individuos, representada \ver{ecj-classes} en ECJ por la clase Evaluator. En esta herramienta, \'esta es la clase encargada de la evaluación de cada uno de los individuos de la población, lo cual suele ser lo m\'as costoso computacionalmente y por consiguiente ser\'a la parte de ECJ donde se centre la implementación de la integración con Hadoop.
