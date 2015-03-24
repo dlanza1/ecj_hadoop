@@ -1,24 +1,10 @@
-Como se ha comentado en varias ocasiones en este documento, la integración de estas dos herramientas cobra sentido cuando el coste computacional es elevado y esto se puede dar en dos situaciones, una en la que el tama\~no de la población sea elevado, lo cual no es usual en este tipo de problemas y otra en la que la evaluación de los individuos sea realmente costosa, este es el caso en el problema que se plantea a continuación.
-
-\subsection{Descripci\'on del problema}
-
-Hoy en d\'ia, el reconocimiento facial no es tarea sencilla en el campo de la computación, es por esto que surgen numerosas investigaciones para afrontarlo y aquí se plantea una de ellas. El reconocimiento facial esta ligado, como no podía ser de otra manera, con el tratamiento de imágenes lo cual suele tener costes computacionales altos.
-
-El problema que se plantea sigue el planteamiento que se describe en \cite{paper-facerecognition} donde se presenta un sistema de clasificación de rostros haciendo uso de tecnicas de clasificaci\'on no supervisadas, apoy\'andose en el an\'alisis de textura local con una t\'ecnica CBIR (Content Image Based Retrieval), por medio de la extracci\'on de la media, la desviaci\'on est\'andar y la homogeneidad sobre puntos de inter\'es de la imagen.
-
-\figuraSinMarco{0.9}{imagenes/facerecognition-training}{Arquitectura de la fase de entrenamiento}{facerecognition-training}{}
-
-En este sistema se pueden diferenciar claramente dos fases, una es la face de entrenamiento \ver{facerecognition-training} donde el sistema adquiere el conocimiento necesario para que posteriormente en la fase siguiente, recuperación, se pueda clasificar cada imagen (indicar a que persona pertenece) de forma correcta. El tiempo que toma ambas fases puede ser del orden de 3 minutos, estos tiempos son ya bastante reducidos gracias a que la implementaci\'on realizada hace uso de una librería de procesamiento de imagenes llamada OpenCV \cite{opencv}, la cual consigue realizar procesamiento sobre matrices con costes computaciones realmente bajos
-
-\subsection{Modificación planteada: introducir evolución y paralelismo}
-
 El sistema debe ser entrenado haciendo uso de una base de datos de imágenes en la que cada imagen est\'a caracterizada por unos puntos de interés los cuales son analizados cada uno de ellos en este sistema. La modificación que se propone y es por esto que se plantea aquí, es la evolución de los puntos de interés a utilizar, ya que puede ser que algunos de ellos caractericen cada imagen de mejor manera que otros o que algunos quizás sirvan incluso para equivocar al clasificador.
 
 La configuracion de este problema en ECJ guarda mucha relación con el problema anterior \verapartado{desarrollo-maxone}, ya que los individuos también serán una cadena de 0s y 1s que indiquen si se utiliza o no el punto de interés, por lo que prácticamente lo único que cambia es la evaluación de individuos la cual es radicalmente m\'as compleja y costosa. La evaluación de cada individuo consistirá en ejecutar el sistema de reconocimiento facial solo con los puntos que el genotipo del individuo indique que se deban utilizar, el fitness corresponderá al porcentaje de imágenes correctamente clasificadas en la fase de consulta.
 
 SI tenemos en cuenta el tiempo que se tarda en la ejecución secuencial del algoritmo (3 minutos) y hacemos unas cuentas sencillas podemos ver que si tenemos una peque\~na población de 10 individuos, cada generación tardar\'a en ser evaluada una media hora, si queremos evolucionarlo necesitaremos quizás decenas o centenas de generaciones lo cual conllevar\'ia un tiempo impracticable. Es por esto que adem\'as de la integración con ECJ, haremos uso de la integración con Hadoop para distribuir y paralizar el proceso y así poder hacer que la evaluación de cada generación sea cuestión de pocos minutos. Los resultados obtenidos pueden ser consultados m\'as adelante en este documento \verapartado{resultados-facerecognition}.
 
-\subsection{Integraci\'on}
+\subsection{Implementaci\'on}
 
 En este caso, la implementación no sigue la misma idea de evaluar toda la población con un solo trabajo de Hadoop \verapartado{desarrollo-implementacion}, en este caso el evaluador lanzar\'a un trabajo de Hadoop por cada individuo y cada trabajo dividir\'a la entrada (base de datos de imagenes) en diferentes partes para paralizar el proceso. De manera que la paralelizacion se producirá a dos niveles ya que los trabajos se ejecutaran de manera simultánea y las tareas dentro de cada trabajo también.
 

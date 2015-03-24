@@ -1,0 +1,14 @@
+//TODO: cuenta la aplicación de lo anterior a un problema real y costoso
+//TODO: Una vez que tengas un capitulo nuevo para el problema del reconocimiento facial, debes hacer una introduccion mas amplia. Utiliza la informacion de los trabajos de Cesar, y cuenta mejor porque y como se plantea el uso de un algoritmo genetico.
+
+Como se ha comentado en varias ocasiones en este documento, la integración de estas dos herramientas cobra sentido cuando el coste computacional es elevado y esto se puede dar en dos situaciones, una en la que el tama\~no de la población sea elevado, lo cual no es usual en este tipo de problemas y otra en la que la evaluación de los individuos sea realmente costosa, este es el caso en el problema que se plantea a continuación.
+
+\section{Descripci\'on del problema}
+
+Hoy en d\'ia, el reconocimiento facial no es tarea sencilla en el campo de la computación, es por esto que surgen numerosas investigaciones para afrontarlo y aquí se plantea una de ellas. El reconocimiento facial esta ligado, como no podía ser de otra manera, con el tratamiento de imágenes lo cual suele tener costes computacionales altos.
+
+El problema que se plantea sigue el planteamiento que se describe en \cite{paper-facerecognition} donde se presenta un sistema de clasificación de rostros haciendo uso de tecnicas de clasificaci\'on no supervisadas, apoy\'andose en el an\'alisis de textura local con una t\'ecnica CBIR (Content Image Based Retrieval), por medio de la extracci\'on de la media, la desviaci\'on est\'andar y la homogeneidad sobre puntos de inter\'es de la imagen.
+
+\figuraSinMarco{0.9}{imagenes/facerecognition-training}{Arquitectura de la fase de entrenamiento}{facerecognition-training}{}
+
+En este sistema se pueden diferenciar claramente dos fases, una es la face de entrenamiento \ver{facerecognition-training} donde el sistema adquiere el conocimiento necesario para que posteriormente en la fase siguiente, recuperación, se pueda clasificar cada imagen (indicar a que persona pertenece) de forma correcta. El tiempo que toma ambas fases puede ser del orden de 3 minutos, estos tiempos son ya bastante reducidos gracias a que la implementaci\'on realizada hace uso de una librería de procesamiento de imagenes llamada OpenCV \cite{opencv}, la cual consigue realizar procesamiento sobre matrices con costes computaciones realmente bajos

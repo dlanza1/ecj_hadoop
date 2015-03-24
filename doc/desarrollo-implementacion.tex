@@ -31,7 +31,7 @@ Abordaremos en primer lugar el método runComplete por su simple implementación
 
 La implementación realizada se encarga únicamente de recorrer todos los individuos de la población (lo que conlleva recorrer cada subpoblaci\'on) y comprobar si el fitness de cada uno de los individuos es ideal haciendo uso del método .isIdealFitness(). En este caso, si alguno de los individuos posee un fitness ideal, se retorna true y si al recorrer todos los individuos ninguno es ideal, retornamos false.
 
-\subsection{Evaluación de la población}
+\subsection{Aclaraciones previas}
 
 Antes de entrar un detalle de la implementación del método evaluatePopulation, debemos realizar algunas consideraciones. Para realizar la evaluación de los individuos, no es solo necesario las características que definen a cada individuo (genotipo), si no también aspectos como que función de evaluación utilizar o parámetros que determinan la forma de evaluar el individuo, estos y otros aspectos necesarios est\'an contenidos en el objeto que representa el estado de la evaluación (EvaluationState). Es por esto que en cada uno de los procesos que queramos evaluar los individuos, se debe tener acceso a este objeto, para tal propósito haremos uso de dos funciones clave que poseen ECJ y el sistema de ficheros de Hadoop (HDFS).
 
@@ -39,9 +39,11 @@ Para que todos los procesos tengan acceso al estado de la evaluación, haremos u
 
 Por otro lado, utilizaremos una característica de HDFS denominada cache distribuida, esta característica permite almacenar ficheros de forma que se distribuyan por todos y cada uno de los nodos que conforman el cluster, lo cual es ideal en este caso ya que si almacenamos aquí el estado de la evolución, todos los procesos que se distribuyan podrán acceder a el.
 
-Debemos tener en cuenta que el estado de la evaluación contiene todos los individuos de la población, lo cual no es necesario no es necesario distribuir ya que cada nodo evaluar\'a una parte de la población. Sabiendo \'esto, se distribuirá el estado de la evaluación sin la población, esta ser\'a proporcionada a través de los ficheros de entrada al problema, los cuales Hadoop se encarg\'a automáticamente de dividir y distribuir.
+Debemos tener en cuenta que el estado de la evaluación contiene todos los individuos de la población, lo cual no es necesario distribuir ya que cada nodo evaluar\'a una parte de la población. Sabiendo \'esto, se distribuirá el estado de la evaluación sin la población, esta ser\'a proporcionada a través de los ficheros de entrada al problema, los cuales Hadoop se encarg\'a automáticamente de dividir y distribuir.
 
-\subsubsection{Distribución del estado de la evaluación}
+//TODO: Cuando cuentas cómo se ha hecho la paralelización, el lector se quedará sorprendido porque este modelo (el de facerecognition) no se contó en el capítulo previo. Cuando se hacen evaluación de fitness, a veces, cada individuo require múltiples evaluaciones (aunque no es el caso del MAXONE, si lo es en el caso del EVENP), y que ahí, si fuera necesario, también se puede introducir paralelización. Asi, cuando llegues a este capítulo podrás referirte a lo que ya se dijo antes explicando el modelo paralelo que se propone para los algoritmos evolutivos con MAP/REDUCE. Si no es así, y es de otro modo, explicarlo bien en el capítulo previo, para luego entender aquí cómo se hace todo.
+
+\subsection{Paso 1: Distribución del estado de la evaluación}
 
 Una vez descrito el proceso necesario para la evaluación distribuida de los individuos, pasamos ahora a describir la implementación realizada del método evaluatePopulation, la cual establece varias etapas que describimos a continuación.
 
@@ -84,7 +86,7 @@ El primer paso que se lleva a cabo para la evaluación, es la creación y distri
 
 Como se mencionaba anteriormente, la población es eliminada del punto de restauración, para ello la extraemos del estado de la evaluación, creamos el punto de restauración y posteriormente la introducimos de nuevo. Por \'ultimo se distribuye el punto de restauración haciendo uso del cliente de Hadoop que utiliza la cache distribuida de HDFS para tal fin.
 
-\subsubsection{Creación de la entrada del trabajo}
+\subsection{Paso 2: Creación de la entrada del trabajo}
 
 La población de individuos a evaluar conformar\'a la entrada del trabajo de MapReduce, por lo que debemos escribir cada uno de los individuos en HDFS para que después el trabajo puede leerlos desde ahi. Para ello, desde el evaluador llamamos al método createInput del cliente de Hadoop implementado. Este método consiste en lo siguiente:
 
@@ -110,7 +112,7 @@ Creamos un fichero secuencial en el directorio de trabajo con el nombre "populat
 
 Una vez creado el fichero se recorren todas las subpoblaciones e individuos y se a\~naden al fichero que contiene la población. Se debe comprobar si el individuo no est\'a evaluado, ya que pudiera provenir de una generación anterior y eso supone que ya est\'a evaluado y no es necesario volver a evaluarlo.
 
-\subsubsection{Creación y ejecución del trabajo de MapReduce}
+\subsection{Paso 3: Creación y ejecución del trabajo de MapReduce (evaluación)}
 
 Una vez distribuido el estado de la evolución y generada la entrada del problema, podemos definir el trabajo de MapReduce para lanzarlo en Hadoop. Como se ha comentado anteriormente \verapartado{fase-map-eval}, se usar\'a la fase de Map y no la de reduce para la evaluación de individuos, para ello debemos definir la función que se llevar\'a a cabo en esta fase. Se dede implementar un mapper que ser\'a una clase que extienda de la clase org.apache.hadoop.mapreduce.Mapper y debe implementar el método map. En nuestro caso, el propósito es la evaluación de los individuos por lo que la definimos de la siguiente manera:
 
@@ -171,7 +173,7 @@ Una vez configurado lo inicioamos de la siguiente manera:
 
 Esto enviar'a el trabajo al cluster que hayamos indicado en el cliente de Hadoop y evaluar\'a todos los individuos contenidos en los ficheros de entrada.
 
-\subsubsection{Asignaci\'on de resultados}
+\subsection{Paso 4: Asignaci\'on de resultados}
 
 El \'ultimo paso es asignarle a los individuos los resultados obtenidos de forma distribuida con el trabajo en MapReduce para continuar así de forma normal el proceso de la evoluci\'on. El trabajo ha generado en el directorio de salida un conjunto de ficheros (uno por cada proceso Mapper) que contienen la salida de la función map la cual est\'a compuesta por tuplas del identificador del usuario y el fitness calculado.
 
