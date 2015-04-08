@@ -1,15 +1,41 @@
 \label{problema-facerecognition}
-//TODO: cuenta la aplicación de lo anterior a un problema real y costoso
-//TODO: Una vez que tengas un capitulo nuevo para el problema del reconocimiento facial, debes hacer una introduccion mas amplia. Utiliza la informacion de los trabajos de Cesar, y cuenta mejor porque y como se plantea el uso de un algoritmo genetico.
+//TODO: Hacer una introduccion mas amplia. Utiliza la informacion de los trabajos de Cesar
+//TODO: cuenta mejor porque y como se plantea el uso de un algoritmo genetico.
 
-Como se ha comentado en varias ocasiones en este documento, la integración de estas dos herramientas cobra sentido cuando el coste computacional es elevado y esto se puede dar en dos situaciones, una en la que el tama\~no de la población sea elevado, lo cual no es usual en este tipo de problemas y otra en la que la evaluación de los individuos sea realmente costosa, este es el caso en el problema que se plantea a continuación.
+El reconocimiento facial se utiliza en numerosas aplicaciones hoy en día tales como sistemas de seguridad, sistemas de identificación de personas, localización, etc. Las soluciones planteadas conllevan un coste computacional alto ya que el tratamiento de imágenes y la extracción de características son tareas costosas para un computador. En este capitulo describimos la aplicación a este problema real y costoso la integración entre ECJ y Hadoop, esta integración reducir\'a los tiempos de procesamiento notablemente mediante la paralelizaci\'on utilizando Hadoop y proporcionar\'a un enfoque evolutivo con el cual mejorar la efectividad del algoritmo de reconocimiento facial planteado.
+
+Como se ha comentado en varias ocasiones en este documento, la integración de estas dos herramientas cobra sentido cuando el coste computacional es alto y esto se puede dar en dos situaciones, una en la que el tama\~no de la población sea elevado, lo cual no es usual en este tipo de problemas y otra en la que la evaluación de los individuos sea realmente costosa, este es el caso en el problema qde reconocimiento facial.
 
 \section{Descripci\'on del problema}
 
-Hoy en d\'ia, el reconocimiento facial no es tarea sencilla en el campo de la computación, es por esto que surgen numerosas investigaciones para afrontarlo y aquí se plantea una de ellas. El reconocimiento facial esta ligado, como no podía ser de otra manera, con el tratamiento de imágenes lo cual suele tener costes computacionales altos.
+Surgen numerosas investigaciones que afrontan el problema de reconocimiento facial, un intento por resolver el problema se describe en \cite{paper-facerecognition} donde se presenta un sistema de clasificación de rostros haciendo uso de técnicas de clasificaci\'on no supervisadas, apoy\'andose en el an\'alisis de textura local con una t\'ecnica CBIR (Content Image Based Retrieval), por medio de la extracci\'on de la media, la desviaci\'on est\'andar y la homogeneidad sobre puntos de inter\'es de la imagen.
 
-El problema que se plantea sigue el planteamiento que se describe en \cite{paper-facerecognition} donde se presenta un sistema de clasificación de rostros haciendo uso de tecnicas de clasificaci\'on no supervisadas, apoy\'andose en el an\'alisis de textura local con una t\'ecnica CBIR (Content Image Based Retrieval), por medio de la extracci\'on de la media, la desviaci\'on est\'andar y la homogeneidad sobre puntos de inter\'es de la imagen.
+En este sistema se pueden diferenciar claramente dos fases, una es la fase de entrenamiento donde el sistema adquiere el conocimiento necesario para que posteriormente en la fase siguiente, recuperación, se pueda clasificar cada imagen (indicar a que persona pertenece) de forma correcta. El tiempo que toma ambas fases puede ser del orden de 3 minutos, estos tiempos son ya bastante reducidos gracias a que la implementaci\'on realizada hace uso de una librería de procesamiento de imagenes llamada OpenCV \cite{opencv}, la cual consigue realizar procesamiento sobre matrices (las imágenes pueden ser tratadas como matrices) con costes computaciones realmente bajos.
+
+\subsubsection{Base de datos de imágenes}
+
+Antes de describir en detalle el proceso, describimos en que consiste la base de datos de imágenes que utiliza este algoritmo como entrada. La base de datos est\'a formada por imágenes en condiciones ideales y cada una de ellas contiene información de diferentes puntos de interés situados en la imagen, todas tienen el mismo numero de puntos de interés y corresponden cada uno de ellos a la misma parte del rostro. As\'i, por ejemplo, el punto n\'umero 67 de cada imagen corresponde a la punta de la nariz. Un ejemplo de localización de los puntos en una imagen se puede observar en la imagen del rostro que contiene cada uno de los puntos de interés de esa imagen \ver{imagen-rostro}.
+
+\subsection{Fase de entrenamiento}
+
+En la primera fase llevada a cabo por el sistema de reconocimiento facial, se siguen diferentes pasos para obtener el conocimiento suficiente para poder posteriormente realizar la fase de consulta. Estos pasos se ven resumidos en el diagrama \ver{facerecognition-training} y son m\'as detalladamente explicados a continuación. 
+
+
 
 \figuraSinMarco{0.9}{imagenes/facerecognition-training}{Arquitectura de la fase de entrenamiento}{facerecognition-training}{}
 
-En este sistema se pueden diferenciar claramente dos fases, una es la face de entrenamiento \ver{facerecognition-training} donde el sistema adquiere el conocimiento necesario para que posteriormente en la fase siguiente, recuperación, se pueda clasificar cada imagen (indicar a que persona pertenece) de forma correcta. El tiempo que toma ambas fases puede ser del orden de 3 minutos, estos tiempos son ya bastante reducidos gracias a que la implementaci\'on realizada hace uso de una librería de procesamiento de imagenes llamada OpenCV \cite{opencv}, la cual consigue realizar procesamiento sobre matrices con costes computaciones realmente bajos
+\figuraSinMarco{0.6}{imagenes/imagen-rostro}{Ejemplo de puntos de inter\'es sobre un rostro}{imagen-rostro}{}
+
+
+
+
+\subsection{Fase de consulta}
+
+
+
+
+
+
+
+
+
