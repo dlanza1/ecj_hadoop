@@ -29,7 +29,7 @@ En la primera fase llevada a cabo por el sistema de reconocimiento facial, se si
 	\item \textbf{Extracci\'on de caracter\'isticas.} Este bloque es el mas importante ya que es donde implementaremos la mayor parte del trabajo. Consta de tres etapas:
 	\begin{enumerate}
 		\item \textbf{Extracci\'on de los puntos de inter\'es.} Las bases de datos con las que se trabaja tienen los puntos de inter\'es marcados de manera manual, la localizaci\'on de los puntos de inter\'es est\'a contenida dentro de un documento de texto en el que cada l\'inea describe los puntos de inter\'es para cada una de las im\'agenes, por lo que nosotros debemos extraer los puntos de inte\'es con los que trabajar\'a nuestro sistema.
-		\item \textbf{Extracci\'on de los puntos Surf(Speeded-Up Robust Features).} Este procedimiento viene implementado en la biblioteca de procesamiento digital de im\'agenes de OpenCV. Es un algoritmo de visi\'on por computador, capaz de obtener una representaci\'on visual de una imagen y extraer una informaci\'on detallada y espec\'ifica del contenido. Esta informaci\'on es tratada para realizar operaciones como por ejemplo la localizaci\'on y reconocimiento de determinados objetos, personas o caras, realizaci\'on de de escenas 3D, seguimiento de objetos y extracci\'on de puntos de inter\'es. Este algoritmo forma parte de la mencionada inteligencia artificial, capaz de entrenar un sistema para que interprete im\'agenes y determine el contenido. El Algoritmo SURF se present\'o por primera vez por Herbert Bay en ECCV 9"a conferencia internacional de visi\'on por computador celebrada en Austria en Mayo de 2006 \cite{bay2006surf}.
+		\item \textbf{Extracci\'on de los puntos Surf (Speeded-Up Robust Features).} Este procedimiento viene implementado en la biblioteca de procesamiento digital de im\'agenes de OpenCV. Es un algoritmo de visi\'on por computador, capaz de obtener una representaci\'on visual de una imagen y extraer una informaci\'on detallada y espec\'ifica del contenido. Esta informaci\'on es tratada para realizar operaciones como por ejemplo la localizaci\'on y reconocimiento de determinados objetos, personas o caras, realizaci\'on de de escenas 3D, seguimiento de objetos y extracci\'on de puntos de inter\'es. Este algoritmo forma parte de la mencionada inteligencia artificial, capaz de entrenar un sistema para que interprete im\'agenes y determine el contenido. El Algoritmo SURF se present\'o por primera vez por Herbert Bay en ECCV 9"a conferencia internacional de visi\'on por computador celebrada en Austria en Mayo de 2006 \cite{bay2006surf}.
 		\item \textbf{Extracci\'on de los rasgos estad\'isticos.} Los rasgos estad\'isticos son generados para cada uno de los puntos de inter\'es, de cada una de las capas del espacio de color HSI. A partir de un punto de inter\'es determinado en un pixel se genera una ventana p de tama\~no {Pi + p x Pi + p} p\'ixeles con el punto de inter\'es en el centro, dentro de esta ventana (vecindad) se extraer\'an tres valores de informaci\'on estad\'istica: media, desviaci\'on est\'andar y homogeneidad, por lo que al final obtendremos N puntos de inter\'es, 3 valores estad\'isticos para cada vecindad del punto de inter\'es y 3 capas por imagen, tendremos {N x 3 x 3} valores estad\'isticos de la imagen en cuesti\'on.
 	\end{enumerate}
 	\item \textbf{Conformar el vector patr\'on caracter\'istico de la imagen.} Los rasgos geom\'etricos SURF, se calculan de manera independiente, a los rasgos estad\'isticos CBIR.
@@ -42,7 +42,40 @@ En la primera fase llevada a cabo por el sistema de reconocimiento facial, se si
 \end{enumerate}
 
 \subsection{Fase de consulta}
-//TODO
+
+Obtenidos los resultados de la fase de entrenamiento, la fase de consulta puede llevarse a cabo. Al igual que la anterior, \'esta se divide en diferentes pasos que se explican a continuación, estos se ven resumidos en la siguiente imagen \ver{facerecognition-query}.
+
+\figuraSinMarco{1}{imagenes/facerecognition-query}{Arquitectura de la fase de consulta}{facerecognition-query}{}
+
+Los pasos que se llevan acabo son similares a los de la fase de entrenamiento, exceptuando los tres \'ultimos: la normalización, la apliaci\'on del algoritmo k-NN y la obtenci\'on de las classes.
+
+\begin{enumerate}
+	\item \textbf{Lectura de la imagen.} Se encarga de extraer la imagen de la base de datos que ser\'a procesada. La lectura de la imagen da como resultado una imagen en tres capas, correspondientes al espacio de color RGB.
+	\item \textbf{Acondicionamiento.} Realiza el procesamiento previo de la imagen en cada una de las capas. Una vez eliminadas todas las impurezas, la imagen est\'a lista para su correcto an\'alisis.
+	\item \textbf{Pasar al espacio de color HSI.} El espacio de color RGB no nos proporciona la informaci\'on necesaria, por lo que la imagen RGB se debe pasar al espacio de color HSI.
+	\item \textbf{Extracci\'on de caracter\'isticas.} Este bloque es el mas importante ya que es donde implementaremos la mayor parte del trabajo. Consta de tres etapas:
+		\begin{enumerate}
+		\item \textbf{Extracci\'on de los puntos de inter\'es.} Se consulta el fichero que contiene los puntos de inter\'es, leyendo la l\'inea que corresponde a la imagen a procesar, obteniendo de esta los puntos de inter\'es.
+		\item \textbf{Extracci\'on de los puntos Surf (Speeded-Up Robust Features).} Es un algoritmo de visi\'on por computador, capaz de obtener una representaci\'on visual de una imagen y extraer una informaci\'on detallada y espec\'ifica del contenido. 
+		\item \textbf{Extracci\'on de los rasgos estad\'isticos.} Los rasgos estad\'isticos son generados para cada uno de los puntos de inter\'es, de cada una de las capas del espacio de color HSI. A partir de un punto de inter\'es determinado se genera una ventana con el punto de inter\'es en el centro, dentro de esta ventana (vecindad) se extraer\'an tres valores de informaci\'on estad\'istica: media, desviaci\'on est\'andar y homogeneidad.
+	\end{enumerate}
+	\item \textbf{Conformar el vector patr\'on caracter\'istico de la imagen.} Los rasgos obtenidos de la imagen forman en esta etapa un vector que caracteriza la imagen.	
+	\item \textbf{Normalizar los patrones.} A partir de los valores de la matriz M, se toman como referencia los valores m\'aximos y m\'inimos de cada componente (obtenidos en la fase de entrenamiento) para normalizar los valores del patr\'on entre 0 y 1, de la imagen en cuesti\'on.
+	\item \textbf{Aplicar algoritmo k-NN con N = 5.} El valor del patr\'on es comparado contra los valores de las clases generadas en la etapa de entrenamiento, esta operaci\'on no es mas que una simple distancia euclidiana entre dos puntos. Al terminar las operaciones se obtienen las 5 im\'agenes mas parecidas a la imagen de consulta.
+	\item \textbf{Asignaci\'on de classes.} En las 5 im\'agenes obtenidas se comprueba que la primera es ella misma (el patron debe ser el mismo) y que las 4 restantes corresponden a la misma persona. Con este metodo comprobamos la eficacia del algoritmo.
+\end{enumerate}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
