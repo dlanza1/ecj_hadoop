@@ -1,8 +1,6 @@
 \label{problema-facerecognition}
-//TODO: Hacer una introduccion mas amplia. Utiliza la informacion de los trabajos de Cesar
-//TODO: cuenta mejor porque y como se plantea el uso de un algoritmo genetico.
 
-El reconocimiento facial se utiliza en numerosas aplicaciones hoy en día tales como sistemas de seguridad, sistemas de identificación de personas, localización, etc. Las soluciones planteadas conllevan un coste computacional alto ya que el tratamiento de imágenes y la extracción de características son tareas costosas para un computador. En este capitulo describimos la aplicación a este problema real y costoso la integración entre ECJ y Hadoop, esta integración reducir\'a los tiempos de procesamiento notablemente mediante la paralelizaci\'on utilizando Hadoop y proporcionar\'a un enfoque evolutivo con el cual mejorar la efectividad del algoritmo de reconocimiento facial planteado.
+El reconocimiento facial se utiliza en numerosas aplicaciones hoy en día tales como sistemas de seguridad, sistemas de identificación de personas, localización, etc. Las soluciones planteadas conllevan un coste computacional alto ya que el tratamiento de imágenes y la extracción de características son tareas costosas para un computador. En este cap\'itulo describimos la aplicación a este problema real y costoso la integración entre ECJ y Hadoop, esta integración reducir\'a los tiempos de procesamiento notablemente mediante la paralelizaci\'on utilizando Hadoop y proporcionar\'a un enfoque evolutivo con el cual mejorar la efectividad del algoritmo de reconocimiento facial planteado.
 
 Como se ha comentado en varias ocasiones en este documento, la integración de estas dos herramientas cobra sentido cuando el coste computacional es alto y esto se puede dar en dos situaciones, una en la que el tama\~no de la población sea elevado, lo cual no es usual en este tipo de problemas y otra en la que la evaluación de los individuos sea realmente costosa, este es el caso en el problema qde reconocimiento facial.
 
@@ -10,28 +8,41 @@ Como se ha comentado en varias ocasiones en este documento, la integración de e
 
 Surgen numerosas investigaciones que afrontan el problema de reconocimiento facial, un intento por resolver el problema se describe en \cite{paper-facerecognition} donde se presenta un sistema de clasificación de rostros haciendo uso de técnicas de clasificaci\'on no supervisadas, apoy\'andose en el an\'alisis de textura local con una t\'ecnica CBIR (Content Image Based Retrieval), por medio de la extracci\'on de la media, la desviaci\'on est\'andar y la homogeneidad sobre puntos de inter\'es de la imagen.
 
-En este sistema se pueden diferenciar claramente dos fases, una es la fase de entrenamiento donde el sistema adquiere el conocimiento necesario para que posteriormente en la fase siguiente, recuperación, se pueda clasificar cada imagen (indicar a que persona pertenece) de forma correcta. El tiempo que toma ambas fases puede ser del orden de 3 minutos, estos tiempos son ya bastante reducidos gracias a que la implementaci\'on realizada hace uso de una librería de procesamiento de imagenes llamada OpenCV \cite{opencv}, la cual consigue realizar procesamiento sobre matrices (las imágenes pueden ser tratadas como matrices) con costes computaciones realmente bajos.
+En este sistema se pueden diferenciar claramente dos fases, una es la fase de entrenamiento donde el sistema adquiere el conocimiento necesario para que posteriormente en la fase siguiente, recuperación, se pueda clasificar cada imagen (indicar a que persona pertenece) de forma correcta. El tiempo que toma ambas fases puede ser del orden de 3 minutos, estos tiempos son ya bastante reducidos gracias a que la implementaci\'on realizada hace uso de una librería de procesamiento de im\'agenes llamada OpenCV \cite{opencv}, la cual consigue realizar procesamiento sobre matrices (las imágenes pueden ser tratadas como matrices) con una eficiencia notable.
 
 \subsubsection{Base de datos de imágenes}
 
-Antes de describir en detalle el proceso, describimos en que consiste la base de datos de imágenes que utiliza este algoritmo como entrada. La base de datos est\'a formada por imágenes en condiciones ideales y cada una de ellas contiene información de diferentes puntos de interés situados en la imagen, todas tienen el mismo numero de puntos de interés y corresponden cada uno de ellos a la misma parte del rostro. As\'i, por ejemplo, el punto n\'umero 67 de cada imagen corresponde a la punta de la nariz. Un ejemplo de localización de los puntos en una imagen se puede observar en la imagen del rostro que contiene cada uno de los puntos de interés de esa imagen \ver{imagen-rostro}.
+Antes de describir en detalle el proceso, describimos en que consiste la base de datos de imágenes que utiliza este algoritmo como entrada. La base de datos est\'a formada por imágenes en condiciones ideales y cada una de ellas contiene información de diferentes puntos de interés situados en la imagen, todas tienen el mismo n\'umero de puntos de interés y corresponden cada uno de ellos a la misma parte del rostro. As\'i, por ejemplo, el punto n\'umero 67 de cada imagen corresponde a la punta de la nariz. Un ejemplo de localización de los puntos se puede observar en la imagen del rostro que contiene cada uno de los puntos de interés \ver{imagen-rostro}.
 
 \subsection{Fase de entrenamiento}
 
 En la primera fase llevada a cabo por el sistema de reconocimiento facial, se siguen diferentes pasos para obtener el conocimiento suficiente para poder posteriormente realizar la fase de consulta. Estos pasos se ven resumidos en el diagrama \ver{facerecognition-training} y son m\'as detalladamente explicados a continuación. 
 
-
-
-\figuraSinMarco{0.9}{imagenes/facerecognition-training}{Arquitectura de la fase de entrenamiento}{facerecognition-training}{}
+\figuraSinMarco{1}{imagenes/facerecognition-training}{Arquitectura de la fase de entrenamiento}{facerecognition-training}{}
 
 \figuraSinMarco{0.6}{imagenes/imagen-rostro}{Ejemplo de puntos de inter\'es sobre un rostro}{imagen-rostro}{}
 
-
-
+\begin{enumerate}
+	\item \textbf{Lectura de la imagen}. Se encarga de extraer las im\'agenes de la base de datos que ser\'an procesadas. La lectura de la imagen da como resultado una imagen en tres capas, correspondientes al espacio de color RGB.
+	\item \textbf{Acondicionamiento.} Realiza el procesamiento previo de la imagen en cada una de las capas, ya que no se puede trabajar directamente con una imagen reci\'en adquirida, esta debe pasar por la etapa de acondicionamiento para que sea eliminada cualquier impureza generada, tanto por el dispositivo de adquisici\'on, la mala iluminaci\'on, el fondo, etc. Una vez eliminadas todas las impurezas, la imagen est\'a lista para su correcto an\'alisis.
+	\item \textbf{Pasar al espacio de color HSI.} El espacio de color RGB no nos proporciona la informaci\'on necesaria o al menos no lo suficientemente clara para la extracci\'on de caracter\'isticas, por lo que la imagen RGB se debe pasar al espacio de color HSI. Este espacio de color nos proporcionar\'a la informaci\'on que necesitamos saber acerca de la imagen, como es la textura, luminosidad, saturaci\'on de color, etc. informaci\'on mas \'util que la que nos proporciona el espacio de color RGB, al final de este proceso tendremos nuevamente la imagen dividida en tres capas pero ahora en el espacio de color HSI.
+	\item \textbf{Extracci\'on de caracter\'isticas.} Este bloque es el mas importante ya que es donde implementaremos la mayor parte del trabajo. Consta de tres etapas:
+	\begin{enumerate}
+		\item \textbf{Extracci\'on de los puntos de inter\'es.} Las bases de datos con las que se trabaja tienen los puntos de inter\'es marcados de manera manual, la localizaci\'on de los puntos de inter\'es est\'a contenida dentro de un documento de texto en el que cada l\'inea describe los puntos de inter\'es para cada una de las im\'agenes, por lo que nosotros debemos extraer los puntos de inte\'es con los que trabajar\'a nuestro sistema.
+		\item \textbf{Extracci\'on de los puntos Surf(Speeded-Up Robust Features).} Este procedimiento viene implementado en la biblioteca de procesamiento digital de im\'agenes de OpenCV. Es un algoritmo de visi\'on por computador, capaz de obtener una representaci\'on visual de una imagen y extraer una informaci\'on detallada y espec\'ifica del contenido. Esta informaci\'on es tratada para realizar operaciones como por ejemplo la localizaci\'on y reconocimiento de determinados objetos, personas o caras, realizaci\'on de de escenas 3D, seguimiento de objetos y extracci\'on de puntos de inter\'es. Este algoritmo forma parte de la mencionada inteligencia artificial, capaz de entrenar un sistema para que interprete im\'agenes y determine el contenido. El Algoritmo SURF se present\'o por primera vez por Herbert Bay en ECCV 9"a conferencia internacional de visi\'on por computador celebrada en Austria en Mayo de 2006 \cite{bay2006surf}.
+		\item \textbf{Extracci\'on de los rasgos estad\'isticos.} Los rasgos estad\'isticos son generados para cada uno de los puntos de inter\'es, de cada una de las capas del espacio de color HSI. A partir de un punto de inter\'es determinado en un pixel se genera una ventana p de tama\~no {Pi + p x Pi + p} p\'ixeles con el punto de inter\'es en el centro, dentro de esta ventana (vecindad) se extraer\'an tres valores de informaci\'on estad\'istica: media, desviaci\'on est\'andar y homogeneidad, por lo que al final obtendremos N puntos de inter\'es, 3 valores estad\'isticos para cada vecindad del punto de inter\'es y 3 capas por imagen, tendremos {N x 3 x 3} valores estad\'isticos de la imagen en cuesti\'on.
+	\end{enumerate}
+	\item \textbf{Conformar el vector patr\'on caracter\'istico de la imagen.} Los rasgos geom\'etricos SURF, se calculan de manera independiente, a los rasgos estad\'isticos CBIR.
+		\begin{itemize}
+			\item \textbf{Rasgos estad\'isticos CBIR.} Estos se calculan para cada uno de los puntos de inter\'es seleccionados de la base de datos, para cada una de las im\'agenes se seleccionan N puntos que se localicen dentro del rostro (ojos, nariz y boca), a cada uno de estos puntos se le extrae la informaci\'on estad\'istica (media, desviaci\'on est\'andar y homogeneidad), alrededor de una vecindad de tama\~no {Pi + p x Pi + p}
+		\end{itemize}
+		Al final de este proceso se obtendr\'a una matriz {Mj x 97}, con j = N\'umero de im\'agenes.
+	\item \textbf{Normalizar los patrones.} A partir de los valores de la matriz M se toman los valores m\'aximos y m\'inimos de cada componente para normalizar los valores de la matriz entre 0 y 1, as\'i se obtendr\'a una nueva base de datos con la informaci\'on del contenido de las im\'agenes en valores normalizados.
+	\item \textbf{Aplicar algoritmo k-Means con k = 10 experimental.} Se generan 10 clases (grupos), a partir de los valores de la base de datos normalizada, el valor de 10 es tomado como referencia ya que este valor es aplicado en la literatura y funciona muy bien, por lo que para comenzar con las pruebas tomaremos este valor de k = 10.
+\end{enumerate}
 
 \subsection{Fase de consulta}
-
-
+//TODO
 
 
 
