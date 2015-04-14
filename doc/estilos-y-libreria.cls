@@ -480,6 +480,8 @@
 % Referencia a una sección, subsección, etc.
 \newcommand{\verapartado}[1]{(ver apartado~\ref{#1})}
 
+\newcommand{\vertabla}[1]{(ver tabla~\ref{#1})}
+
 % Para escribir extractos de codigo
 % 
 % Las tabulaciones se substituyen por dos espacios
