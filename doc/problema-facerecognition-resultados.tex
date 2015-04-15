@@ -1,3 +1,76 @@
 \label{resultados-facerecognition}
 
-analizamos los resultados obtenidos al ejecutar un problema en el que la evaluación toma varios minutos, de manera que los tiempos de la evaluación de cada generaraci\'on puede llevar horas dependiendo del tamaño de la población.
+Analizamos los resultados obtenidos al ejecutar un problema en el que la evaluación toma varios minutos, de manera que los tiempos de la evaluación de cada generaraci\'on puede llevar horas dependiendo del tamaño de la población.
+
+La implementaci\'on secuencial del algoritmo de reconocimiento facial utiliza la librer\'ia OpenCV para el tratamiento de las im\'agenes. El uso de esta librer\'ia ayuda a reducir notablemente el tiempo de procesamiento, as\'i la fase de entrenamiento en la ejecuci\'on secuencial necesita sobre unos 127 segundos y la fase de consulta unos 140 segundos. 
+
+En primer lugar se realiz\'o la integraci\'on del problema de reconocimiento facial con Hadoop para paralelizar el proceso haciendo uso de esta herramienta. El nivel de paralelizaci\'on depende de como se divida la entrada del problema ya que se ejecutar\'an tantas tareas en paralelo como divisiones de la entrada existan \ver{fases-evaluacion-trabajo-por-ind}. Esta idea nos podr\'ia llevar al convencimiento de que obtendremos mejores tiempos mientras mas tareas tengamos, pero la creaci\'on de la tarea, distribuci\'on de la entrada al trabajo y la posterior destrucci\'on de la tarea conllevan tiempos que deben ser considerados. Es por esto que se han realizado ejecuciones para encontrar el mejor n\'umero de tareas que se ejecuten de forma paralela. Los tiempos obtenidos se muestran en una tabla \vertabla{tabla-tiempos-num-grupos}.
+
+\begin{table}[H]
+  \begin{center}
+    \begin{center}
+    \begin{tabular}{l | c c c c c c}
+    Grupos & 10 & 15 & 20 & 25 & 30 & 40 \\ \hline
+    Entrenamiento & 63 & 42 & 39 & 41 & 45 & 30\\
+    Consulta & 57 & 46 & 43 & 46 & 50 & 54\\
+    \end{tabular}
+    \end{center}
+    \caption{Tiempos de ejecución en Hadoop en funci\'on del n\'umero de grupos}
+    \label{tabla-tiempos-num-grupos}
+  \end{center}
+\end{table}
+
+Se graficamos estos resultados \ver{grafica-num-grupos} compar\'andolos con los tiempos de la ejecuci\'on secuencial podemos observar facilmente dos cosas. En primer lugar el hecho de que el n\'umero de grupos mas apropiado en el que se debe dividir la entrada son 20. Por otro lado vemos como la ganancia de tiempo con respecto a la ejecuci\'on secuencial es significativa. Si sumamos los tiempos de ambas fases en ambas implementaciones (tiempos con 20 grupos) y los comparamos, vemos como la integraci\'on ha conseguido que se ejecute el algoritmo en un 30\% del tiempo de la ejecuci\'on secuencial.
+
+\figuraSinMarco{0.8}{imagenes/facerecognition-results-num-splits}{Comparaci\'on de tiempos en funci\'on del numero de grupos de la entrada}{grafica-num-grupos}{}
+
+Tras la integraci\'on con Hadoop, se procedi\'o con la adaptaci\'on del algoritmo de reconocimiento facial a un algoritmo evolutivo utilizando ECJ. Esta integraci\'on provoca que cada individuo de la poblaci\'on ejecute dos trabajos, los mencionados anteriormente, y todos ellos de forma paralela por lo que se produce otro nivel de paralelizaci\'on. 
+
+Con el fin de probar la escalabilidad del sistema se ha lanzado ejecuciones con diferentes n\'umero de nodos y el mismo n\'umero de individuos (10) registrando los tiempos obtenidos \vertabla{tabla-dif-num-nodos}.
+
+\begin{table}[H]
+  \begin{center}
+    \begin{center}
+    \begin{tabular}{l | c c c}
+    N\'umero de nodos & 2 & 4 & 6 \\ \hline
+    Evaluaci\'on (min) & 25 & 11.5 & 6.4\\
+    \end{tabular}
+    \end{center}
+    \caption{Tiempos de evaluaci\'on de la poblaci\'on en Hadoop con diferente n\'umero de nodos para 10 individuos}
+    \label{tabla-dif-num-nodos}
+  \end{center}
+\end{table}
+
+\figuraSinMarco{0.6}{imagenes/facerecognition-results-num-nodes}{Comparaci\'on de tiempos en funci\'on del n\'umero de nodos}{grafica-num-nodos}{}
+
+Graficados estos datos \ver{grafica-num-nodos} observamos como la escalabilidad del sistema mejora incluso los tiempos ideales, esto nos indica que la inclusi\'on de nuevos nodos en el cluster en el que lo corramos (f\'acil tarea) provocar\'a que los tiempos se reducir\'an acorde al n\'umero de nodos que a\~nadamos. Para observar mejor la escalabilidad del sistema se ha a\~nadido una l\'inea de tiempo ideal correspondiente a la mitad del tiempo de 2 nodos para 4 nodos y a la tercera parte del tiempo de 2 nodos para 6 nodos. Adem\'as, se ha a\~nadido al gr\'afico el tiempo que tomar\'ia esta ejecuci\'on de forma secuencial (evaluar un individuo {= 127 + 140 = 267 s}, evaluar 10 {= 10 x 267 / 60 = 44.5 min}) para observar lo que supone el uso de Hadoop.
+
+El hecho de que se mejoren los tiempos ideales es de extra\~nar, pero debemos tener en cuenta que Hadoop hace uso de numerosos servicios que se pueden ver sobrecargados si todo se ejecuta en un n\'umero reducido de nodos. Por esta raz\'on es f\'acil que se produzcan este tipo de anomal\'ias en los tiempos analizados.
+
+Analizamos ahora ejecuciones con diferentes tama\~nos de poblaci\'on y el mismo n\'umero de nodos (6). Se espera que los tiempos de evaluaci\'on sean directamente proporcionales al tama\~no de la poblaci\'on.
+
+\begin{table}[H]
+  \begin{center}
+    \begin{center}
+    \begin{tabular}{l | c c c c}
+    N\'umero de individuos & 10 & 20 & 30 \\ \hline
+    Evaluaci\'on (min) & 6.4 & 14.5 & 22.1 \\
+    \end{tabular}
+    \end{center}
+    \caption{Tiempos de evaluaci\'on de la poblaci\'on en Hadoop con diferente n\'umero de individuos en 6 nodos}
+    \label{tabla-dif-num-indiv}
+  \end{center}
+\end{table}
+
+\figuraSinMarco{0.6}{imagenes/facerecognition-results-num-indiv}{Comparaci\'on de tiempos en funci\'on del n\'umero de individuos}{grafica-num-indiv}{}
+
+Al igual que hemos hecho con los resultados anteriores, lo comparamos con los tiempos de ejecuciones secuenciales y tiempos ideales \ver{grafica-num-indiv}. Vemos como los beneficios del uso de la integraci\'on con Hadoop son significativos, adem\'as se obtienen resultados similares a los ideales.
+
+
+
+
+
+
+
+
+

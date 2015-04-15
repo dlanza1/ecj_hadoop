@@ -11,6 +11,9 @@ public class Aplicacion {
 
 	public static void main(String[] args) throws IOException {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+		
+		long start = System.currentTimeMillis();
+		
 		double [] valRef=new double[9];
 		Mat vecinosIdMIndex=Mat.zeros(1368,5,CvType.CV_32F); 
 		Mat vecinosDistMIndex=Mat.zeros(1368,5,CvType.CV_64F);
@@ -30,7 +33,9 @@ public class Aplicacion {
 				+ valRef[2] + "," + valRef[3] + "," + valRef[4] + ","
 				+ valRef[5] + "," + valRef[6] + "," + valRef[7] + ","
 				+ valRef[8]);
-
+		
+		System.out.println("Train time " + (System.currentTimeMillis() - start) / 1000 + " seconds");
+		start = System.currentTimeMillis();
 		//System.out.println("ValRef:"+valRef[0]+","+valRef[1]+","+valRef[2]+","+valRef[3]+","+valRef[4]+","+valRef[5]+","+valRef[6]+","+valRef[7]+","+valRef[8]);
 		
 		//LLamando a la recuperación
@@ -42,6 +47,8 @@ public class Aplicacion {
 
 		Resultados Resul=new Resultados(vecinosIdMIndex);
 		Resul.porcentaje();
+		
+		System.out.println("Query time " + (System.currentTimeMillis() - start) / 1000 + " seconds");
 	    }
 }
 

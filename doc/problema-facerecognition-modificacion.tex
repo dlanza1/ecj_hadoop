@@ -6,13 +6,13 @@ La configuraci\'on de este problema en ECJ guarda mucha relación con el problem
 
 La evaluación de cada individuo consistirá en ejecutar el sistema de reconocimiento facial solo con los puntos que el genotipo del individuo indique que se deban utilizar, el fitness corresponderá al porcentaje de imágenes correctamente clasificadas en la fase de consulta.
 
-SI tenemos en cuenta el tiempo que se tarda en la ejecución secuencial del algoritmo (3 minutos) y hacemos unas cuentas sencillas podemos ver que si tenemos una peque\~na población de 10 individuos, cada generación tardar\'a en ser evaluada una media hora, si queremos evolucionarlo necesitaremos quizás decenas o centenas de generaciones lo cual conllevar\'ia un tiempo impracticable. Es por esto que adem\'as de la integración con ECJ, haremos uso de la integración con Hadoop para distribuir y paralizar el proceso y así poder hacer que la evaluación de cada generación sea cuestión de pocos minutos. Los resultados obtenidos pueden ser consultados m\'as adelante en este documento \verapartado{resultados-facerecognition}.
+Si tenemos en cuenta el tiempo que se tarda en la ejecución secuencial del algoritmo (4 minutos) y hacemos unas cuentas sencillas podemos ver que si tenemos una peque\~na población de 10 individuos, cada generación tardar\'a en ser evaluada una media hora, si queremos evolucionarlo necesitaremos quizás decenas o centenas de generaciones lo cual conllevar\'ia un tiempo impracticable. Es por esto que adem\'as de la integración con ECJ, haremos uso de la integración con Hadoop para distribuir y paralizar el proceso y así poder hacer que la evaluación de cada generación sea cuestión de pocos minutos. Los resultados obtenidos pueden ser consultados m\'as adelante en este documento \verapartado{resultados-facerecognition}.
 
 \subsection{Implementaci\'on} \label{problema-facerecognition-implementacion}
 
-Como se ha comentado en la sección sobre la implementación de los problemas anteriores \verapartado{dos-modelos-para-dos-situaciones}, existe otro modelo que se puede llevar a cabo cuando la evaluación de cada uno de los individuos toma varios minutos y \'esta puede ser paralizada. \'Este es el caso del problema de reconocimiento facial que abordamos en este cap\'titulo en el que la evaluación de cada individuo puede tomar aproximadamente 3 minutos y consiste en aplicar un procesamiento a cada una de las imágenes de la base de datos de entrada, por lo que su paralelizaci\'on no se plantea muy complicada. Teniendo en cuenta esto, haremos uso de este modelo para la integraci\'on de este problema con Hadoop. La paralelizaci\'on se producirá a dos niveles ya que los trabajos se ejecutar\'an de manera simultánea y las tareas dentro de cada trabajo también. Anteriormente \ver{fases-evaluacion-trabajo-por-ind} se ha mostrado el flujo de información que se produce con esta implementación, ese diagrama puede ayudar a entender mejor las etapas que se llevan a cabo.
+Como se ha comentado en la sección sobre la implementación de los problemas anteriores \verapartado{dos-modelos-para-dos-situaciones}, existe otro modelo que se puede llevar a cabo cuando la evaluación de cada uno de los individuos toma varios minutos y \'esta puede ser paralizada. \'Este es el caso del problema de reconocimiento facial que abordamos en este cap\'titulo en el que la evaluación de cada individuo puede tomar aproximadamente 4 minutos y consiste en aplicar un procesamiento a cada una de las imágenes de la base de datos de entrada, por lo que su paralelizaci\'on no se plantea muy complicada. Teniendo en cuenta esto, haremos uso de este modelo para la integraci\'on de este problema con Hadoop. La paralelizaci\'on se producirá a dos niveles ya que los trabajos se ejecutar\'an de manera simultánea y las tareas dentro de cada trabajo también. Anteriormente \ver{fases-evaluacion-trabajo-por-ind} se ha mostrado el flujo de información que se produce con esta implementación, ese diagrama puede ayudar a entender mejor las etapas que se llevan a cabo.
 
-La entrada del trabajo de Hadoop estar\'a almacenada en el sistema de ficheros y estar\'a conformada por la base de datos de imagenes, esta ser\'a dividida y distribuida a lo targo del cluster para que las diferentes tareas que se ejecuten puedan acceder a ella.
+La entrada del trabajo de Hadoop estar\'a almacenada en el sistema de ficheros y estar\'a formada por la base de datos de imagenes. \'Esta ser\'a dividida y distribuida a lo targo del cluster para que las diferentes tareas que se ejecuten puedan acceder a ella.
 
 Para hacer esto, el método encargado de evaluar los individuos en el Evaluator (evaluatePopulation) genera un hilo de ejecución de forma local para cada individuo de la poblaci\'on, de manera que cada uno de ellos se encarga de la evaluación de cada individuo, el propósito de estos hilos es tan solo lanzar los trabajos en Hadoop por lo que la mayoría del tiempo tan solo se dedican a esperar que la ejecución de los trabajos finalicen para proseguir con la ejecución normal del proceso evolutivo. La implementación de lo anteriormente explicado se puede observar en el siguiente fragmente de código:
 
@@ -56,7 +56,7 @@ Pasamos ahora a describir que es lo que hace cada uno de los hilos. Al ser hilos
 
 \subsubsection{Trabajo de la fase de entrenamiento}
 
-Este trabajo de Hadoop implementa las dos fases de un trabajo de Hadoop, la fase de Map y la de Reduce por lo que describiremos en que consiste cada una. La primera fase, la de Map, tiene como implementación el siguiente fragmento de c\'odigo:
+Este trabajo implementa las dos fases de un trabajo de Hadoop, la fase de Map y la de Reduce por lo que describiremos en que consiste cada una. La primera fase, la de Map, tiene como implementación el siguiente fragmento de c\'odigo:
 
  \begin{lstlisting}[language=Java]
 	@Override
@@ -69,7 +69,7 @@ Este trabajo de Hadoop implementa las dos fases de un trabajo de Hadoop, la fase
 	}
 \end{lstlisting}
 
-Como se puede observar, lo que recibe nuestra tarea map son tuplas de NullWritable y ImageWritable, en este caso la clave no la utilizamos por que la establecemos a NullWritable y lo que recibimos en el valor es una imagen a procesar. De lo que se encarga esta función es de extraer los parámetros de cada uno de los puntos de interés (solo los que el genotipo del individuo indique a 1) y almacenarlos en una matriz de OpenCV (MatE), la cual junto con el identificador de la imagen, formaran la salida de la función map. El calculo de estos parámetros conlleva numerosas operaciones con cada imagen las cuales no se describen ya que se considera no es el propósito de este trabajo, sin embargo estas pueden ser consultados en el código fuente que se proporciona.
+Como se puede observar, lo que recibe nuestra tarea map son tuplas de NullWritable y ImageWritable, en este caso la clave no la utilizamos por que la establecemos a NullWritable y lo que recibimos en el valor es una imagen a procesar. De lo que se encarga esta función es de extraer los parámetros de cada uno de los puntos de interés (solo los que el genotipo del individuo indique a 1) y almacenarlos en una matriz de OpenCV (MatE), la cual junto con el identificador de la imagen, formaran la salida de la función map. El c\'alculo de estos parámetros conlleva numerosas operaciones con cada imagen las cuales no se describen ya que se considera no es el propósito de este trabajo, sin embargo estas pueden ser consultados en el código fuente que se proporciona.
 
 Una vez finalizada la fase de Map tenemos todos los parámetros de cada imagen, de modo que la fase de Reduce puede comenzar, en nuestro caso la fase de Reduce se lleva a cabo en un solo nodo (no en uno en concreto, si no en alguno de los que componen el cluster) ya que este necesita toda la información producida por la fase de Map para obtener sus resultados. Procedemos ahora a mostrar la implementación de la fase de Reduce.
 
@@ -122,7 +122,7 @@ Una vez finalizada la fase de Map tenemos todos los parámetros de cada imagen, 
 	}
 \end{lstlisting}
 
-Podemos observar como el método reduce recibe como entrada una lista (values) la cual contiene todas matrices producidas por la fase de Map. Lo que hacemos en el reduce es unir todas esas matrices de parámetros en una sola, calcular los máximos por columna, normalizarla, calcular Kmeans y generar una matriz de indices de textura. Finalmente escribimos todos los resultados los cuales necesitaremos para el proximo trabajo, el de consulta.
+Podemos observar como el método reduce recibe como entrada una lista (values) la cual contiene todas matrices producidas por la fase de Map. Lo que hacemos en el reduce es unir todas esas matrices de parámetros en una sola, calcular los máximos por columna, normalizarla, calcular Kmeans y generar una matriz de \'indices de textura. Finalmente escribimos todos los resultados los cuales necesitaremos para el proximo trabajo, el de consulta.
 
 \subsubsection{Trabajo de la fase de consulta}
 
@@ -163,7 +163,7 @@ De la etapa de consulta del sistema de reconocimiento faciel es de lo que se enc
 	}
 \end{lstlisting}
 
-Al igual que el anterior trabajo, el de entrenamiento, la fase de Map recibe las imágenes como entrada, pero este difiere del anterior en que implementa el método setup() el cual se ejecuta antes del iniciar la ejecución de la tarea y se encarga de obtener los resultados producidos por el trabajo anterior los cuales están en el directorio del individuo. Respecto al método map, en primer lugar obtiene los parámetros de la imagen recibida y los normaliza con respecto los máximos obtenemos del trabajo anterior, una vez normalizados, obtiene los centroides haciendo uso de un algoritmo Knn y por \'ultimo genera un vector de consulta que junto a la matriz de \'indices de textura del trabajo anterior compondrán la salida de la fase de Map.
+Al igual que el anterior trabajo, el de entrenamiento, la fase de Map recibe las imágenes como entrada, pero este difiere del anterior en que implementa el método setup() el cual se ejecuta antes del iniciar la ejecución de la tarea y se encarga de obtener los resultados producidos por el trabajo anterior los cuales están en el directorio del individuo. Respecto al método map, en primer lugar obtiene los parámetros de la imagen recibida y los normaliza con respecto los máximos obtenidos del trabajo anterior, una vez normalizados, obtiene los centroides haciendo uso de un algoritmo Knn y por \'ultimo genera un vector de consulta que junto a la matriz de \'indices de textura del trabajo anterior compondrán la salida de la fase de Map.
 
 Abordamos ahora la fase de Reduce del trabajo, cuya implementación se muestra a continuación.
 
@@ -210,7 +210,7 @@ Abordamos ahora la fase de Reduce del trabajo, cuya implementación se muestra a
 	}
 \end{lstlisting}
 
-En esta fase, al igual que la anterior, implementamos el método setup() encargado en este caso de obtener la clase (persona) que corresponde a cada una de las imágenes. Respecto al método reduce, une en primer lugar por orden todos los vectores de consulta recibidos, obtiene los ids de las imagenes que m\'as se le asemejan, calcula la matriz de confusi\'on y por \'ultimo obtiene el porcentaje de aciertos, el cual en este caso corresponde al fitness del individuo y por consiguiente esta ser\'a la salida del trabajo de consulta.
+En esta fase, al igual que la anterior, implementamos el método setup() encargado en este caso de obtener la clase (persona) que corresponde a cada una de las imágenes. Respecto al método reduce, une en primer lugar por orden todos los vectores de consulta recibidos, obtiene los ids de las imagenes que m\'as se le asemejan, calcula la matriz de confusi\'on y por \'ultimo obtiene el porcentaje de aciertos. Este porcentaje al fitness del individuo y por consiguiente ser\'a la salida del trabajo de consulta.
 
 
 
