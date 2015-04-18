@@ -1,3 +1,34 @@
 Tras el trabajo realizado surgen numerosas ideas para poder mejorar y ampliar la integraci\'on entre estas herramientas, algunas de estas ideas se introducen a continuaci\'on.
 
-//TODO
+\subsubsection{Proceso evolutivo completo en Hadoop}
+
+Como se ha descrito en a lo largo del documento, la integraci\'on consiste en que la fase de evaluaci\'on de los individuos se haga de forma distribuida y paralela en Hadoop. El hecho de que una parte del proceso se lleve a cabo en Hadoop conlleva que por cada generaci\'on generada, se vuelquen todos los individuos y se lean los resultados producidos. 
+
+Un enfoque interesante es que todo el proceso evolutivo se realice en Hadoop, de esta manera la informaci\'on no debe ser transferida con cada generaci\'on, adem\'as de que se podr\'ia aprovechar para paralelizar otras fases como la generaci\'on de la poblaci\'on inicial o la fase de reproducci\'on.
+
+\subsubsection{Miner\'ia de datos del proceso evolutivo}
+
+El proceso evolutivo consiste generalmente en la repetici\'on de unas operaciones con la poblaci\'on de cada generaci\'on, cada poblaci\'on es diferente y por consiguiente los resultados de evaluarla tambi\'en. Generalmente la informaci\'on que describe las generaciones, individuos, los resultados de evaluarlos, estad\'isticas, etc. suelen ser descartados, manteniendo algunas estad\'isticas de las operaciones por cada generaci\'on.
+
+Hadoop surge como soluci\'on para procesar cantidades grandes de informaci\'on, por lo que se podr\'ia pensar en almacenar de manera mucho mas detallada informaci\'on de cada uno de los individuos de cada poblaci\'on, resultados de las operaciones aplicadas, estad\'isticas por individuo, etc. de manera que posteriormente se puedan analizar esos datos con Hadoop y extraer valor a esa informaci\'on. Con estos datos se podr\'ia analizar mejor cua ha sido el comportamiento de cada individuo a lo largo del proceso, como han ido evoluacionando, si las mutaciones produjeron individuos que finalmente fueron \'utiles, etc.
+
+Los an\'alisis har\'ian uso de Hadoop por lo que los tiempos necesarios para obtener este tipo de resultados o incluso mas complejos se reducir\'ian bastante gracias a la distribuci\'on y paralelizaci\'on de la tarea.
+
+\subsubsection{Auto-ajuste}
+
+Al hilo de la anterior propuesta surge esta idea, el proceso evolutivo posee numerosos par\'ametros que pueden ser ajustados. Suele ser el experto el que tras ver los resultados produciodos por ejecuciones anteriores, establece los par\'ametros para futuras ejecuciones con el fin de obtenemos mejores resultados.
+
+Se podr\'ia substituir el ajuste del experto por otro quiz\'as mas preciso extraído del analisis de las ejecuciones anteriores. De forma autom\'atica se podr\'ian lanzar ejecuciones y tras analizar los datos de estas, establecer los ajustes que se consideren pertinentes para las futurass ejecuciones. Este proceso se podr\'ia realizar de forma iterativa hasta alcanzar el resultado esperado o la paciencia del experto.
+
+
+
+
+
+
+
+
+
+
+
+
+
