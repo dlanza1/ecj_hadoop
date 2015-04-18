@@ -1,4 +1,4 @@
-Como se mencionaba anteriormente, los ficheros ejecutables no son proporcionados por lo que se deben generar. Con el uso de la herramienta de construcción de proyectos, Maven, explicaremos como construir el proyecto para que pueda ser ejecutado, no obstante, si tenemos el proyecto importado en un IDE, no es necesario utilizar Maven para compilarlo, podemos utilizar los usuales procedimientos para compilarlo.
+Como se mencionaba anteriormente, los ficheros ejecutables no son proporcionados, por lo que deben ser generados. Con el uso de la herramienta de construcción de proyectos, Maven, explicaremos como construir el proyecto para que pueda ser ejecutado, no obstante, si tenemos el proyecto importado en un IDE, no es necesario utilizar Maven para compilarlo, podemos utilizar los usuales procedimientos para compilarlo.
 
 \insertaraclaracion{?`Qu\'e es Maven?}{
 	\qquad Maven es una herramienta de software para la gestión y construcción de proyectos Java creada por Jason van Zyl, de Sonatype, en 2002. Tiene un modelo de configuración de construcción simple, basado en un formato XML. Es un proyecto de nivel superior de la Apache Software Foundation.
@@ -10,7 +10,7 @@ Como se mencionaba anteriormente, los ficheros ejecutables no son proporcionados
 
 Maven se ejecuta en unas circunstancias similares a las que explicábamos con Git. Existen dos opciones, o tener Maven instalado en el sistema \cite{instalacion_maven}, o utilizar un entorno de desarrollo como Eclipse \cite{eclipse}, el cual lo trae incluido. 
 
-Si tenemos importado el proyecto en un IDE, para compilarlo (o en nomenclatura de Maven, construirlo) es necesario hacer clic derecho en el fichero incluido en el proyecto, pom.xml, y seleccionar la opción: Run as (Ejecutar como) y en el submen\'u, Maven build, si hacemos esto por primera vez nos aparecerá un cuadro de dialogo donde se nos solicita los objetivos (goals), ah\'i debemos indicar ''install" (sin las comillas) y aceptar/ejecutar. 
+Si tenemos importado el proyecto en un IDE, para compilarlo (o en nomenclatura de Maven, construirlo) es necesario hacer clic derecho en el fichero incluido en el proyecto pom.xml, y seleccionar la opción: Run as (Ejecutar como) y en el submen\'u, Maven build, si hacemos esto por primera vez nos aparecerá un cuadro de dialogo donde se nos solicita los objetivos (goals), ah\'i debemos indicar ''install" (sin las comillas) y aceptar/ejecutar. 
 
 En caso de que no estemos utilizando un IDE, necesitaremos tener instalado Maven. Para compilarlo de esto modo debemos abrir una consola, dirigirnos al directorio donde se encuentra el proyecto y ejecutar el siguiente comando:
 

@@ -122,8 +122,8 @@
 	\end{picture}
 	\\[1.5cm]
 	\begin{center}
-	\textbf{{\huge UNIVERSIDAD DE EXTREMADURA}\\[1.0cm]
-	{\LARGE CENTRO UNIVERSITARIO DE M\'ERIDA}}\\[1.0cm]
+	\textbf{{\LARGE UNIVERSIDAD DE EXTREMADURA}\\[0.6cm]
+	{\LARGE CENTRO UNIVERSITARIO DE M\'ERIDA}}\\[0.8cm]
 	{\Large INGENIERO EN INFORM\'ATICA EN TECNOLOG\'IAS DE LA INFORMACI\'ON}\\[1.0cm]
 	{\Large PROYECTO FIN DE GRADO}\\[1cm]
 	{\Huge \textbf {INTEGRACI\'ON DE UNA}}\\
@@ -144,14 +144,14 @@
 
 \newcommand{\hacerportada}{
 	\insertarsuperiorportada
-	\vspace{5cm}
+	\vspace{4cm}
 	\insertarautor
 	\insertarinferiorportada
 }
 
 \newcommand{\hacercontraportada}{
 	\insertarsuperiorportada
-	\vspace{3cm}
+	\vspace{2cm}
 	\insertarautor
 	{\large Director: Francisco Fern\'andez de Vega}\\[0.3cm]
 	{\large Codirector: Francisco Ch\'avez de la O}\\[0.3cm]

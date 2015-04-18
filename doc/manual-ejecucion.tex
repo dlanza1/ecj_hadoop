@@ -1,0 +1,62 @@
+Para la ejecuci\'on de cualquiera de los problemas incluidos en ECJ, debemos iniciar la ejecuci\'on en la clase \textit{ec.Evolve}. Es en esta clase donde se encuentra el m\'etodo main() el cual inicia todo el proceso evolutivo.
+
+Al igual que en los casos anteriores, tenemos dos escenarios posibles, uno es utilizando un entorno de desarrollo y otro directamente desde la consola de comandos. Para ejecutarlo desde un entorno de desarrollo debemos encontrar en el c\'odigo fuente la clase \textit{Evolve} situada en el paquete \textit{ec}, una vez localizada debemos iniciar la ejecuci\'on desde esa clase envi\'andole como argumentos el fichero de par\'ametros que configura la ejecuci\'on del algoritmo. Los argumentos que se deben indicar son ''-file ruta\_fichero\_parametros'', para establecerlos en un entorno de desarrollo como Eclipse debemos hacer clic con el bot\'on derecho en la clase \textit{Evolve} y en el men\'u seleccionar ''Run as'' y a countinuaci\'on ''Run configuration''. Se nos abrir\'a una ventana emergente donde debemos seleccionar la pesta\~na ''Arguments'' y en el campo ''Program arguments'' establecemos los argumentos. Una vez establecidos pulsamos sobre el bot\'on ''Run'' y se iniciar\'a la ejecuci\'on.
+
+Para ejecutar uno de los tutoriales que incluye la distribucion de ECJ debemos indicar en los argumentos: ''-file src/main/java/ec/app/tutorial1/tutorial1.params'', pulsamos sobre el bot\'on ''Run'' y se iniciar\'a la ejecuci\'on del tutorial n\'umero 1, el problema MaxOne.
+
+Sin embargo, el uso de un entorno de desarrollo para la ejecui\'on de los problemas incluidos no es necesario, podemos ejecutarlo directamente desde la consola teniendo instalado Java en el sistema (versi\'on 1.6 o superior). Para ello abrimos una consola y nos dirigimos al directorio donde se encuentra el proyecto, una vez hecho esto podemos ejecutarlo con el siguiente comando:
+
+\mostrarconsola{
+	\$java ec.Evolve -file src/main/java/ec/app/tutorial1/tutorial1.params
+}
+
+Con esto se iniciar\'a la ejecuci\'on mostrando algo como:
+
+\begin{lstlisting}[language=Java]
+
+| ECJ
+| An evolutionary computation system (version 21)
+| By Sean Luke
+| Contributors: L. Panait, G. Balan, S. Paus, Z. Skolicki, R. Kicinger,
+|               E. Popovici, K. Sullivan, J. Harrison, J. Bassett, R. Hubley,
+|               A. Desai, A. Chircop, J. Compton, W. Haddon, S. Donnelly,
+|               B. Jamil, J. Zelibor, E. Kangas, F. Abidi, H. Mooers,
+|               J. OBeirne, L. Manzoni, K. Talukder, and J. McDermott
+| URL: http://cs.gmu.edu/~eclab/projects/ecj/
+| Mail: ecj-help@cs.gmu.edu
+|       (better: join ECJ-INTEREST at URL above)
+| Date: May 1, 2013
+| Current Java: 1.7.0_72 / Java HotSpot(TM) 64-Bit Server VM-24.72-b04
+| Required Minimum Java: 1.5
+
+
+Threads:  breed/1 eval/1
+Seed: 4357 
+Job: 0
+Setting up
+Initializing Generation 0
+PARAMETER: pop.subpop.0.species.crossover-prob
+     ALSO: vector.species.crossover-prob
+Subpop 0 best fitness of generation Fitness: 0.62
+Generation 1
+Subpop 0 best fitness of generation Fitness: 0.65
+Generation 2
+...
+(salida suprimida)
+...
+Generation 43
+Subpop 0 best fitness of generation Fitness: 1.0
+Found Ideal Individual
+Subpop 0 best fitness of run: Fitness: 1.0
+\end{lstlisting}
+
+Observamos la cabecera del problema y como progresa el proceso evolutivo generaci\'on por generaci\'on hasta alcanzar la generaci\'on m\'axima o encontrar al individuo ideal (como es el caso que se muestra en la ejecuci\'on anterior). 
+
+
+
+
+
+
+
+
+

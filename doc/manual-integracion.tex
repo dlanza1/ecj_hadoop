@@ -1,0 +1,53 @@
+Lo que se ha explicado anteriormente \verapartado{ejecucion}, representa una ejecuci\'on normal de un problema de Hadoop, explicamos ahora como realizar esa ejecuci\'on pero utilizando la integraci\'on con Hadoop. Este proceso se ha llevado a cabo ya en este documento con dos problemas: MaxOne \verapartado{desarrollo-maxone} y Parity \verapartado{desarrollo-parity}, ahora lo explicamos de forma mas general prestando detalles a los diferentes contextos donde puede ser ejecutado.
+
+Nos podemos encontrar en dos situciones diferentes dependiendo del acceso al cluster Hadoop que dispongamos. Si podemos acceder a alguna de las m\'aquinas del cluster, podemos hacer un ejecuci\'on local desde ella, por otro lado si no tenemos acceso debemos realizar la ejecuci\'on de forma remota. Ambos cosas requieren que en fichero de par\'ametros se indique que el evaluador a utilizar debe ser Hadoop, para ello debemos modificar el valor del par\'ametro \textit{eval} y establecerlo de la siguiente manera:
+
+\begin{lstlisting}[language=Java]
+eval		= ec.hadoop.HadoopEvaluator
+\end{lstlisting}
+
+Si la ejecuci\'on la vamos a realizar en alguno de los nodos del cluster, esto es todo lo que debemos modificar. Para ejecutarlo, debemos seguir el mismo procedimiento que cuando lo ejecutamos sin Hadoop\verapartado{ejecucion}.
+
+\subsubsection{Directorio en HDFS}
+
+La ejecuci\'on en Hadoop se lleva a cabo creando ficheros en HDFS, para ello se crea un directorio donde se van almacenando las poblaciones y los resultados de la evaluaci\'on para cada generaci\'on. El directorio a utilizar es por defecto \textit{ecj\_work\_folder\_hc}, pero su valor puede ser modificado utilizando el siguiente par\'ametro:
+
+\begin{lstlisting}[language=Java]
+eval.hdfs-prefix	= <ruta_directorio_de_trabajo>
+\end{lstlisting}
+
+El directorio indicado se crear\'a en el directorio Home del usuario y ser\'a el utilizado por el evaluador.
+
+\subsubsection{Uso de puertos diferentes a los de por defecto}
+
+El evaluador debe conectarse a los procesos NameNode y JobTracker los cuales pueden escuchar por puertos diferentes de los de por defecto. La implementaci\'on realizada permite indicar al evaluador cuales son los que se utilizan, para ello se han creado los siguientes par\'ametros:
+
+\begin{itemize}
+	\item \textbf{hdfs-port}: puerto por el que el NameNode escucha las peticiones de los clientes, su valor por defecto es \textit{8020}.
+	\item \textbf{jobtracker-port}: puerto por el que el JobTracker escucha las peticiones de los clientes, su valor por defecto es \textit{8021}.
+\end{itemize}
+
+En el fichero de par\'ametros deben establecerse de la siguiente manera:
+
+\begin{lstlisting}[language=Java]
+eval.hdfs-port		= <port_namenode>
+eval.jobtracker-port		= <port_jobtracker>
+\end{lstlisting}
+
+\subsection{Ejecuci\'on remota}
+
+Puede ser que no tengamos acceso a las m\'aquinas del cluster por lo que debemos ejecutar el algoritmo en nuestra m\'aquina indicando las direcciones del cluster remoto. Para ello se deben establecer los siguientes par\'ametros:
+
+\begin{itemize}
+	\item \textbf{hdfs-address}: direcci\'on IP o nombre de host donde se ejecuta el NameNode (proceso principal de HDFS), su valor por defecto es \textit{localhost}.
+	\item \textbf{jobtracker-address}: direcci\'on IP o nombre de host donde se ejecuta el JobTracker (coordinador de los trabajos de Hadoop), su valor por defecto es \textit{localhost}.
+\end{itemize}
+
+Si establecemos estos par\'ametros debemos a\~nadir al fichero de configuraci\'on las siguientes l\'ineas:
+
+\begin{lstlisting}[language=Java]
+eval.hdfs-address	= <host_namenode>
+eval.jobtracker-address	= <host_jobtracker>
+\end{lstlisting}
+
+Para ejecutarlo, debemos seguir el mismo procedimiento que cuando lo ejecutamos sin la integraci\'on con Hadoop \verapartado{ejecucion}.
