@@ -37,25 +37,28 @@
 
 \mainmatter
 
-\chapter{Introducci\'on}
+\chapter{Introducci\'on}\label{introduccion}
 	\section{Motivaciones\label{motivaciones}}
 		\input{motivaciones.tex}
 	\section{Objetivos}
-	\section{Recursos empleados}
+		\input{objetivos.tex}
+	\section{Herramientas y recursos empleados}
+		\input{recursos.tex}
 	\section{Organizaci\'on del documento}
+		\input{organizacion-documento.tex}	
 
-\chapter{An\'alisis del sistema}
+\chapter{An\'alisis del sistema}\label{analisis}
 	\input{analisis-introcuccion.tex}
 	\section{Algoritmos evolutivos}
 		\input{analisis-evolutivos.tex}
 	\section{Procesamiento masivo de informaci\'on}
 		\input{analisis-procesamiento-masivo.tex}
 
-\chapter{Integrando ECJ con Hadoop}
+\chapter{Integrando ECJ con Hadoop}\label{integracion}
 	\input{desarrollo-introduccion.tex}
 	\section{Estudio de ECJ como herramienta de c\'omputo evolutivo\label{desarrollo-ecj}}
 		\input{desarrollo-ecj.tex}
-	\section{Estudio de Hadoop como herramienta de procesamiento masivo de informaci\'on\label{desarrollo-hadoop}}
+	\section{Estudio de Hadoop como herramienta de procesamiento masivo de informaci\'on	\label{desarrollo-hadoop}}
 		\input{desarrollo-hadoop.tex}
 	\section{Diagramas de dise\~no}
 		\input{desarrollo-diagramas.tex}
@@ -74,14 +77,14 @@
 		\subsection{Millones de individuos: Parity}
 			\input{desarrollo-resultados-millones-individuos.tex}	
 			
-\chapter{Reconocimiento facial mediante algoritmos evolutivos masivamente paralelos}		
+\chapter{Reconocimiento facial mediante algoritmos evolutivos masivamente paralelos}\label{facerecognition}
 	\input{problema-facerecognition-introduccion.tex}
 	\section{Modificación planteada: introducir evolución y paralelismo}
 		\input{problema-facerecognition-modificacion.tex}
 	\section{Resultados}
 		\input{problema-facerecognition-resultados.tex}
 
-\chapter{Manual de usuario}
+\chapter{Manual de usuario}\label{manual-usuario}
 	\section{Obtenci\'on}
 		\input{manual-obtencion.tex}
 	\section{Importar a entorno de desarrollo}
@@ -93,10 +96,10 @@
 	\section{Ejecutar un problema de ECJ en Hadoop}
 		\input{manual-integracion.tex}
 
-\chapter{Trabajo futuro}
+\chapter{Trabajo futuro}\label{trabajo-futuro}
 	\input{trabajo-futuro.tex}
 	
-\chapter{Conclusiones}
+\chapter{Conclusiones}\label{conclusiones}
 	\input{conclusiones.tex}
 
 \bibliografia{bibliografia}
