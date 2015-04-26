@@ -1,6 +1,6 @@
 \label{resultados-parity}
 
-Para los problemas donde el coste de la evaluación es despreciable, la paralelizaci\'on de esta fase cobra sentido cuando la cantidad de individuos a evaluar es importante. ECJ posee un evaluador que permite paralelizar la evaluación de los individuos de manera que se use los diferentes núcleos de procesamiento que posea la m\'aquina en la que se ejecute, de manera que podemos comparar los tiempos obtenidos con una ejecución secuencial y la multihilo. En la tabla que se muestra a continuación, mostramos tiempos en segundos que toma la etapa de evaluación en diferentes ejecuciones con diferente n\'umero de individuos y utilizando ejecuciones multihilo, estos tiempos corresponden a ejecuciones del problema Parity y la m\'aquina donde se ejecut\'o disponía de 8 núcleos de procesamiento.
+Para los problemas donde el coste de la evaluación es despreciable, la paralelizaci\'on de esta fase cobra sentido cuando la cantidad de individuos a evaluar es importante. ECJ posee un evaluador que permite paralelizar la evaluación de los individuos de manera que se use los diferentes núcleos de procesamiento que posea la m\'aquina en la que se ejecute, de este modo podemos comparar los tiempos obtenidos con una ejecución secuencial y la multihilo. En la tabla que se muestra a continuación, mostramos tiempos en segundos que toma la etapa de evaluación en diferentes ejecuciones con diferente n\'umero de individuos y utilizando ejecuciones multihilo, estos tiempos corresponden a ejecuciones del problema Parity y la m\'aquina donde se ejecut\'o disponía de 8 núcleos de procesamiento.
 
 \begin{table}[H]
   \begin{center}
@@ -21,7 +21,7 @@ Para los problemas donde el coste de la evaluación es despreciable, la paraleli
   \end{center}
 \end{table}
 
-Observamos claramente como los tiempos son directamente proporcionales al n\'umero de individuos e indirectamente proporcionales al n\'muero de hilos que utilicemos para la evaluación. Como se puede apreciar con ejecuciones de millones de individuos, incluso utilizando 8 hilos de procesamiento, nos acercamos a tiempos del orden de minutos, teniendo en cuenta que esto debemos hacerlo por generación, la evaluación de los individuos empieza a ser un problema. 
+Observamos claramente como los tiempos son directamente proporcionales al n\'umero de individuos e indirectamente proporcionales al n\'uero de hilos que utilicemos para la evaluación. Como se puede apreciar con ejecuciones de millones de individuos, incluso utilizando 8 hilos de procesamiento, nos acercamos a tiempos del orden de minutos, teniendo en cuenta que esto debemos hacerlo por generación, la evaluación de los individuos empieza a ser un problema. 
 
 \subsubsection{Resultados sin mejoras}
 

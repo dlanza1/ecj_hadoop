@@ -1,9 +1,9 @@
 \label{desarrollo-parity}
 En esta sección vamos a configurar un sencillo problema de programación genética conocido por la comunidad por el nombre de Parity, el objetivo de este problema de programación genética es encontrar un programa que produzca un valor de la paridad par booleana dadas n entradas booleanas independientes. Por lo general, se utilizan 6 entradas booleanas (Parity-6), y el objetivo es que coincida con el valor del bit de paridad para cada una de las entradas de 2 elevado a 6 = 64 posibles.
 
-Si queremos ejecutar este problema en ECJ debemos definir 3 cosas, una clase que represente el problema y la cual pueda evaluar los individuos, otra clase que represente la paridad y ayude a la transferencia de esta entre individuos de la población y por \'ultimo el fichero de par\'ametros de ECJ.
+Si queremos ejecutar este problema en ECJ debemos definir 3 cosas, una clase que represente el problema y la cual pueda evaluar los individuos, otra clase que represente la paridad y ayude a la transferencia de \'esta entre individuos de la población y por \'ultimo el fichero de par\'ametros de ECJ.
 
-Comentamos en primer lugar la implementación de la clase que representa la paridad, utilizada en este caso para transferir un 0 o un 1 dependiendo de la paridad calculada.
+Comentamos, en primer lugar, la implementación de la clase que representa la paridad, utilizada en este caso para transferir un 0 o un 1 dependiendo de la paridad calculada.
 
 \begin{lstlisting}[language=Java]
 public class ParityData extends GPData {
@@ -66,7 +66,7 @@ public class Parity extends GPProblem implements SimpleProblemForm {
 }
 \end{lstlisting}
 
-En primer lugar en esta implementación se ejecuta el método setup el cual obtiene el parámetro del n\'umero de bits a utilizar en el problema y posteriormente se calcula lel n\'umero de combinaciones con ese n\'umero de bits. Respecto a la evaluación de los individuos en el método evaluate, en primer lugar se crea un objeto que representa el valor devuelto por la ejecuci'on del programa genético, posteriormente se recorren todos los valores posibles y por cada uno se calcula la paridad del valor y se ejecuta el programa gen\'etico, si ambos coinciden en el valor devuelto se incrementa el contador (sum). Finalmente se establece el fitness del individuo en funci\'on del n\'umero de aciertos.
+En primer lugar, en esta implementación se ejecuta el método setup el cual obtiene el parámetro del n\'umero de bits a utilizar en el problema y posteriormente se calcula lel n\'umero de combinaciones con ese n\'umero de bits. Respecto a la evaluación de los individuos en el método evaluate, en primer lugar se crea un objeto que representa el valor devuelto por la ejecuci'on del programa genético, posteriormente se recorren todos los valores posibles y por cada uno se calcula la paridad del valor y se ejecuta el programa gen\'etico, si ambos coinciden en el valor devuelto se incrementa el contador (sum). Finalmente se establece el fitness del individuo en funci\'on del n\'umero de aciertos.
 
 Tras definir las dos clases anteriores, lo único que queda es el fichero de parámetros, el cual podemos nombrar parity.params y cuyo contenido puede ser el siguiente:
 
@@ -113,4 +113,4 @@ eval = ec.hadoop.HadoopEvaluator
 
 Esto sobreescribir\'a el valor del evaluador establecido en el fichero que heredamos y por consiguiente se hará uso del evaluador de Hadoop.
 
-Mas adelante \verapartado{resultados-parity} se muestran los beneficios de utilizar esta solución, donde vemos que los tiempos se reducen considerablemente si lo comparamos con una ejecución secuencial.
+M\'as adelante \verapartado{resultados-parity} se muestran los beneficios de utilizar esta solución, donde vemos que los tiempos se reducen considerablemente si lo comparamos con una ejecución secuencial.

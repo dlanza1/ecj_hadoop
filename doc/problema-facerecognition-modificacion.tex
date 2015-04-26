@@ -6,7 +6,7 @@ La configuraci\'on de este problema en ECJ guarda mucha relación con el problem
 
 La evaluación de cada individuo consistirá en ejecutar el sistema de reconocimiento facial solo con los puntos que el genotipo del individuo indique que se deban utilizar, el fitness corresponderá al porcentaje de imágenes correctamente clasificadas en la fase de consulta.
 
-Si tenemos en cuenta el tiempo que se tarda en la ejecución secuencial del algoritmo (4 minutos) y hacemos unas cuentas sencillas podemos ver que si tenemos una peque\~na población de 10 individuos, cada generación tardar\'a en ser evaluada una media hora, si queremos evolucionarlo necesitaremos quizás decenas o centenas de generaciones lo cual conllevar\'ia un tiempo impracticable. Es por esto que adem\'as de la integración con ECJ, haremos uso de la integración con Hadoop para distribuir y paralizar el proceso y así poder hacer que la evaluación de cada generación sea cuestión de pocos minutos. Los resultados obtenidos pueden ser consultados m\'as adelante en este documento \verapartado{resultados-facerecognition}.
+Si tenemos en cuenta el tiempo que se tarda en la ejecución secuencial del algoritmo (4 minutos) y hacemos unas cuentas sencillas podemos ver que si tenemos una peque\~na población de 10 individuos, cada generación tardar\'a en ser evaluada unos cuarenta minutos, si queremos evolucionarlo necesitaremos quizás decenas o centenas de generaciones lo cual conllevar\'ia un tiempo impracticable. Es por esto que adem\'as de la integración con ECJ, haremos uso de la integración con Hadoop para distribuir y paralizar el proceso y así poder hacer que la evaluación de cada generación sea cuestión de pocos minutos. Los resultados obtenidos pueden ser consultados m\'as adelante en este documento \verapartado{resultados-facerecognition}.
 
 \subsection{Implementaci\'on} \label{problema-facerecognition-implementacion}
 
@@ -14,7 +14,7 @@ Como se ha comentado en la sección sobre la implementación de los problemas an
 
 La entrada del trabajo de Hadoop estar\'a almacenada en el sistema de ficheros y estar\'a formada por la base de datos de imagenes. \'Esta ser\'a dividida y distribuida a lo targo del cluster para que las diferentes tareas que se ejecuten puedan acceder a ella.
 
-Para hacer esto, el método encargado de evaluar los individuos en el Evaluator (evaluatePopulation) genera un hilo de ejecución de forma local para cada individuo de la poblaci\'on, de manera que cada uno de ellos se encarga de la evaluación de cada individuo, el propósito de estos hilos es tan solo lanzar los trabajos en Hadoop por lo que la mayoría del tiempo tan solo se dedican a esperar que la ejecución de los trabajos finalicen para proseguir con la ejecución normal del proceso evolutivo. La implementación de lo anteriormente explicado se puede observar en el siguiente fragmente de código:
+Para hacer esto, el método encargado de evaluar los individuos en el Evaluator (evaluatePopulation) genera un hilo de ejecución de forma local para cada individuo de la poblaci\'on, de manera que cada uno de ellos se encarga de la evaluación de cada individuo. El propósito de estos hilos es lanzar los trabajos en Hadoop por lo que la mayoría del tiempo tan solo se dedican a esperar que la ejecución de los trabajos finalicen para proseguir con la ejecución normal del proceso evolutivo. La implementación de lo anteriormente explicado se puede observar en el siguiente fragmente de código:
 
 \begin{lstlisting}[language=Java]
 	Individual[] inds = subpops[0].individuals;

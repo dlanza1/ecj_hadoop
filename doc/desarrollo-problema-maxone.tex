@@ -76,15 +76,15 @@ select.tournament.size		= 2
 eval.problem		= ec.app.tutorial1.MaxOnes
 \end{lstlisting}
 
-Una vez definidos estamos ficheros, podríamos ejecutarlo de forma local compilando el código fuente y ejecutando el siguiente comando:
+Una vez definidos estos ficheros, podríamos ejecutarlo de forma local compilando el código fuente y ejecutando el siguiente comando:
 
 \mostrarconsola{
 	[usu@host src]\$ java ec.Evolve -file config.params
 }
 
-De este modo ejecutaríamos el un algoritmo evolutivo de forma local el cual terminar\'a su ejecución en cuanto encuentre a un individuo idea o alcance la generación 200.
+De este modo ejecutaríamos un algoritmo evolutivo de forma local, este terminar\'a su ejecución en cuanto encuentre a un individuo ideal o alcance la generación 200.
 
-Para este problema la ejecuci\'on es rápida, quizás un minuto o dos, ya que la función de evaluación es sencilla, y son pocos individuos, pero y si la evaluación fuera costosa o tuviéramos millones de individuos en la población? pues si disponemos de acceso a un cluster Hadoop podemos cambiar una linea y la evaluación se ejecutar\'a de forma distribuida haciendo uso de todos los recursos disponibles del cluster de manera que el tiempo de ejecución se reduzca notablemente. Esto podríamos conseguirlo cambiando el evaluador en el fichero de configuración, anteriormente lo establecimos a ec.simple.SimpleEvaluator (linea 14), si lo establecemos a ec.hadoop.HadoopEvaluator se ejecutar\'a haciendo uso de la implementación realizada, por lo que los individuos serán evaluados en todos los nodos del cluster Hadoop. Esta configuraci\'on ha sido probada obteniendo los mismos resultados que con la ejecución local.
+Para este problema la ejecuci\'on es rápida, quizás un minuto o dos, ya que la función de evaluación es sencilla, y son pocos individuos, pero y si la evaluación fuera costosa o tuviéramos millones de individuos en la población? pues si disponemos de acceso a un cluster Hadoop podemos cambiar una l\'inea y la evaluación se ejecutar\'a de forma distribuida haciendo uso de todos los recursos disponibles del cluster de manera que el tiempo de ejecución se reduzca notablemente. Esto podríamos conseguirlo cambiando el evaluador en el fichero de configuración, anteriormente lo establecimos a ec.simple.SimpleEvaluator (l\'nea 14), si lo establecemos a ec.hadoop.HadoopEvaluator se ejecutar\'a haciendo uso de la implementación realizada, por lo que los individuos serán evaluados en todos los nodos del cluster Hadoop. Esta configuraci\'on ha sido probada obteniendo los mismos resultados respecto a la evoluci\'on que con la ejecución local.
 
 
 

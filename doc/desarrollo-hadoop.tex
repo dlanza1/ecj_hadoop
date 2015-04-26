@@ -4,7 +4,7 @@ Hadoop es un proyecto de alto nivel Apache que está siendo construido y usado p
 
 \figuraSinMarco{0.8}{imagenes/procesos-hadoop}{Procesos en los diferentes nodos de un cluster Hadoop}{procesos-hadoop}{}
 
-Hadoop requiere tener instalados en los nodos del clúster la versi\'on 1.6 o superior del entorno de ejecuci\'on de Java (JRE) y SSH. Un clúster típico incluye un nodo maestro y múltiples nodos esclavos. El nodo maestro consiste en un proceso jobtracker (rastreador de trabajo), tasktracker (rastreador de tareas), namenode (nodo de nombres), y datanode (nodo de datos). Un esclavo o compute node (nodo de cómputo) consisten en un nodo de datos y un rastreador de tareas \ver{procesos-hadoop}. 
+Hadoop requiere tener instalados en los nodos del clúster la versi\'on 1.6 o superior del entorno de ejecuci\'on de Java (JRE) y SSH. Un clúster típico incluye un nodo maestro y múltiples nodos esclavos. El nodo maestro consiste en un proceso jobtracker (rastreador de trabajo), tasktracker (rastreador de tareas), namenode (nodo de nombres), y datanode (nodo de datos). Los esclavos o compute nodes (nodo de cómputo) consisten en un nodo de datos y un rastreador de tareas \ver{procesos-hadoop}. 
 
 Como se puede apreciar, Hadoop puede ser claramente dividido en dos partes, el sistema de ficheros, HDFS, y la parte que implementa la parte de procesamiento de información, la capa MapReduce.
 
@@ -16,7 +16,7 @@ Cada nodo sirve bloques de datos sobre la red usando un protocolo de bloqueo esp
 
 Su escalabilidad y su rendimiento se pueden llevar a cabo gracias a la falta de una de las características m\'as comunes en un sistema de ficheros, la capacidad de modificar el contenido de los ficheros que contiene, una característica no necesaria para el propósito para el que esta dise\~nado.
 
-Aunque Hadoop tiene su propio sistema de ficheros, HDFS, no esta cerrado al uso de tan solo ese sistema, otros sistemas de ficheros son también compatibles como Amazon S3, CloudStore o FTP.
+Aunque Hadoop tiene su propio sistema de ficheros, HDFS, no esta cerrado al uso de tan solo ese sistema. Otros sistemas de ficheros compatibles son Amazon S3, CloudStore o FTP.
 
 \subsection{La capa MapReduce}
 
@@ -43,7 +43,7 @@ Un trabajo MapReduce aplica dos funciones, como su nombre indica, una es una fun
 Todo este proceso se ve resumido en el diagrama \ver{mapreduce-job} extraido de \cite{cloudera-mapreduce}, donde se muestran cada una de estas fases.
 
 \label{fase-map-eval}
-La idea de la integración es que la entrada del trabajo de MapReduce este compuesta por todos los individuos a evaluar, de manera que la función Map sea la que evalúe cada individuo, prescindiendo de la etapa de Reduce, de manera que se escriba en el sistema de ficheros directamente la salida de la fase de Map, el resultado de la evaluación de los individuos.
+La idea de la integración es que la entrada del trabajo de MapReduce este compuesta por todos los individuos a evaluar, de manera que la función Map sea la que evalúe cada individuo, prescindiendo de la etapa de Reduce, de manera que se escriba en el sistema de ficheros directamente la salida de la fase de Map el resultado de la evaluación de los individuos.
 
 
 

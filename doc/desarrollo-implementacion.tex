@@ -1,10 +1,10 @@
-La herramienta de c\'omputo evolutivo ECJ es conocida entre otras cosas por su flexibilidad a la hora de poder desarrollar problemas en este ámbito, es por esto que la implementación que se plantea sigue la misma idea con el objetivo de que gran parte de los problemas que pueden ser implementados con esta herramienta, puedan hacer uso de la característica que se desarrolla en este trabajo de una forma sencilla.
+La herramienta de c\'omputo evolutivo ECJ, es conocida entre otras cosas por su flexibilidad a la hora de poder desarrollar problemas en este ámbito, es por esto que la implementación que se plantea sigue la misma idea con el objetivo de que gran parte de los problemas que sean implementados con esta herramienta, puedan hacer uso de la característica que se desarrolla en este trabajo, sin que suponga un gran esfuerzo.
 \label{desarrollo-implementacion}
 
 El propósito del trabajo es distribuir el costo computacional de la fase de evaluación de un algoritmo de computación evolutiva, es por esto que lo que debemos desarrollar es un Evaluator \ver{ecj-classes} el cual lleve a cabo la evaluación de los individuos.
 
 Para poder hacer esto y que pueda ser este evaluador establecido en cualquier problema que se plantee en la herramienta, se debe crear una clase que extienda de la clase abstracta ec.Evaluator. Al heredar de una clase abstracta debemos implementar los métodos marcados como abstractos, los de la clase ec.Evaluator se muestran a continuación.
-
+=
 \begin{lstlisting}[language=Java]
     /** Evalua el fitness de una poblacion entera. */
     public abstract void evaluatePopulation(final EvolutionState state);
@@ -33,13 +33,13 @@ La implementación realizada se encarga únicamente de recorrer todos los indivi
 
 \subsection{Aclaraciones previas}
 
-Antes de entrar en detalle de la implementación del método evaluatePopulation, debemos realizar algunas consideraciones. Para realizar la evaluación de los individuos, no es solo necesario las características que definen a cada individuo (genotipo), si no también aspectos como que función de evaluación utilizar o parámetros que determinan la forma de evaluar el individuo, estos y otros aspectos necesarios est\'an contenidos en el objeto que representa el estado de la evaluación (EvaluationState). Es por esto que en cada uno de los procesos que queramos evaluar los individuos, se debe tener acceso a este objeto, para tal propósito haremos uso de dos funciones clave que poseen ECJ y el sistema de ficheros de Hadoop (HDFS).
+Antes de entrar en detalle de la implementación del método evaluatePopulation, debemos realizar algunas consideraciones. Para realizar la evaluación de los individuos, no es solo necesario las características que definen a cada individuo (genotipo), si no también aspectos como que función de evaluación a utilizar o parámetros que determinan la forma de evaluar el individuo, estos y otros aspectos necesarios est\'an contenidos en el objeto que representa el estado de la evaluación (EvaluationState). Es por esto, que en cada uno de los procesos que queramos evaluar los individuos, se debe tener acceso a este objeto, para tal propósito haremos uso de dos funciones clave que poseen ECJ y el sistema de ficheros de Hadoop (HDFS).
 
-Para que todos los procesos tengan acceso al estado de la evaluación, haremos uso de la característica "puntos de restauración" que posee ECJ, esta característica permite serializar todo el estado del proceso evolutivo y enviarlo a través de la red o guardarlo en algún fichero, en principio esta característica se ide\'o con el fin de que se pueda detener el proceso y reanudarlo por donde iba cuando se desee pero en esta implementación se utilizar\'a para distribuir el estado del problema entre las diferentes m\'aquinas que llevar\'an a cabo la evaluación.
+Para que todos los procesos tengan acceso al estado de la evaluación, haremos uso de la característica "puntos de restauración" que posee ECJ, esta característica permite serializar todo el estado del proceso evolutivo y enviarlo a través de la red o guardarlo en algún fichero. En principio esta característica se ide\'o con el fin de que se pueda detener el proceso y reanudarlo por donde iba cuando se desee, pero en esta implementación se utilizar\'a para distribuir el estado del problema entre las diferentes m\'aquinas que llevar\'an a cabo la evaluación.
 
 Por otro lado, utilizaremos una característica de HDFS denominada cache distribuida, esta característica permite almacenar ficheros de forma que se distribuyan por todos y cada uno de los nodos que conforman el cluster, lo cual es ideal en este caso ya que si almacenamos aquí el estado de la evolución, todos los procesos que se distribuyan podrán acceder a el.
 
-Debemos tener en cuenta que el estado de la evaluación contiene todos los individuos de la población, lo cual no es necesario distribuir por dos motivos principales: en primer lugar porque cada nodo evaluar\'a solo una parte de la población con lo que no necesita contener toda la población, y en segundo lugar porque la población ser\'a la entrada del trabajo de Hadoop la cual estará contenida en el sistema de ficheros (HDFS). Sabiendo \'esto, se distribuirá el estado de la evaluación sin la población, esta ser\'a proporcionada a través de los ficheros de entrada al trabajo, los cuales Hadoop se encarg\'a automáticamente de dividir y distribuir.
+Debemos tener en cuenta que el estado de la evaluación contiene todos los individuos de la población, lo cual no es necesario distribuir por dos motivos principales: en primer lugar porque cada nodo evaluar\'a solo una parte de la población con lo que no necesita contener toda la población, y en segundo lugar porque la población ser\'a la entrada del trabajo de Hadoop la cual estará contenida en el sistema de ficheros (HDFS). Sabiendo \'esto, se distribuirá el estado de la evaluación sin la población, \'esta ser\'a proporcionada a través de los ficheros de entrada al trabajo, los cuales Hadoop se encarg\'a automáticamente de dividir y distribuir.
 
 \subsubsection{Dos modelos para dos situaciones}\label{dos-modelos-para-dos-situaciones}
 
@@ -49,7 +49,7 @@ Existe otro enfoque en el que podemos utilizar un trabajo de Hadoop para evaluar
 
 \subsection{Paso 1: Distribución del estado de la evaluación}
 
-Una vez descrito el proceso necesario para la evaluación distribuida de los individuos, pasamos ahora a describir la implementación realizada del método evaluatePopulation, la cual establece varias etapas que describimos a continuación. Cada una de estas etapas se ven representadas en el diagrama de flujo de datos visto en la sección anterior \ver{fases-evaluacion-un-trabajo}.
+Una vez descrito el proceso necesario para la evaluación distribuida de los individuos, pasamos ahora a describir la implementación realizada del método evaluatePopulation. \'Esta establece varias etapas que describimos a continuación, cada una de ellas se ven representadas en el diagrama de flujo de datos visto en la sección anterior \ver{fases-evaluacion-un-trabajo}.
 
 Con el objetivo de simplificar el desarrollo se ha implementado un cliente que lleva a cabo todas las tareas relacionadas con Hadoop:
 
@@ -92,7 +92,7 @@ Como se mencionaba anteriormente, la población es eliminada del punto de restau
 
 \subsection{Paso 2: Creación de la entrada del trabajo}
 
-La población de individuos a evaluar conformar\'a la entrada del trabajo de MapReduce, por lo que debemos escribir cada uno de los individuos en HDFS para que después el trabajo puede leerlos desde ahi. Para ello, desde el evaluador llamamos al método createInput del cliente de Hadoop implementado. Este método consiste en lo siguiente:
+La población de individuos a evaluar conformar\'a la entrada del trabajo de MapReduce, por lo que debemos escribir cada uno de los individuos en HDFS, para que después, el trabajo pueda leerlos desde ahi. Para ello, desde el evaluador llamamos al método createInput del cliente de Hadoop implementado. Este método consiste en lo siguiente:
 
 \begin{lstlisting}[language=Java]
 	Path input_file = new Path(work_folder.concat("/input/population.seq"));
@@ -112,7 +112,7 @@ La población de individuos a evaluar conformar\'a la entrada del trabajo de Map
 	writer.close();
 \end{lstlisting}
 
-Creamos un fichero secuencial en el directorio de trabajo con el nombre "population.sql", el cual contendrá la población entera. Debemos tener en cuenta que la entrada de un trabajo de MapRedice est\'a compuesta por tuplas de clave-valor por lo que ese ser\'a el contenido de este fichero, donde la clave est\'a compuesta por dos números que identifican de forma inequívoca a cada individuo, lo población (pop) y el n\'umero de individuo dentro de ella (indiv), y el valor ser\'a el propio individuo que estará compuesto entre otras cosas por el genotipo.
+Creamos un fichero secuencial en el directorio de trabajo con el nombre "population.seq", el cual contendrá la población entera. Debemos tener en cuenta que la entrada de un trabajo de MapRedice est\'a compuesta por tuplas de clave-valor por lo que ese ser\'a el contenido de este fichero, donde la clave est\'a compuesta por dos números que identifican de forma inequívoca a cada individuo, lo población (pop) y el n\'umero de individuo dentro de ella (indiv), y el valor ser\'a el propio individuo que estará compuesto entre otras cosas por el genotipo.
 
 Una vez creado el fichero se recorren todas las subpoblaciones e individuos y se a\~naden al fichero que contiene la población. Se debe comprobar si el individuo no est\'a evaluado, ya que pudiera provenir de una generación anterior y eso supone que ya est\'a evaluado y no es necesario volver a evaluarlo.
 
@@ -167,9 +167,9 @@ Definida la función, estamos en condiciones de crear el trabajo de MapReduce e 
 	SequenceFileOutputFormat.setOutputPath(job, output_directory);
 \end{lstlisting}
 
-En primer lugar creamos el objeto que representa el trabajo de MapReduce, posteriormente configuramos la entrada indicando que es un fichero secuencial y el directorio de entrada. Ahora debemos definir las fases del trabajo, en primer lugar la fase Map, indicando la clase que implementa el método mostrado anteriormente (map) y en segundo lugar la fase de reduce de la cual vamos a prescindir por lo que tan solo debemos indicar que no habra ninguna tarea reduce. Por \'ultimo, configuramos la salida indicando de que tipos est\'a compuesta, los cuales coinciden con los tipos de salida del Mapper implementado, borramos el directorio de salida que contendría el resultado de la evaluación de la generación anterior y indicamos el directorio de salida.
+En primer lugar creamos el objeto que representa el trabajo de MapReduce, posteriormente configuramos la entrada indicando que es un fichero secuencial y el directorio de entrada. Ahora debemos definir las fases del trabajo, en primer lugar la fase Map, indicando la clase que implementa el método mostrado anteriormente (map) y en segundo lugar la fase de reduce de la cual vamos a prescindir por lo que tan solo debemos indicar que no habra ninguna tarea reduce. Por \'ultimo, indicamos los tipos de los que est\'a compuesta que la salida, los cuales coinciden con los tipos de salida del Mapper implementado, borramos el directorio de salida que contendría el resultado de la evaluación de la generación anterior y indicamos el directorio de salida.
 
-Una vez configurado lo inicioamos de la siguiente manera:
+Una vez configurado lo iniciamos de la siguiente manera:
 
 \begin{lstlisting}[language=Java]
 	job.waitForCompletion(true);
@@ -179,7 +179,7 @@ Esto enviar'a el trabajo al cluster que hayamos indicado en el cliente de Hadoop
 
 \subsection{Paso 4: Asignaci\'on de resultados}
 
-El \'ultimo paso es asignarle a los individuos los resultados obtenidos de forma distribuida con el trabajo en MapReduce para continuar así de forma normal el proceso de la evoluci\'on. El trabajo ha generado en el directorio de salida un conjunto de ficheros (uno por cada proceso Mapper) que contienen la salida de la función map la cual est\'a compuesta por tuplas del identificador del usuario y el fitness calculado.
+El \'ultimo paso es asignarle a los individuos los resultados obtenidos de forma distribuida con el trabajo en MapReduce, para continuar así de forma normal el proceso evolutivo. El trabajo ha generado en el directorio de salida un conjunto de ficheros (uno por cada proceso Mapper) que contienen la salida de la función map, esta salida est\'a compuesta por tuplas del identificador del usuario y el fitness calculado.
 
 El procedimiento para recabar los resultados se lleva a cabo en el cliente de Hadoop implementado llamando al metodo readFitness y su implementación es la siguiente:
 
@@ -210,7 +210,7 @@ El procedimiento para recabar los resultados se lleva a cabo en el cliente de Ha
 	}
 \end{lstlisting}
 
-En primer lugar, obtenemos una lista con todos los ficheros de salida producidos y a continuación recorremos cada uno de ellos. Leemos cada registro del fichero y asignamos al individuo correspondiente (obtenemos subpoblacion y numero de individuo desde la clave leída) el fitness extraído y finalmente marcamos cada individuo como evaluado.
+En primer lugar, obtenemos una lista con todos los ficheros de salida producidos y a continuación recorremos cada uno de ellos. Leemos cada registro del fichero y asignamos al individuo correspondiente el fitness extraído, obteniendo la subpoblacion y n\'umero de individuo desde la clave leída, y finalmente marcamos cada individuo como evaluado.
 
 
 
