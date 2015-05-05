@@ -1,6 +1,6 @@
 Abordamos en primer lugar los resultados obtenidos cuando la evaluaci\'on de los individuos tiene un coste despreciable \verapartado{resultados-parity}. Aunque en un principio los resultados obtenidos no consegu\'ian mejorar los tiempos de la implementaci\'on multihilo que trae implementado ECJ, estos se consiguieron mejorar tras una serie de mejoras en la implementaci\'on y en la configuraci\'on de Hadoop.
 
-Los tiempos de la ejecuci\'on secuencial eran superados sin problemas con una cantidad de individuos relativamente peque\~na, en cambio si utilizamos los 8 núcleos de procesamiento que poseía la m\'aquina, debemos alcanzar el medio mill\'on de individuos para que el uso de Hadoop tenga sentido. 
+Los tiempos de la ejecuci\'on secuencial eran superados sin problemas con una cantidad de individuos relativamente peque\~na, en cambio si utilizamos los 8 núcleos de procesamiento que poseía la m\'aquina, debemos alcanzar el medio mill\'on de individuos para que el uso de Hadoop tenga sentido cuando ejecutamos problemas en los que el tiempo de evaluaci\'on es peque\~no. 
 
 Estas pruebas fueron realizadas con 6 m\'aquinas por lo que el uso de recursos hardware aumenta considerablemente con respecto a la soluci\'on multihilo, deber\'a ser el desarrollador quien decida cuando utilizar la soluci\'on proporcionada teniendo en cuanta los recursos hardware de los que disponga. No obstante, estas consideraciones cambian sustancialmente si la evaluaci\'on de los individuos es algo m\'as costosa, estas circunstancias se analizan mas adelante.
 

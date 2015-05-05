@@ -1,0 +1,16 @@
+Como hemos mencionado, el objetivo es paralelizar la evaluaci\'on de los individuos haciendo uso de Hadoop de manera que cualquier problema que despleguemos en ECJ pueda hacer uso fácilmente de la implementac\'on que se realice. Con este objetivo se ha dise\'nado un modelo de paralelizaci\'on en el que se llevan a cabo diferentes etapas para poder obtener la poblaci\'on evaluada al final de su ejecuci\'on, haciendo esto de forma distribuida y paralela.
+
+Los pasos que se describir\'an a continuaci\'on han sido representados en un diagrama de flujo \ver{fases-evaluacion-un-trabajo} con el fin de entender bien las diferentes etapas que se llevan a cabo y los diferentes flujos de datos que se producen en la implementaci\'on realizada.
+
+\figuraSinMarco{0.9}{imagenes/fases-evaluacion-un-trabajo}{Flujo de información cuando se utiliza un trabajo para la evaluación}{fases-evaluacion-un-trabajo}{}
+
+El modelo dise\~nado consiste en un trabajo de Hadoop que eval\'ua toda la población. Para poder ejecutar este trabajo debemos con antelaci\'on preparar su entorno de ejecuci\'on, y posteriormente, recopilar los resultados. De este modo se siguen las siguientes etapas para la evaluaci\'on de cada generaci\'on.
+
+\begin{enumerate}
+	\item \textbf{Distribuir el estado de la evaluci\'on}, en este primer paso se distribuye un estado de la evaluaci\'on producido por ECJ a lo largo de todos los nodos del cluster. Este estado de la evaluaci\'on es necesario para poder evaluar los individuos.
+	\item \textbf{Volcar la poblaci\'on en el sistema de ficheros}, se generan ficheros que almacenan la poblaci\'on en HDFS. Estos ficheros son divididos por el sistema de ficheros en diferentes bloques de taman\~no configurable. Se ejecutar\'an tantas tareas como bloques compongan los ficheros que almacenen la poblaci\'on.
+	\item \textbf{Ejecutar trabajo de Hadoop}, con el estado de la poblaci\'on en todos los nodos y con la entrada del trabajo (ficheros con la poblaci\'on) creada en HDFS, iniciamos el trabajo de Hadoop. Aunque normalmente un trabajo de Hadoop se compone por dos fases, Map y Reduce, \'este solo har\'a uso de la primera, donde se evaluar\'a cada uno de los individuos leyéndolos desde la entrada y escribiendo el resultado en la salida.
+	\item \textbf{Recopilaci\'on de resultados}, con los resultados de la evaluaci\'on producidos, estos son leídos y asignados a cada uno de los individuos.
+\end{enumerate}
+
+Esta implementación se explica con mayor detalle m\'as adelante \verapartado{desarrollo-implementacion}. 
