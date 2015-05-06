@@ -1,5 +1,7 @@
 \label{resultados-facerecognition}
 
+Aclaramos en primer lugar que los experimentos y resultados se han realizado pare medir los tiempos de cómputo, queda fuera del alcance del trabajo analizar la calidad de los resultados obtenidos mediante la implementación evolutiva, es decir, no valoraremos si la aplicaci\'on del algoritmo evolutivo ha mejorado la capacidad de reconocimiento facial del sistema, pero si entraremos a valorar el tiempo de ejecuci\'on al ejecutar el algoritmo evolutivo en diferentes circunstancias.
+
 Analizamos los resultados obtenidos al ejecutar un problema en el que la evaluación de cada individuo toma varios minutos. En una ejecuci\'on secuencial, los tiempos de la evaluación de cada generaraci\'on puede llevar horas dependiendo del tamaño de la población.
 
 La implementaci\'on secuencial del algoritmo de reconocimiento facial utiliza la librer\'ia OpenCV para el tratamiento de las im\'agenes. El uso de esta librer\'ia ayuda a reducir notablemente el tiempo de procesamiento, as\'i la fase de entrenamiento en la ejecuci\'on secuencial necesita sobre unos 127 segundos y la fase de consulta unos 140 segundos. 
@@ -20,7 +22,7 @@ En primer lugar se realiz\'o la integraci\'on del problema de reconocimiento fac
   \end{center}
 \end{table}
 
-Se graficamos estos resultados \ver{grafica-num-grupos} compar\'andolos con los tiempos de la ejecuci\'on secuencial podemos observar facilmente dos cosas. En primer lugar, el hecho de que el n\'umero de grupos mas apropiado en el que se debe dividir la entrada son 20. Por otro lado vemos como la ganancia de tiempo con respecto a la ejecuci\'on secuencial es significativa. Si sumamos los tiempos de ambas fases en ambas implementaciones (tiempos con 20 grupos) y los comparamos, vemos como la integraci\'on ha conseguido que se ejecute el algoritmo en un 30\% del tiempo de la ejecuci\'on secuencial.
+Se graficamos estos resultados \ver{grafica-num-grupos} compar\'andolos con los tiempos de la ejecuci\'on secuencial podemos observar facilmente dos cosas. En primer lugar, el hecho de que el n\'umero de grupos m\'as apropiado en el que se debe dividir la entrada son 20. Por otro lado vemos como la ganancia de tiempo con respecto a la ejecuci\'on secuencial es significativa. Si sumamos los tiempos de ambas fases en ambas implementaciones (tiempos con 20 grupos) y los comparamos, vemos como la integraci\'on ha conseguido que se ejecute el algoritmo en un 30\% del tiempo de la ejecuci\'on secuencial.
 
 \figuraSinMarco{0.8}{imagenes/facerecognition-results-num-splits}{Comparaci\'on de tiempos en funci\'on del numero de grupos de la entrada}{grafica-num-grupos}{}
 
@@ -31,9 +33,9 @@ Con el fin de probar la escalabilidad del sistema se ha lanzado ejecuciones con 
 \begin{table}[H]
   \begin{center}
     \begin{center}
-    \begin{tabular}{l | c c c}
-    N\'umero de nodos & 2 & 4 & 6 \\ \hline
-    Evaluaci\'on (min) & 25 & 11.5 & 6.4\\
+    \begin{tabular}{l | c c c c}
+    N\'umero de nodos & 1 & 2 & 4 & 6 \\ \hline
+    Evaluaci\'on (min) & 53 & 25 & 11.5 & 6.4\\
     \end{tabular}
     \end{center}
     \caption{Tiempos de evaluaci\'on de la poblaci\'on en Hadoop con diferente n\'umero de nodos para 10 individuos}
@@ -43,7 +45,7 @@ Con el fin de probar la escalabilidad del sistema se ha lanzado ejecuciones con 
 
 \figuraSinMarco{0.6}{imagenes/facerecognition-results-num-nodes}{Comparaci\'on de tiempos en funci\'on del n\'umero de nodos}{grafica-num-nodos}{}
 
-Graficados estos datos \ver{grafica-num-nodos} observamos como la escalabilidad del sistema mejora incluso los tiempos ideales, esto nos indica que la inclusi\'on de nuevos nodos en el cluster en el que lo corramos (f\'acil tarea) provocar\'a que los tiempos se reducir\'an acorde al n\'umero de nodos que a\~nadamos. Para observar mejor la escalabilidad del sistema se ha a\~nadido una l\'inea de tiempo ideal correspondiente a la mitad del tiempo de 2 nodos para 4 nodos y a la tercera parte del tiempo de 2 nodos para 6 nodos. Adem\'as, se ha a\~nadido al gr\'afico el tiempo que tomar\'ia esta ejecuci\'on de forma secuencial (evaluar un individuo {= 127 + 140 = 267 s}, evaluar 10 {= 10 x 267 / 60 = 44.5 min}) para observar lo que supone el uso de Hadoop.
+Graficados estos datos \ver{grafica-num-nodos} observamos la escalabilidad del sistema, los resultados nos indican que la inclusi\'on de nuevos nodos en el cluster en el que lo corramos (f\'acil tarea) provocar\'a que los tiempos se reducir\'an acorde al n\'umero de nodos que a\~nadamos. Para observar mejor la escalabilidad del sistema se ha a\~nadido una l\'inea de tiempo ideal correspondiente a la mitad del tiempo de 1 nodo para 2 nodos, a la cuarta parte para 4 nodos y a la sexta parte para 6 nodos. Adem\'as, se ha a\~nadido al gr\'afico el tiempo que tomar\'ia esta ejecuci\'on de forma secuencial (evaluar un individuo {= 127 + 140 = 267 s}, evaluar 10 {= 10 x 267 / 60 = 44.5 min}) para observar lo que supone el uso de Hadoop.
 
 El hecho de que se mejoren los tiempos ideales es de extra\~nar, pero debemos tener en cuenta que Hadoop hace uso de numerosos servicios que se pueden ver sobrecargados si todo se ejecuta en un n\'umero reducido de nodos. Por esta raz\'on es f\'acil que se produzcan este tipo de anomal\'ias en los tiempos analizados.
 
