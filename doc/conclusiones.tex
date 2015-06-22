@@ -4,10 +4,10 @@ En este trabajo hemos abordado primero problemas donde la evaluaci\'on de los in
 
 Los tiempos de la ejecuci\'on secuencial eran superados sin problemas con una cantidad de individuos relativamente peque\~na, en cambio si utilizamos los 8 núcleos de procesamiento que poseía la m\'aquina, debemos alcanzar el medio mill\'on de individuos para que el uso de Hadoop tenga sentido cuando ejecutamos problemas en los que el tiempo de evaluaci\'on es peque\~no. 
 
-Estas pruebas fueron realizadas con 6 m\'aquinas por lo que el uso de recursos hardware aumenta considerablemente con respecto a la soluci\'on multihilo, deber\'a ser el desarrollador quien decida cuando utilizar la soluci\'on proporcionada teniendo en cuanta los recursos hardware de los que disponga. No obstante, estas consideraciones cambian sustancialmente si la evaluaci\'on de los individuos es algo m\'as costosa, estas circunstancias se analizan m\'as adelante.
+Estas pruebas fueron realizadas con 6 m\'aquinas por lo que el uso de recursos hardware aumenta considerablemente con respecto a la soluci\'on multihilo, deber\'a ser el desarrollador quien decida cuando utilizar la soluci\'on proporcionada teniendo en cuenta los recursos hardware de los que disponga. No obstante, estas consideraciones cambian sustancialmente si la evaluaci\'on de los individuos es algo m\'as costosa, estas circunstancias se analizan m\'as adelante.
 
 \insertaraclaracion{Limitaci\'on multihilo}{
-La desventaja de la implementación multihilo que trae implementada ECJ, es que la ejecuci\'on se ve limitada a la cantidad de núcleos de procesamiento de una solo m\'aquina, pero si utilizamos la integración con Hadoop podemos utilizar todos los procesadores de cada una de las m\'aquinas que componen nuestro cluster.
+La desventaja de la implementación multihilo que trae implementada ECJ, es que la ejecuci\'on se ve limitada a la cantidad de núcleos de procesamiento de una sola m\'aquina, pero si utilizamos la integración con Hadoop podemos utilizar todos los procesadores de cada una de las m\'aquinas que componen nuestro cluster.
 }
 
 El escenario cambia considerablemente si pasamos a considerar un problema donde la evaluaci\'on de los individuos sea m\'as costosa, este es el caso del problema de reconocimiento facial cuyos resultados se han mostrado anteriormente \verapartado{resultados-facerecognition}. 
@@ -18,7 +18,7 @@ Este beneficio se ve resumido en que el uso de Hadoop con 6 m\'quinas consigue e
 16,66 \%. Esto nos lleva a pensar que la inclusi\'on de nuevas m\'aquinas en el cluster nos proporcionar\'a ganancias proporcionales y no habr\'ia un deterioro de los tiempos por una mala escalabilidad del sistema.
 
 \insertaraclaracion{Distribuci\'on con Hadoop}{
-Un sistema que aporte escalabilidad, tolerancia a fallos, distribuci\'on de tareas, gesti\'on de recursos y otras muchas cosas m\'as es lo suficientemente complejo de construir como para que se valoren herramientas ya implementadas. Este es el caso de Hadoop, herramienta que proporciona estas caracter\'isticas y las cuales hemos aprovechado en esta integraci\'on. De este modo eludimos la complejidad de la implementación de un sistema como Hadoop y aprovechamos el conocimiento puesto en ella por cientos de desarrolladores.
+Un sistema que aporte escalabilidad, tolerancia a fallos, distribuci\'on de tareas y gesti\'on de recursos es lo suficientemente complejo de construir como para que se valoren herramientas ya implementadas. Este es el caso de Hadoop, herramienta que proporciona estas caracter\'isticas y las cuales hemos aprovechado en esta integraci\'on. De este modo eludimos la complejidad de la implementación de un sistema como Hadoop y aprovechamos el conocimiento puesto en ella por cientos de desarrolladores.
 }
 
 Viendo los resultados de estos dos extremos, con millones y con decenas de individuos, concluimos que el uso de esta integraci\'on debe ser valorado en funci\'on del coste de la evaluaci\'on de los individuos. Sin duda, cuando la evaluaci\'on es algo costosa, su uso trae numerosas ventajas respecto a la explotaci\'on de los recursos.

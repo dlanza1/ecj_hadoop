@@ -1,12 +1,12 @@
 \label{resultados-facerecognition}
 
-Aclaramos en primer lugar que los experimentos y resultados se han realizado pare medir los tiempos de cómputo, queda fuera del alcance del trabajo analizar la calidad de los resultados obtenidos mediante la implementación evolutiva, es decir, no valoraremos si la aplicaci\'on del algoritmo evolutivo ha mejorado la capacidad de reconocimiento facial del sistema, pero si entraremos a valorar el tiempo de ejecuci\'on al ejecutar el algoritmo evolutivo en diferentes circunstancias.
+Aclaramos en primer lugar que los experimentos y resultados se han realizado para medir los tiempos de cómputo, queda fuera del alcance del trabajo analizar la calidad de los resultados obtenidos mediante la implementación evolutiva, es decir, no valoraremos si la aplicaci\'on del algoritmo evolutivo ha mejorado la capacidad de reconocimiento facial del sistema, pero si entraremos a valorar el tiempo de ejecuci\'on al ejecutar el algoritmo evolutivo en diferentes escenarios.
 
 Analizamos los resultados obtenidos al ejecutar un problema en el que la evaluación de cada individuo toma varios minutos. En una ejecuci\'on secuencial, los tiempos de la evaluación de cada generaraci\'on puede llevar horas dependiendo del tamaño de la población.
 
 La implementaci\'on secuencial del algoritmo de reconocimiento facial utiliza la librer\'ia OpenCV para el tratamiento de las im\'agenes. El uso de esta librer\'ia ayuda a reducir notablemente el tiempo de procesamiento, as\'i la fase de entrenamiento en la ejecuci\'on secuencial necesita sobre unos 127 segundos y la fase de consulta unos 140 segundos. 
 
-En primer lugar se realiz\'o la integraci\'on del problema de reconocimiento facial con Hadoop para paralelizar el procesamiento de las im\'agenes haciendo uso de esta herramienta. El nivel de paralelizaci\'on depende de como se divida la entrada del problema ya que se ejecutar\'an tantas tareas en paralelo como divisiones de la entrada existan \ver{fases-evaluacion-trabajo-por-ind}. Esta idea nos podr\'ia llevar al convencimiento de que obtendremos mejores tiempos mientras m\'as tareas tengamos, pero la creaci\'on de la tarea, distribuci\'on de la entrada al trabajo y la posterior destrucci\'on de la tarea conllevan tiempos que deben ser considerados. Es por esto que se han realizado ejecuciones para encontrar el mejor n\'umero de tareas que se ejecuten de forma paralela. Los tiempos obtenidos en segundos se muestran en una tabla \vertabla{tabla-tiempos-num-grupos}.
+En primer lugar se realiz\'o la integraci\'on del problema de reconocimiento facial con Hadoop para paralelizar el procesamiento de las im\'agenes haciendo uso de esta herramienta. El nivel de paralelizaci\'on depende de c\'omo se divida la entrada del problema ya que se ejecutar\'an tantas tareas en paralelo como divisiones de la entrada existan \ver{fases-evaluacion-trabajo-por-ind}. Esta idea nos podr\'ia llevar al convencimiento de que obtendremos mejores tiempos mientras m\'as tareas tengamos, pero la creaci\'on de la tarea, distribuci\'on de la entrada al trabajo y la posterior destrucci\'on de la tarea conllevan tiempos que deben ser considerados. Es por esto que se han realizado ejecuciones para encontrar el mejor n\'umero de tareas que se ejecuten de forma paralela. Los tiempos obtenidos en segundos se muestran en una tabla \vertabla{tabla-tiempos-num-grupos}.
 
 \begin{table}[H]
   \begin{center}
@@ -22,7 +22,7 @@ En primer lugar se realiz\'o la integraci\'on del problema de reconocimiento fac
   \end{center}
 \end{table}
 
-Se graficamos estos resultados \ver{grafica-num-grupos} compar\'andolos con los tiempos de la ejecuci\'on secuencial podemos observar facilmente dos cosas. En primer lugar, el hecho de que el n\'umero de grupos m\'as apropiado en el que se debe dividir la entrada son 20. Por otro lado vemos como la ganancia de tiempo con respecto a la ejecuci\'on secuencial es significativa. Si sumamos los tiempos de ambas fases en ambas implementaciones (tiempos con 20 grupos) y los comparamos, vemos como la integraci\'on ha conseguido que se ejecute el algoritmo en un 30\% del tiempo de la ejecuci\'on secuencial.
+Si graficamos estos resultados \ver{grafica-num-grupos} compar\'andolos con los tiempos de la ejecuci\'on secuencial podemos observar facilmente dos situaciones. En primer lugar, el hecho de que el n\'umero de grupos m\'as apropiado en el que se debe dividir la entrada son 20. Por otro lado vemos como la ganancia de tiempo con respecto a la ejecuci\'on secuencial es significativa. Si sumamos los tiempos de ambas fases en ambas implementaciones (tiempos con 20 grupos) y los comparamos, vemos como la integraci\'on ha conseguido que se ejecute el algoritmo en un 30\% del tiempo de la ejecuci\'on secuencial.
 
 \figuraSinMarco{0.8}{imagenes/facerecognition-results-num-splits}{Comparaci\'on de tiempos en funci\'on del numero de grupos de la entrada}{grafica-num-grupos}{}
 
@@ -67,6 +67,11 @@ Analizamos ahora ejecuciones con diferentes tama\~nos de poblaci\'on y el mismo 
 \figuraSinMarco{0.6}{imagenes/facerecognition-results-num-indiv}{Comparaci\'on de tiempos en funci\'on del n\'umero de individuos}{grafica-num-indiv}{}
 
 Al igual que hemos hecho con los resultados anteriores, lo comparamos con los tiempos de ejecuciones secuenciales y tiempos ideales \ver{grafica-num-indiv}. Vemos como los beneficios del uso de la integraci\'on con Hadoop son significativos, adem\'as se obtienen resultados similares a los ideales.
+
+Los resultados obtenidos han sido realmente prometedores, la reducci\'on de los tiempos ha sido considerable y vemos como la escalabilidad del sistema es indiscutible. Con un cluster con m\'as nodos, se podr\'ian utilizar poblaciones m\'as grandes y a\'un as\'i mantener el tiempo de ejecuci\'on en pocos minutos. Basicamente, duplicando la poblaci\'on y el n\'umero de nodos, los tiempos ser\'ian los mismos, hecho remarcable en un sistema paralelo.
+
+
+
 
 
 

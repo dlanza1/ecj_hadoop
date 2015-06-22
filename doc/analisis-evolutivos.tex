@@ -5,7 +5,7 @@ Se han desarrollado diferentes formas de afrontar estos problemas de optimizaci\
 \begin{itemize}
 	\item Algoritmos genéticos, donde los individuos de la población son representados por cadenas de bits o números.
 	\item Programación evolutiva, una variación de los algoritmos genéticos, donde lo que cambia es la representación de los individuos. En el caso de la Programación evolutiva los individuos son ternas cuyos valores representan estados de un autómata finito. 
-	\item Estrategias evolutivas, se diferencia de las demás en que la representación de cada individuo de la población consta de dos tipos de variables: las variables objeto, posibles valores que hacen que la función objetivo alcance el óptimo, y las variables estratégicas, las cuales indican de qué manera las variables objeto son afectadas por la mutación.. 
+	\item Estrategias evolutivas, se diferencia de las demás en que la representación de cada individuo de la población consta de dos tipos de variables: las variables objeto, posibles valores que hacen que la función objetivo alcance el óptimo, y las variables estratégicas, las cuales indican de qué manera las variables objeto son afectadas por la mutación.
 \end{itemize}
 
 Este modelo por tanto, se basa generalmente en la evolución de una población y la lucha por la supervivencia. En su teoría, Darwin dictamin\'o que durante muchas generaciones, la variación, la selección natural y la herencia dan forma a las especies con el fin de satisfacer las demandas del entorno. Con la misma idea pero con el fin de satisfacer una buena solución al problema que se plantee, surge la computación evolutiva. Podemos observar entonces algunos elementos importantes:
@@ -26,7 +26,7 @@ Para llevar a cabo la implementación en computadoras, se ha dividido el problem
 	\begin{enumerate}
 		\item Selección, siguiendo la estrategia de selección de progenitores elegida, se eligen individuos de la población. Normalmente los que sean m\'as aptos.
 		\item Procreaci\'on, utilizando los individuos seleccionados, se combinan para generar nuevos individuos, y con ellos una nueva población (generación).
-		\item Mutaci\'on, a un porcentaje de los individuos recién generados se les aplica una modificación aleatoria.
+		\item Mutaci\'on, a un porcentaje de los individuos se les aplica una modificación aleatoria.
 		\item Evaluaci\'on, todos los individuos de la nueva poblaci\'on son evaluados.
 	\end{enumerate}
 \end{enumerate}
@@ -45,7 +45,7 @@ Varias partes del proceso evolutivo pueden ser paralizadas, pero no todas merece
 
 Se han utilizado diferentes técnicas para este prop\'osito \cite{article-parallel-review}\cite{article-paraller-fpga}\cite{Andre:1996:PGP:270195.270224}\cite{DBLP:journals/gpem/VegaTV03}, una de ellas es la ejecución de la evaluación de individuos haciendo uso de procesadores multin\'ucleo/multihilo. Esta t\'ecnica consigue buenos resultados pero se limita a las capacidades del procesador que posea la computadora donde se ejecute. Otro intento para llevar a cabo la paralelizaci\'on del proceso ha sido la ejecución en diferentes m\'aquinas, las cuales se conectan haciendo uso de una red que las interconecte. Este planteamiento requiere de una implementación m\'as compleja y no suele explotar todos los recursos de forma eficiente, adem\'as de que algunas soluciones planteadas carecen de la escalabilidad deseada. Tambi\'en han surgido implementaciones que hacen uso de ambas t\'ecnicas, esta solución suele ser la m\'as apropiada ya que hace un uso m\'as eficiente del hardware disponible, aunque requiere de una implementación a\'un m\'as compleja.
 
-Con el fin de llevar a cabo la paralelizaci\'on han surgido diferentes modelos paralelos, algunos de los cuales se describen a continuación:
+Con el fin de llevar a cabo la paralelizaci\'on han surgido diferentes modelos, algunos de los cuales se describen a continuación:
 
 \begin{itemize}
 	\item Modelo maestro-esclavo, se mantiene una población donde la evaluación del fitness y/o la aplicación de los operadores genéticos se hace en paralelo. Se implementan procesos maestro-esclavo, donde el maestro almacena la población y los esclavos solicitan parte de la población al proceso maesto para evaluarla.
@@ -57,7 +57,7 @@ La implementación del paralelismo de estos y otros modelos han hecho uso de tec
 
 \begin{itemize}
 	\item MPI, utilizada en \cite{DBLP:conf/pvm/1999} y \cite{DBLP:conf/pvm/FernandezTVB00}, es un estándar que define la sintaxis y la semántica de las funciones contenidas en una biblioteca de paso de mensajes diseñada para ser usada en programas que exploten la existencia de múltiples procesadores.
-	\item PVM, utilizada en \cite{DBLP:conf/pvm/FernandezSTG99} y \cite{DBLP:conf/pvm/2000}, es una biblioteca para el cómputo paralelo en un sistema distribuido de computadoras. Está diseñado para permitir que una red de computadoras heterogénea comparta sus recursos de cómputo (como el procesador y la memoria RAM) con el fin de aprovechar esto para disminuir el tiempo de ejecución de un programa al distribuir la carga de trabajo en varias computadoras.
+	\item PVM, utilizada en \cite{DBLP:conf/pvm/FernandezSTG99} y \cite{DBLP:conf/pvm/2000}, es una biblioteca para el cómputo paralelo en un sistema distribuido de computadoras. Está diseñado para permitir que una red de computadoras heterogénea comparta sus recursos de cómputo (como el procesador y la memoria RAM) con el fin de aprovechar estos para disminuir el tiempo de ejecución de un programa al distribuir la carga de trabajo en varias computadoras.
 	\item BOINC, utilizado en \cite{feki2009parallel}, una plataforma de computación voluntaria de propósito general para proyectos de computación distribuida, que permite compartir los recursos de las computadoras de sus contribuyentes con otros proyectos. 
 \end{itemize}
 

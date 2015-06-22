@@ -28,9 +28,9 @@ Podemos analizar la modificaci\'on planteada m\'as en profundidad si lo describi
 
 \figuraSinMarco{1.1}{imagenes/fases-evaluacion-trabajo-por-ind}{Flujo de información cuando se utiliza un trabajo para cada individuo}{fases-evaluacion-trabajo-por-ind}{}
 
-Si tenemos en cuenta el tiempo que se tarda en la ejecución secuencial del algoritmo (4 minutos) y hacemos unas cuentas sencillas podemos ver que si tenemos una peque\~na población de 10 individuos, cada generación tardar\'a en ser evaluada unos cuarenta minutos, si queremos evolucionarlo necesitaremos quizás decenas o centenas de generaciones lo cual conllevar\'ia un tiempo impracticable. Es por esto que adem\'as de la integración con ECJ, haremos uso de la integración con Hadoop para distribuir y paralizar el proceso y así poder hacer que la evaluación de cada generación sea cuestión de pocos minutos.
+Si tenemos en cuenta el tiempo que se tarda en la ejecución secuencial del algoritmo (4 minutos) y realizamos una sencillas operaciones para una pequeña población de 10 individuos, cada generación tardar\'a en ser evaluada unos cuarenta minutos, si queremos evolucionarlo necesitaremos quizás decenas o centenas de generaciones lo cual conllevar\'ia un tiempo impracticable. Es por esto que adem\'as de la integración con ECJ, haremos uso de la integración con Hadoop para distribuir y paralizar el proceso y así poder hacer que la evaluación de cada generación sea cuestión de pocos minutos.
 
-Como se ha comentado en la sección sobre la implementación de los problemas anteriores \verapartado{dos-modelos-para-dos-situaciones}, existe otro modelo que se puede llevar a cabo cuando la evaluación de cada uno de los individuos toma varios minutos y \'esta puede ser paralizada. \'Este es el caso del problema de reconocimiento facial que abordamos en este cap\'titulo en el que la evaluación de cada individuo puede tomar aproximadamente 4 minutos y consiste en aplicar un procesamiento a cada una de las imágenes de la base de datos de entrada, por lo que su paralelizaci\'on no se plantea muy complicada. Teniendo en cuenta esto, haremos uso de este modelo para la integraci\'on de este problema con Hadoop. La paralelizaci\'on se producirá a dos niveles ya que los trabajos se ejecutar\'an de manera simultánea y las tareas dentro de cada trabajo también. Anteriormente \ver{fases-evaluacion-trabajo-por-ind} se ha mostrado el flujo de información que se produce con esta implementación, ese diagrama puede ayudar a entender mejor las etapas que se llevan a cabo. 
+Como se ha comentado en la sección sobre la implementación de los problemas anteriores \verapartado{dos-modelos-para-dos-situaciones}, existe otro modelo que se puede llevar a cabo cuando la evaluación de cada uno de los individuos toma varios minutos y \'esta puede ser paralizada. \'Este es el caso del problema de reconocimiento facial que abordamos en este cap\'itulo en el que la evaluación de cada individuo puede tomar aproximadamente 4 minutos y consiste en aplicar un procesamiento a cada una de las imágenes de la base de datos de entrada, por lo que su paralelizaci\'on no se plantea muy complicada. Teniendo en cuenta esto, haremos uso de este modelo para la integraci\'on de este problema con Hadoop. La paralelizaci\'on se producirá a dos niveles ya que los trabajos se ejecutar\'an de manera simultánea y las tareas dentro de cada trabajo también. Anteriormente \ver{fases-evaluacion-trabajo-por-ind} se ha mostrado el flujo de información que se produce con esta implementación, ese diagrama puede ayudar a entender mejor las etapas que se llevan a cabo. 
 
 Pasamos a describir cada una de las etapas que se llevan a cabo en este modelo para la evaluaci\'on una poblaci\'on.
 
@@ -70,9 +70,9 @@ Estos pasos se explica con m\'as detalle en la secci\'on siguiente.
 
 \subsection{Implementaci\'on} \label{problema-facerecognition-implementacion}
 
-La entrada del trabajo de Hadoop estar\'a almacenada en el sistema de ficheros y estar\'a formada por la base de datos de imagenes. \'Esta ser\'a dividida y distribuida a lo targo del cluster para que las diferentes tareas que se ejecuten puedan acceder a ella.
+La entrada del trabajo de Hadoop estar\'a almacenada en el sistema de ficheros y estar\'a formada por la base de datos de imagenes. \'Esta ser\'a dividida y distribuida a lo largo del cluster para que las diferentes tareas que se ejecuten puedan acceder a ella.
 
-Para hacer esto, el método encargado de evaluar los individuos en el Evaluator (evaluatePopulation) genera un hilo de ejecución de forma local para cada individuo de la poblaci\'on, de manera que cada uno de ellos se encarga de la evaluación de cada individuo. El propósito de estos hilos es lanzar los trabajos en Hadoop por lo que la mayoría del tiempo tan solo se dedican a esperar que la ejecución de los trabajos finalicen para proseguir con la ejecución normal del proceso evolutivo. La implementación de lo anteriormente explicado se puede observar en el siguiente fragmente de código:
+Para hacer esto, el método encargado de evaluar los individuos en el Evaluator (evaluatePopulation) genera un hilo de ejecución de forma local para cada individuo de la poblaci\'on, de manera que cada uno de ellos se encarga de la evaluación de cada individuo. El propósito de estos hilos es lanzar los trabajos en Hadoop por lo que la mayoría del tiempo tan solo se dedican a esperar que la ejecución de los trabajos finalicen para proseguir con la ejecución normal del proceso evolutivo. La implementación de lo anteriormente explicado se puede observar en el siguiente fragmento de código:
 
 \begin{lstlisting}[language=Java]
 	Individual[] inds = subpops[0].individuals;
@@ -114,7 +114,7 @@ Pasamos ahora a describir que es lo que hace cada uno de los hilos. Al ser hilos
 
 \subsubsection{Trabajo de la fase de entrenamiento}
 
-Este trabajo implementa las dos fases de un trabajo de Hadoop, la fase de Map y la de Reduce por lo que describiremos en que consiste cada una. La primera fase, la de Map, tiene como implementación el siguiente fragmento de c\'odigo:
+Este trabajo implementa las dos fases de un trabajo de Hadoop, la fase de Map y la de Reduce por lo que describiremos en qu\'e consiste cada una. La primera fase, la de Map, tiene como implementación el siguiente fragmento de c\'odigo:
 
  \begin{lstlisting}[language=Java]
 	@Override
@@ -184,7 +184,7 @@ Podemos observar como el método reduce recibe como entrada una lista (values) l
 
 \subsubsection{Trabajo de la fase de consulta}
 
-De la etapa de consulta del sistema de reconocimiento faciel es de lo que se encarga el trabajo de Hadoop que ahora vamos ha describir. Al igual que el anterior, este utiliza la fase de Map y la de Reduce (una sola tarea de reduce) para obtener finalmente el fitness del individuo. Mostramos en primer lugar la implementación de la fase de Map.
+De la etapa de consulta del sistema de reconocimiento facial es de lo que se encarga el trabajo de Hadoop que ahora vamos ha describir. Al igual que el anterior, este utiliza la fase de Map y la de Reduce (una sola tarea de reduce) para obtener finalmente el fitness del individuo. Mostramos en primer lugar la implementación de la fase de Map.
 
  \begin{lstlisting}[language=Java]
  	private TrainingResultsWritable trainingResults;

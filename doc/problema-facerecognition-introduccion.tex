@@ -1,6 +1,6 @@
 \label{problema-facerecognition}
 
-El reconocimiento facial se utiliza en numerosas aplicaciones hoy en día tales como sistemas de seguridad, sistemas de identificación de personas, localización, etc. Las soluciones planteadas conllevan un coste computacional alto ya que el tratamiento de imágenes y la extracción de características son tareas costosas para un computador. En este cap\'itulo describimos la aplicación a este problema real y costoso la integración entre ECJ y Hadoop, esta integración reducir\'a los tiempos de procesamiento notablemente mediante la paralelizaci\'on utilizando Hadoop y proporcionar\'a un enfoque evolutivo con el cual mejorar la efectividad del algoritmo de reconocimiento facial.
+El reconocimiento facial se utiliza en numerosas aplicaciones hoy en día tales como sistemas de seguridad, sistemas de identificación de personas, localización, etc. Las soluciones planteadas conllevan un coste computacional alto ya que el tratamiento de imágenes y la extracción de características son tareas costosas para un computador. En este cap\'itulo describimos la aplicación a este problema real y costoso la integración entre ECJ y Hadoop. Esta integración reducir\'a los tiempos de procesamiento notablemente, mediante la paralelizaci\'on utilizando Hadoop, y proporcionar\'a un enfoque evolutivo con el cual mejorar la efectividad del algoritmo de reconocimiento facial.
 
 Como se ha comentado en varias ocasiones en este documento, la integración de estas dos herramientas cobra sentido cuando el coste computacional es alto y esto se puede dar en dos situaciones, una en la que el tama\~no de la población sea elevado, lo cual no es usual en las poblaciones utilizadas con algoritmos evolutivos y otra en la que la evaluación de los individuos sea realmente costosa, este es el caso en el problema de reconocimiento facial.
 
@@ -16,7 +16,7 @@ Antes de describir en detalle el proceso, explicamos en que consiste la base de 
 
 \subsection{Fase de entrenamiento}
 
-En la primera fase llevada a cabo por el sistema de reconocimiento facial, se siguen diferentes pasos para obtener el conocimiento suficiente para poder posteriormente realizar la fase de consulta. Estos pasos se ven resumidos en el diagrama \ver{facerecognition-training} y son m\'as detalladamente explicados a continuación. 
+En la primera fase llevada a cabo por el sistema de reconocimiento facial, se siguen diferentes pasos para obtener el conocimiento suficiente para poder posteriormente realizar la fase de consulta. Estos pasos se ven resumidos en el diagrama mostrado en la figura \ref{facerecognition-training} los cuales se detallan más detenidamente a continuación.
 
 \figuraSinMarco{1}{imagenes/facerecognition-training}{Arquitectura de la fase de entrenamiento}{facerecognition-training}{}
 
@@ -43,7 +43,7 @@ En la primera fase llevada a cabo por el sistema de reconocimiento facial, se si
 
 \subsection{Fase de consulta}
 
-Obtenidos los resultados de la fase de entrenamiento, la fase de consulta puede llevarse a cabo. Al igual que la anterior, \'esta se divide en diferentes pasos que se explican a continuación, estos se ven resumidos en la siguiente imagen \ver{facerecognition-query}.
+Obtenidos los resultados de la fase de entrenamiento, la fase de consulta puede llevarse a cabo. Al igual que la anterior, \'esta se divide en diferentes pasos que se explican a continuación, estos se ven resumidos en la figura \ref{facerecognition-query}.
 
 \figuraSinMarco{1}{imagenes/facerecognition-query}{Arquitectura de la fase de consulta}{facerecognition-query}{}
 
@@ -61,7 +61,7 @@ Los pasos que se llevan a cabo son similares a los de la fase de entrenamiento, 
 	\end{enumerate}
 	\item \textbf{Conformar el vector patr\'on caracter\'istico de la imagen.} Los rasgos obtenidos de la imagen forman en esta etapa un vector que caracteriza la imagen.	
 	\item \textbf{Normalizar los patrones.} A partir de los valores de la matriz M, se toman como referencia los valores m\'aximos y m\'inimos de cada componente (obtenidos en la fase de entrenamiento) para normalizar los valores del patr\'on entre 0 y 1, de la imagen en cuesti\'on.
-	\item \textbf{Aplicar algoritmo k-NN con N = 5.} El valor del patr\'on es comparado contra los valores de las clases generadas en la etapa de entrenamiento, esta operaci\'on no es m\'as que una simple distancia euclidiana entre dos puntos. Al terminar las operaciones se obtienen las 5 im\'agenes m\'as parecidas a la imagen de consulta.
+	\item \textbf{Aplicar algoritmo k-NN con N = 5.} El valor del patr\'on es comparado con los valores de las clases generadas en la etapa de entrenamiento, esta operaci\'on no es m\'as que una simple distancia euclidiana entre dos puntos. Al terminar las operaciones se obtienen las 5 im\'agenes m\'as parecidas a la imagen de consulta.
 	\item \textbf{Asignaci\'on de classes.} En las 5 im\'agenes obtenidas se comprueba que la primera es ella misma (el patron debe ser el mismo) y que las 4 restantes corresponden a la misma persona. Con este metodo comprobamos la eficacia del algoritmo.
 \end{enumerate}
 

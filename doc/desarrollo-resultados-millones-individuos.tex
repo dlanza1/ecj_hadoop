@@ -1,6 +1,6 @@
 \label{resultados-parity}
 
-Para los problemas donde el coste de la evaluación es despreciable, la paralelizaci\'on de esta fase cobra sentido cuando la cantidad de individuos a evaluar es importante. ECJ posee un evaluador que permite paralelizar la evaluación de los individuos de manera que se use los diferentes núcleos de procesamiento que posea la m\'aquina en la que se ejecute, de este modo podemos comparar los tiempos obtenidos con una ejecución secuencial y la multihilo. En la tabla que se muestra a continuación, mostramos tiempos en segundos que toma la etapa de evaluación en diferentes ejecuciones con diferente n\'umero de individuos y utilizando ejecuciones multihilo, estos tiempos corresponden a ejecuciones del problema Parity y la m\'aquina donde se ejecut\'o disponía de 8 núcleos de procesamiento.
+Para los problemas donde el coste de la evaluación es despreciable, la paralelizaci\'on de esta fase cobra sentido cuando la cantidad de individuos a evaluar es importante. ECJ posee un evaluador que permite paralelizar la evaluación de los individuos de manera que se usen los diferentes núcleos de procesamiento que posea la m\'aquina en la que se ejecute, de este modo podemos comparar los tiempos obtenidos con una ejecución secuencial frente a una ejecuci\'on multihilo. En la tabla que se muestra a continuación, mostramos el tiempo (en segundos) que toma la etapa de evaluación en diferentes ejecuciones con diferente n\'umero de individuos y utilizando ejecuciones multihilo, estos tiempos corresponden a ejecuciones del problema Parity. La m\'aquina donde se ejecut\'o disponía de 8 núcleos para procesamiento.
 
 \begin{table}[H]
   \begin{center}
@@ -21,14 +21,15 @@ Para los problemas donde el coste de la evaluación es despreciable, la paraleli
   \end{center}
 \end{table}
 
-Observamos claramente como los tiempos son directamente proporcionales al n\'umero de individuos e indirectamente proporcionales al n\'uero de hilos que utilicemos para la evaluación. Como se puede apreciar con ejecuciones de millones de individuos, incluso utilizando 8 hilos de procesamiento, nos acercamos a tiempos del orden de minutos, teniendo en cuenta que esto debemos hacerlo por generación, la evaluación de los individuos empieza a ser un problema. 
+Observamos claramente como los tiempos son directamente proporcionales al n\'umero de individuos e indirectamente proporcionales al n\'umero de hilos que utilicemos para la evaluación. Como se puede apreciar con ejecuciones de millones de individuos, incluso utilizando 8 hilos de procesamiento, nos acercamos a tiempos del orden de minutos. Si tenemos en cuenta que esto debemos hacerlo por generación, la evaluación de los individuos empieza a ser un problema. 
 
 \subsubsection{Resultados sin mejoras}
 
 Abordamos ahora una ejecución utilizando la implementación realizada, de manera que los individuos se evalúen a lo largo de un cluster utilizando cada una de las m\'aquinas disponibles y los núcleos de procesamiento de cada una. Las ejecuciones realizadas hicieron uso de un cluster de 7 m\'aquinas interconectadas donde se encuentra desplegada la herramienta Hadoop. 
 
 Como se mencion\'o anteriormente \verapartado{mejoras}, se hizo una implementación inicial y posteriormente se incluyeron mejoras. Los tiempos que se muestran \vertabla{tabla_tiempos_hadoop_sin_mejoras} son los obtenidos con la implementación inicial.
-\label{resultados-mejoras}
+
+\label{resultados-sin-mejoras}
 
 \begin{table}[H]
   \begin{center}
@@ -44,18 +45,18 @@ Como se mencion\'o anteriormente \verapartado{mejoras}, se hizo una implementaci
     1.500.000 & 198\\
     \end{tabular}
     \end{center}
-    \caption{Tiempos de ejecución utilizando la integración con Hadoop sin los mejoras}
+    \caption{Tiempos de ejecuci\'on utilizando la integraci\'on con Hadoop sin los mejoras}
     \label{tabla_tiempos_hadoop_sin_mejoras}
   \end{center}
 \end{table}
 
-Se muestra una gráfica \ver{maxone-results-without-improvements} donde se observan los tiempos de la tabla anterior comparados con los tiempos de las diferentes ejecuciones sin la integración con Hadoop.
+La gr\'afica \ref{maxone-results-without-improvements} muestra los tiempos de la tabla \ref{tabla_tiempos_hadoop_sin_mejoras}, comparando las diferentes ejecuciones sin la integración de Hadoop frente a la nueva integración de Hadoop pero sin las mejoras descritas en el apartado \ref{desarrollo-problema-mejoras}.
 
-\figuraSinMarco{1}{imagenes/maxone-results-without-improvements}{Comparaci\'on de tiempos de evaluaci\'on sin y con la integraci\'on (sin mejoras)}{maxone-results-without-improvements}{}
+\figuraSinMarco{1}{imagenes/maxone-results-without-improvements}{Comparaci\'on de tiempos de evaluaci\'on con configuraciones multihilo frente a la integraci\'on de Hadoop sin mejoras}{maxone-results-without-improvements}{}
 
-Observamos que si lo comparamos con una ejecuci\'on secuencial (l\'inea roja), el uso de la implementaci\'on realizada mejora los tiempos con pocos miles de individuos, sin embargo, necesita alcanzar los 100.000 individuos para mejorar los tiempos de la ejecución con 2 hilos y hasta los 300.000 individuos para mejorar los de la ejecución con 4 hilos. Por otro lado observamos que los tiempos de la ejecución con 8 hilos nunca son alcanzados, llegando incluso a empeorar notablemente con una ejecución de un millón y medio de individuos.
+La figura \ref{maxone-results-without-improvements} muestra la comparación de múlpiles configuraciones multihilo frente a ejecuciones del problema en el entorno de Hadoop sin mejoras aplicadas. Observamos que si lo comparamos con una ejecuci\'on secuencial (l\'inea roja), el uso de la implementaci\'on realizada (l\'inea azul, Hadoop) mejora los tiempos con pocos miles de individuos, sin embargo, necesita alcanzar los 100.000 individuos para mejorar los tiempos de la ejecución con 2 hilos y hasta los 300.000 individuos para mejorar los de la ejecución con 4 hilos. Por otro lado, observamos que los tiempos de la ejecución con 8 hilos nunca son alcanzados, llegando incluso a empeorar notablemente con una ejecución de un millón y medio de individuos.
 
- \subsubsection{Resultados con mejoras}
+ \subsubsection{Resultados con mejoras} \label{resultados-mejoras}
 
 Analizamos ahora los tiempos tras la introducción de las mejoras descritas \verapartado{mejoras}, estos tiempos se muestran a continuación \vertabla{tabla_tiempos_hadoop_con_mejoras}.
 
@@ -75,16 +76,16 @@ Analizamos ahora los tiempos tras la introducción de las mejoras descritas \ver
     3.000.000 & 141\\
     \end{tabular}
     \end{center}
-    \caption{Tiempos de ejecución utilizando la integración con Hadoop con los mejoras}
+    \caption{Tiempos de ejecuci\'on utilizando la integraci\'on con Hadoop con los mejoras}
     \label{tabla_tiempos_hadoop_con_mejoras}
   \end{center}
 \end{table}
 
 Al igual que lo hicimos con los resultados sin las mejoras, comparamos en una gráfica estos tiempos con la ejecución secuencial y con hilos \ver{maxone-results-with-improvements}.
 
-\figuraSinMarco{1}{imagenes/maxone-results-with-improvements}{Comparaci\'on de tiempos de evaluaci\'on sin y con la integraci\'on (con mejoras)}{maxone-results-with-improvements}{}
+\figuraSinMarco{1}{imagenes/maxone-results-with-improvements}{Comparaci\'on de tiempos de evaluaci\'on con configuraciones multihilo frente a la integraci\'on de Hadoop con mejoras}{maxone-results-with-improvements}{}
 
 Ahora observamos como los tiempos obtenidos ejecutando la fase de evaluación con Hadoop han mejorado notablemente, disminuyendo los tiempos de la ejecución secuencial, 2 y 4 hilos con un tamaño de la población no muy elevado, llegando a mejorar los tiempos de la ejecuci\'on con 8 hilos con una población no superior a los 500.000 individuos.
 
-
+Una vez que hemos demostrado que las integraciones de Hadoop en los diferentes problemas propuestos, MaxOne y Parity, obtiene resultados prometedores, el siguiente paso será aplicar dichas mejoras a un problema real, como es el reconocimiento facial. Este es un problema muy costoso, computacionalmente hablando, por lo que a lo largo del siguiente cap\'itulo describiremos como se ha abordado desde el punto de vista de la aplicación de algoritmos evolutivos masivamente paralelos.
 

@@ -117,15 +117,15 @@
 	\setlength{\unitlength}{1 cm}
 	\thispagestyle{empty}
 	\begin{picture}(18,4)
-	\put(0,0){\includegraphics[width=4cm,height=4cm]{imagenes/cumlogo.jpg}}
-	\put(10,0){\includegraphics[width=4cm,height=4cm]{imagenes/uexlogo.jpg}}
+	\put(0,0){\includegraphics[width=3.3cm,height=4cm]{imagenes/uexlogo.jpg}}
+	\put(10,0){\includegraphics[width=4cm,height=4cm]{imagenes/cumlogo.jpg}}
 	\end{picture}
 	\\[1.5cm]
 	\begin{center}
 	\textbf{{\LARGE UNIVERSIDAD DE EXTREMADURA}\\[0.6cm]
 	{\LARGE CENTRO UNIVERSITARIO DE M\'ERIDA}}\\[0.8cm]
-	{\Large INGENIERO EN INFORM\'ATICA EN TECNOLOG\'IAS DE LA INFORMACI\'ON}\\[1.0cm]
-	{\Large PROYECTO FIN DE GRADO}\\[1cm]
+	{\Large GRADO EN INGENIER\'IA INFORM\'ATICA EN TECNOLOG\'IAS DE LA INFORMACI\'ON}\\[1.0cm]
+	{\Large TRABAJO FIN DE GRADO}\\[1cm]
 	{\Huge \textbf {INTEGRACI\'ON DE UNA}}\\
 	{\Huge \textbf {HERRAMIENTA DE C\'OMPUTO}}\\[0.25cm]
 	{\Huge \textbf {EVOLUTIVO CON UNA DE}}\\[0.25cm]
@@ -142,6 +142,13 @@
 	{\large Autor: Daniel Lanza Garc\'ia}\\[0.5cm]
 }
 
+\newcommand{\insertarautorfd}{
+
+		{\large Autor: Daniel Lanza Garc\'ia}\\
+		{\large Fdo.:}\\[0.9cm]
+
+}
+
 \newcommand{\hacerportada}{
 	\insertarsuperiorportada
 	\vspace{4cm}
@@ -151,11 +158,16 @@
 
 \newcommand{\hacercontraportada}{
 	\insertarsuperiorportada
-	\vspace{2cm}
-	\insertarautor
-	{\large Director: Francisco Fern\'andez de Vega}\\[0.3cm]
-	{\large Codirector: Francisco Ch\'avez de la O}\\[0.3cm]
-	\vspace{0,5cm}
+	\vspace{0.6cm}
+	
+	\begin{flushleft}
+		\insertarautorfd
+		{\large Directores: Francisco Fern\'andez de Vega y Francisco Ch\'avez de la O}\\
+		{\large Fdo.:}\\[0.7cm]
+	\end{flushleft}
+	
+	\vspace{1cm}
+	
 	\insertarinferiorportada
 }
 
