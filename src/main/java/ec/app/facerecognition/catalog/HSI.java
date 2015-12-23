@@ -25,6 +25,11 @@ public class HSI {
 	MatE i;
 
 	public HSI(RGB rgb) {
+		
+		long sstartTime = System.currentTimeMillis();
+		
+		long startTime = System.currentTimeMillis();
+		
 		h = new MatE();
 		s = new MatE();
 		i = new MatE();
@@ -37,6 +42,9 @@ public class HSI {
 		Core.subtract(rgb.r, rgb.b, parcial1);
 		Core.add(parcial, parcial1, h);
 		
+		System.out.println("      " + (System.currentTimeMillis() - startTime) + " ms (1)");
+		startTime = System.currentTimeMillis();
+		
 		Core.pow(parcial, 2, parcial2); 
 		Core.subtract(rgb.g, rgb.b, parcial);
 		Core.multiply(parcial1, parcial, parcial);
@@ -46,11 +54,17 @@ public class HSI {
 		Core.multiply(h, new Scalar(0.5), parcial);
 		Core.divide(parcial, parcial1, parcial);
 		
+		System.out.println("      " + (System.currentTimeMillis() - startTime) + " ms (2)");
+		startTime = System.currentTimeMillis();
+		
 		parcial1 = parcial.getAngle(rgb.b, rgb.g);
 		parcial1.convertTo(parcial1, CvType.CV_8U, 255, 0);
 		Imgproc.equalizeHist(parcial1, h);
 		h.convertTo(h, CvType.CV_64F, 1.0 / 255.0);
-
+		
+		System.out.println("      " + (System.currentTimeMillis() - startTime) + " ms (3)");
+		startTime = System.currentTimeMillis();
+		
 		Core.divide(h, new Scalar(2 * Math.PI), h);
 		Core.min(rgb.r, rgb.g, parcial1);
 		Core.min(parcial1, rgb.b, parcial1);
@@ -62,6 +76,9 @@ public class HSI {
 		Scalar valorS1 = new Scalar(-1.0);
 		Core.multiply(s, valorS, s);
 		Core.subtract(s, valorS1, s);
+		
+		System.out.println("      " + (System.currentTimeMillis() - startTime) + " ms (4)");
+		startTime = System.currentTimeMillis();
 
 		Core.add(rgb.r, rgb.g, parcial);
 		Core.add(rgb.b, parcial, parcial);
@@ -74,10 +91,18 @@ public class HSI {
 		Imgproc.equalizeHist(s, s);
 		s.convertTo(s, CvType.CV_64F, 1.0 / 255.0);
 		
+		System.out.println("      " + (System.currentTimeMillis() - startTime) + " ms (5)");
+		startTime = System.currentTimeMillis();
+		
 		rgb.release();
 		parcial.release();
 		parcial1.release();
 		parcial2.release();
+		
+		System.out.println("      " + (System.currentTimeMillis() - startTime) + " ms (6)");
+		startTime = System.currentTimeMillis();
+		
+		System.out.println("    " + (System.currentTimeMillis() - sstartTime) + " ms (hsi)");
 	}
 	
 	public HSI(RGB rgb, boolean old) {

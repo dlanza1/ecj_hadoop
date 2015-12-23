@@ -20,6 +20,7 @@ package ec.app.facerecognition.hadoop.input;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.hadoop.classification.InterfaceAudience;
@@ -69,8 +70,9 @@ public abstract class MultiFileInputFormat<K, V> extends FileInputFormat<K, V> {
 			long[] lengths = new long[paths.length];
 			long totLength = 0;
 			for (int i = 0; i < paths.length; i++) {
-				FileSystem fs = paths[i].getFileSystem(jobContext.getConfiguration());
-				lengths[i] = fs.getContentSummary(paths[i]).getLength();
+				//FileSystem fs = paths[i].getFileSystem(jobContext.getConfiguration());
+				//lengths[i] = fs.getContentSummary(paths[i]).getLength();
+				lengths[i] = 100;
 				totLength += lengths[i];
 			}
 			double avgLengthPerSplit = ((double) totLength) / numSplits;
@@ -86,10 +88,8 @@ public abstract class MultiFileInputFormat<K, V> extends FileInputFormat<K, V> {
 					// equals to 0
 					Path[] splitPaths = new Path[splitSize];
 					long[] splitLengths = new long[splitSize];
-					System.arraycopy(paths, startIndex, splitPaths, 0,
-							splitSize);
-					System.arraycopy(lengths, startIndex, splitLengths, 0,
-							splitSize);
+					System.arraycopy(paths, startIndex, splitPaths, 0, splitSize);
+					System.arraycopy(lengths, startIndex, splitLengths, 0, splitSize);
 					splits.add(new CombineFileSplit(splitPaths, splitLengths));
 					startIndex += splitSize;
 					for (long l : splitLengths) {

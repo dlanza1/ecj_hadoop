@@ -61,10 +61,12 @@ public class Image {
 	}
 	
 	public MatE getParameters(int radius){
+		long startTime = System.currentTimeMillis();
 		HSI hsi = getHSI();
 		MatE H = hsi.getH();
 		MatE S = hsi.getS();
 		MatE I = hsi.getI();
+		System.out.println("  " + (System.currentTimeMillis() - startTime) + " ms (hsi)");
 
 		MatE ROI = new MatE();
 		MatOfDouble mean = new MatOfDouble();
@@ -72,6 +74,7 @@ public class Image {
 		
 		MatE params = new MatE(Mat.zeros(poi.size(), NUMBER_OF_PARAMS, CvType.CV_64F));
 
+		startTime = System.currentTimeMillis();
 		for (POI poi : poi) {
 			int num_poi = poi.getNum();
 			
@@ -93,11 +96,14 @@ public class Image {
 			params.put(num_poi, 5, stdev.get(0, 0)[0]);
 			params.put(num_poi, 8, ROI.homogeinity());
 		}
+		System.out.println("  " + (System.currentTimeMillis() - startTime) + " ms (poi)");
 		
+		startTime = System.currentTimeMillis();
 		hsi.release();
 		ROI.release();
 		mean.release();
 		stdev.release();
+		System.out.println("  " + (System.currentTimeMillis() - startTime) + " ms (release)");
 		
 		return params;
 	}

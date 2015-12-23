@@ -67,10 +67,11 @@ public class Recuperacion {
 			lineaNombre = nombreImagen.readLine();// lee la imagen que se
 													// procesara
 			// System.out.println("\nimagen: " + lineaNombre);
-
+			if(j%2 == 0)
+				System.gc();
+			
 			image = new MatE(Highgui.imread("res/img/" + lineaNombre));
-			System.out.println("\nImagen rec " + j + ": " + "res/img/"
-					+ lineaNombre);
+			//System.out.println("\nImagen rec " + j + ": " + "res/img/"+ lineaNombre);
 			lineaPuntos = puntosImagen.readLine();// lee la linea de puntos de
 													// la imagen
 

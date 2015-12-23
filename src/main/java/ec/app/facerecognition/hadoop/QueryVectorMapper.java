@@ -24,6 +24,29 @@ public class QueryVectorMapper extends Mapper<NullWritable, ImageWritable, MatEW
 	private TrainingResultsWritable trainingResults;
 	
 	@Override
+	public void run(
+			Mapper<NullWritable, ImageWritable, MatEWritable, MatEWithIDWritable>.Context context
+			) throws IOException, InterruptedException {
+		setup(context);
+		try {
+			long startTime = System.currentTimeMillis();
+			
+			int i = 0;
+			while (context.nextKeyValue()) {
+				map(context.getCurrentKey(), context.getCurrentValue(), context);
+				i++;
+				
+				if(i % 50 == 0) 
+					System.gc();
+			}
+			
+			System.out.println((System.currentTimeMillis() - startTime) + " ms to run the loop");
+		} finally {
+			cleanup(context);
+		}
+	}
+	
+	@Override
 	protected void setup(Context context) throws IOException, InterruptedException {
 		Configuration conf = context.getConfiguration();
 		
@@ -54,13 +77,13 @@ public class QueryVectorMapper extends Mapper<NullWritable, ImageWritable, MatEW
 		
 		MatE normalized_params = image.getParameters(windows_size).normalize(trainingResults.getMaxPerCol());
 		
-		System.out.println("Normalized params:");
-		System.out.println(normalized_params);
+//		System.out.println("Normalized params:");
+//		System.out.println(normalized_params);
 		
 		MatE idCenters = knn(trainingResults.getCenters(), normalized_params);
 
-		System.out.println("ID centers:");
-		System.out.println(idCenters);
+//		System.out.println("ID centers:");
+//		System.out.println(idCenters);
 		
 		MatE queryVector = MatE.zeros(1, trainingResults.getCenters().rows(), CvType.CV_64F);
 		
@@ -70,8 +93,8 @@ public class QueryVectorMapper extends Mapper<NullWritable, ImageWritable, MatEW
 			queryVector.put(0, x, y + 1);
 		}
 		
-		System.out.println("Query vector:");
-		System.out.println(queryVector);
+//		System.out.println("Query vector:");
+//		System.out.println(queryVector);
 		
 		context.write(new MatEWritable(trainingResults.getTextureIndexMatrix()), 
 						new MatEWithIDWritable(image.getId(), queryVector));

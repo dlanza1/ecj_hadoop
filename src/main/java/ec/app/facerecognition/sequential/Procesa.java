@@ -60,7 +60,9 @@ public class Procesa {
 														// procesara
 
 
-				System.out.println("\nimagen "+j+ ": " + lineaNombre);
+				//System.out.println("\nimagen "+j+ ": " + lineaNombre);
+				if(j%2 == 0)
+					System.gc();
 
 				image = Highgui.imread("res/img/" + lineaNombre);
 
@@ -108,7 +110,7 @@ public class Procesa {
 				llenaMatRef(j, matRef, puntos, h, s, i);// Llena la matriz de
 														// referencia
 				
-//				System.out.println(System.currentTimeMillis() - image_time + " ms (total imagen) ");
+				//System.out.println(System.currentTimeMillis() - image_time + " ms (total imagen) ");
 				image_time = System.currentTimeMillis();
 			}
 		} catch (Exception e) {
@@ -363,8 +365,8 @@ public class Procesa {
 			}
 		}
 
-		System.out.println("valores:"+valor.get(0, 0)[0]+valor.get(0, 1)[0]+","+valor.get(0, 2)[0]+","+valor.get(0, 3)[0]+","+valor.get(0, 4)[0]+","+valor.get(0, 5)[0]+","+valor.get(0, 6)[0]+","+valor.get(0, 7)[0]+","+valor.get(0, 8)[0]);
-		System.out.println(" valref:"+val[0]+","+val[1]+","+val[2]+","+val[3]+","+val[4]+","+val[5]+","+val[6]+","+val[7]+","+val[8]);
+//		System.out.println("valores:"+valor.get(0, 0)[0]+valor.get(0, 1)[0]+","+valor.get(0, 2)[0]+","+valor.get(0, 3)[0]+","+valor.get(0, 4)[0]+","+valor.get(0, 5)[0]+","+valor.get(0, 6)[0]+","+valor.get(0, 7)[0]+","+valor.get(0, 8)[0]);
+//		System.out.println(" valref:"+val[0]+","+val[1]+","+val[2]+","+val[3]+","+val[4]+","+val[5]+","+val[6]+","+val[7]+","+val[8]);
 	}
 
 	// Aplica el clasificador K-means para obtener la matriz de indices de

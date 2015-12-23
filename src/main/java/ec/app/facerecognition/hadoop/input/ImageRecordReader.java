@@ -62,6 +62,8 @@ public class ImageRecordReader extends RecordReader<NullWritable, ImageWritable>
 	@Override
 	public void initialize(InputSplit inputSplit, TaskAttemptContext context)
 			throws IOException, InterruptedException {
+		long startTime = System.currentTimeMillis();
+		
 		HashMap<String, Path> split_paths = pathToMap(((CombineFileSplit) inputSplit).getPaths());
 		
 		String filterPath_s = context.getConfiguration().get(IMAGES_FILE_PARAM);
@@ -150,6 +152,8 @@ public class ImageRecordReader extends RecordReader<NullWritable, ImageWritable>
 		br_poi.close();
 		
 		this.images = images.iterator();
+		
+		System.out.println((System.currentTimeMillis() - startTime) + " ms to initialize ImageRecordReader");
 	}
 
 	private HashMap<String, Path> pathToMap(Path[] paths) {
